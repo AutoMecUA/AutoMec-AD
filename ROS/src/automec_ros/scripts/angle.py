@@ -37,16 +37,17 @@
 ## to the 'chatter' topic
 
 import rospy
-from std_msgs.msg import String
+import random
+from std_msgs.msg import Int16
 
 def talker():
-    pub = rospy.Publisher('chatter', String, queue_size=10)
-    rospy.init_node('talker', anonymous=True)
-    rate = rospy.Rate(10) # 10hz
+    pub = rospy.Publisher('servo', Int16, queue_size=10)
+    rospy.init_node('angle', anonymous=True)
+    rate = rospy.Rate(10) # 1hz
     while not rospy.is_shutdown():
-        hello_str = "hello world %s" % rospy.get_time()
-        rospy.loginfo(hello_str)
-        pub.publish(hello_str)
+        angle = random.randint(0,180)
+        rospy.loginfo(angle)
+        pub.publish(angle)
         rate.sleep()
 
 if __name__ == '__main__':
