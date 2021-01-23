@@ -4,6 +4,7 @@ import numpy as np
 # From:
 # https://medium.com/@yogeshojha/self-driving-cars-beginners-guide-to-computer-vision-finding-simple-lane-lines-using-python-a4977015e232
 
+# TODO test
 
 def make_points(image, line_parameters):
     slope, intercept = line_parameters
