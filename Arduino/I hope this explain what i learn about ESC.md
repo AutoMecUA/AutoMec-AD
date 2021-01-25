@@ -74,6 +74,6 @@ So on this mode:
 
 ### **NOTE:** all of this possibilities are available, and the most quick away to find out where are config point is locking for the led in ESC and change the value of what are being writing and when the led blink you will know this value is the config point
 
-# What exactly is the config point?~
+# What exactly is the config point?
 
 The config point is the starting point of our control of velocity, and for a good setup we should start writing this value.
