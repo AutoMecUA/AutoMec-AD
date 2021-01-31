@@ -12,6 +12,10 @@
  * http://www.arduino.cc/en/Reference/Servo
  */
 
+// !!!!!!!!!!!!!!!!!   IMPORTANTE   !!!!!!!!!!!
+// rosrun rosserial_python serial_node.py /dev/ttyACM1
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 #if defined(ARDUINO) && ARDUINO >= 100
   #include "Arduino.h"
 #else
@@ -32,7 +36,7 @@ void servo_cb( const std_msgs::Int16 & cmd_msg){
 }
 
 
-ros::Subscriber<std_msgs::Int16> sub("servo", servo_cb);
+ros::Subscriber<std_msgs::Int16> sub("pub_dir", servo_cb);
 
 void setup(){
   //pinMode(LED_BUILTIN, OUTPUT);
@@ -40,10 +44,12 @@ void setup(){
   nh.initNode();
   nh.subscribe(sub);
   
-  servo.attach(7); //attach it to pin 9
+  servo.attach(9); //attach it to pin 9
 }
 
 void loop(){
   nh.spinOnce();
   delay(1);
 } 
+
+
