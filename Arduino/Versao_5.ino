@@ -11,8 +11,9 @@ int potValue;  // value from the analog pin
 
 void setup() {
   // Attach the ESC on pin 9
-  ESC.attach(9); // (pin, min pulse width, max pulse width in microseconds) 
+  ESC.attach(6); // (pin, min pulse width, max pulse width in microseconds) 
   Serial.begin(9600);
+
 }
 
 
@@ -23,28 +24,30 @@ void loop() {
   Serial.println(digitalRead(9));
 }
 
-//void loop(){
+// void loop(){
 //  ESC.write(90); //posição neutra
-//  delay(1000);
-//
+//  delay(2000);
+
 //  //inicio de aceleração forward
 //  for(int pos=90; pos<180; pos=pos+1){
 //    ESC.write(pos);
-//    delay(500);
+//    Serial.println(pos);
+//    delay(00);
 //    }
-//
+
 //  //retorno a posição neutra  
 //  ESC.write(90);
 //  delay(1000);
-//
+
 //  //rampa de aceleração backward
 //  for(int pos=90; pos>0; pos=pos-1){
 //    ESC.write(pos);
-//    delay(500);
+//    Serial.println(pos);
+//    delay(100);
 //    }
-//
-//
+
+
 //  //retorno a posição neutra  
 //  ESC.write(90);
-//  delay(1000);
+//  delay(2000);
 //  }

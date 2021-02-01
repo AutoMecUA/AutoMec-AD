@@ -85,7 +85,9 @@ def messageReceivedCallback(message):
     
 
     PubDir.publish(int(AngleOut))
+    print("Sending angle: "+ str(AngleOut))
     PubVel.publish(int(VelOut))
+    print("Sending Velocity: "+ str(VelOut))
     
 
 
