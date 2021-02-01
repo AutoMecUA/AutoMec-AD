@@ -76,7 +76,7 @@ def messageReceivedCallback(message):
             
 
 
-    VelOut = mv1 * float(message.linear.x) + bv1
+    VelOut = mv1 * linear + bv1
 
 
 
