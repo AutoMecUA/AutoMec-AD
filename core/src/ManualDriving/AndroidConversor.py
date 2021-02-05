@@ -62,6 +62,7 @@ def messageReceivedCallback(message):
     #Code to when going forward (coming from backward), pause 2 seconds, and then go
 
 
+
     if not BreakMode:
         if linear < 0:
             Forward = False
@@ -85,9 +86,7 @@ def messageReceivedCallback(message):
     
 
     PubDir.publish(int(AngleOut))
-    print("Sending angle: "+ str(AngleOut))
     PubVel.publish(int(VelOut))
-    print("Sending Velocity: "+ str(VelOut))
     
 
 

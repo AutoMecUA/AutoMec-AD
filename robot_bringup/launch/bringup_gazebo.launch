@@ -1,0 +1,20 @@
+<launch>
+    <!--Bloco 2: Criação de um world om gazebo.-->
+ <include file="$(find gazebo_ros)/launch/empty_world.launch">
+       <arg name="world_name" default="$(find th_description)/worlds/th_arena.world"/>        <arg name="paused" value="false"/>-->
+        <arg name="use_sim_time" value="true"/>
+        <arg name="gui" value="true"/>
+        <arg name="headless" value="false"/>
+        <arg name="debug" value="false"/>
+    </include>
+
+
+<!--        <include file="$(find gazebo_ros)/launch/empty_world.launch">--> -->
+<!--      <arg name="world_name" value="$(find pari_fnr)/worlds/fnr.world"/> -->
+<!--        <arg name="paused" value="false"/>--> -->
+<!--        <arg name="use_sim_time" value="true"/>--> -->
+<!--        <arg name="gui" value="true"/>--> -->
+<!--        <arg name="headless" value="false"/>--> -->
+<!--        <arg name="debug" value="false"/>--> -->
+<!--    </include>--> -->
+</launch>
