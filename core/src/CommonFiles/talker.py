@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Software License Agreement (BSD License)
 #
 # Copyright (c) 2008, Willow Garage, Inc.
@@ -55,3 +55,4 @@ if __name__ == '__main__':
         talker()
     except rospy.ROSInterruptException:
         pass
+

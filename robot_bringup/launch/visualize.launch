@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<launch>
+   <!-- Launch rviz, loading configuration file -->
+
+    <arg name="player_name" default="robot"/>
+
+
+    <remap from="/move_base_simple/goal" to="$(arg player_name)/move_base_simple/goal"/>
+       <!-- Launch rviz, loading configuration file -->
+    <node name="rviz" pkg="rviz" type="rviz"
+          args="--display-config $(find robot_bringup)/config/viz.rviz" required="false"/>
+</launch>

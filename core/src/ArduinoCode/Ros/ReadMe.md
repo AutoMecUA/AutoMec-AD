@@ -1,6 +1,6 @@
 # How this works?
 
-the aim of this project is to use the arduino to control an RC car. In this section, we must connect the ROS to the arduino serial port. For this, the main objective is that the arduino can hear the topics pub_dir and pub_vel, something like the following image (still incomplete)
+the aim of this project is to use the arduino to control an RC car. In this section, we must connect the ROS to the arduino serial port. For this, the main objective is that the arduino can hear the topics pub_dir and pub_vel, something like the following image.
 
 ![Goal](pics/rqp_graph.png)
 
@@ -15,13 +15,15 @@ to work it is necessary to run a publisher for each speed, still just an imagina
 
     roscore
 
-#### 2 run the publisher
+#### 2 run rosserial
+
+    rosrun rosserial_python serial_node.py <arduino port>
+
+#### 3 run the publisher
 
     ./Arduino/Ros/publish_dir.py 
 
-#### 3 run rosserial
 
-    rosrun rosserial_python serial_node.py <arduino port>
 
 example of arduino port:
 
