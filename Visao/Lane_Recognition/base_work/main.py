@@ -150,11 +150,15 @@ def lane_detector(img_path, **parameters) -> np.ndarray:
 
 if __name__ == '__main__':
 
-    im_path = "road_photos/road2.jpeg"
-
-    lane_detector(im_path,
-                  blur_level=7,
-                  blur_funct=cv2.GaussianBlur,
-                  thresholds=(50, 150),
-                  polygon=[(0, .1), (.5, .55), (1.0, .1)]
-                  )
+    for i in range(1, 16):
+        im_path = f"../../images/img{i}.jpeg"
+        print(f"\nImage {i}:")
+        try:
+            lane_detector(img_path=im_path,
+                          blur_level=7,
+                          blur_funct=cv2.GaussianBlur,
+                          thresholds=(50, 150),
+                          polygon=[(0, .1), (.5, .55), (1.0, .1)]
+                          )
+        except AssertionError:
+            print(f"No lines found in images/img{i}.jpeg")
