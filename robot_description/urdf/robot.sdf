@@ -1,5 +1,5 @@
 <sdf version='1.6'>
-  <model name='p_g5'>
+  <model name='robot'>
     <link name='base_footprint'>
       <pose frame=''>0 0 0 0 -0 0</pose>
       <inertial>

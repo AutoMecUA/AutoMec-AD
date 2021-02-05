@@ -125,14 +125,14 @@ Visualization Manager:
           Show Trail: false
           Value: true
       Name: RobotModel
-      Robot Description: p_g5/robot_description
+      Robot Description: robot/robot_description
       TF Prefix: p_g5
       Update Interval: 0
       Value: true
       Visual Enabled: true
     - Class: rviz/Image
       Enabled: true
-      Image Topic: /p_g5/camera/rgb/image_raw
+      Image Topic: /robot/camera/rgb/image_raw
       Max Value: 1
       Median window: 5
       Min Value: 0
@@ -178,7 +178,7 @@ Visualization Manager:
       Draw Behind: false
       Enabled: true
       Name: Map
-      Topic: /p_g5/map
+      Topic: /robot/map
       Unreliable: false
       Use Timestamp: false
       Value: true
@@ -186,7 +186,7 @@ Visualization Manager:
   Global Options:
     Background Color: 48; 48; 48
     Default Light: true
-    Fixed Frame: p_g5/odom
+    Fixed Frame: robot/odom
     Frame Rate: 30
   Name: root
   Tools:
