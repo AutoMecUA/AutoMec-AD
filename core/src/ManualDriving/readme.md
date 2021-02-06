@@ -4,19 +4,43 @@
  - [App RosControl](#App-RosControl)
  - [PS3 Controller](#PS3Controller)
 
- # App RosControl
 
- * Run AndroidConversor
+# How this works?
 
-First, launch de Ros Master,
+the aim of this project is to use the arduino to control an RC car. In this section, we must connect the ROS to the arduino serial port. For this, the main objective is that the arduino can hear the topics pub_dir and pub_vel, something like the following image.
+
+![Goal](Images/rqp_graph.png)
+
+# How make this work?
+
+to work it is necessary to run a publisher for each speed, still just an imaginary of the dir done, and a subcritor that runs on the arduino and will read the messages that come to it
+
+# Comand sequence!
+(of course, first off all download the .ino file to arduino)
+
+#### 1º run a master for all nodes with this command 
 
     roscore
 
-Second, launch the conversor,
+#### 2º run rosserial
+
+    rosrun rosserial_python serial_node.py <arduino port>
+
+example of arduino port:
+
+- /dev/ttyACM1 
+
+#### 3º run the RosControl Conversor
 
     rosrun core AndroidConversor.py
 
 
+
+   
+
+
+
+ # App RosControl
 
 * Ros Control Instalation
 
@@ -39,15 +63,6 @@ Now, click in Show Advanced Options and change the Joystick Topic to "android_in
 It should be noted that the two devices need to be connected to the same network. If there are problems with the wireless network, make a hotspot with mobile data.
 
 Now, just press OK!
-
-
-
-
-
-
-
-
-
 
 
 
