@@ -8,7 +8,6 @@
         <arg name="debug" value="false"/>
     </include>
 
-
 <!--        <include file="$(find gazebo_ros)/launch/empty_world.launch">--> -->
 <!--      <arg name="world_name" value="$(find pari_fnr)/worlds/fnr.world"/> -->
 <!--        <arg name="paused" value="false"/>--> -->
