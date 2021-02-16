@@ -6,6 +6,8 @@ import numpy as np
 import rospy
 from sensor_msgs.msg import Image, LaserScan
 from cv_bridge import CvBridge
+from sklearn.model_selection import GridSearchCV
+
 
 def make_points(image, line_parameters):
     slope, intercept = line_parameters
@@ -60,17 +62,34 @@ def canny_edge_detector(image):
     # Convert the image color to grayscale
     gray_image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
 
-    # Reduce noise from the image
-    blur = cv2.GaussianBlur(gray_image, (5, 5), 0)
-    canny = cv2.Canny(blur, 50, 150)
-    return canny
+    th, canny = cv2.threshold(gray_image, 128, 255, cv2.THRESH_BINARY)
+
+    num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(canny, 8, cv2.CV_32S)
+
+    label = []
+    n = 0
+    for i in range(1, num_labels):
+        area = stats[i][cv2.CC_STAT_AREA]
+        height=stats[i][cv2.CC_STAT_HEIGHT]
+
+        if area > 200 and height>30:
+            label.insert(n, i)
+            n += 1
+
+    #Só apanhar Maiores partes branca
+    nb_components, output, stats, centroids = cv2.connectedComponentsWithStats(canny, connectivity=8)
+    img2 = np.zeros(output.shape)
+    for i in range(0,len(label)):
+        img2[output == label[i]] = 255
+
+    return img2
 
 def region_of_interest(image):
     height = image.shape[0]
     width = image.shape[1]
-    alpha=1.1
+    alpha=0
     #Define vertices
-    polygons = np.array([[(0, height-100), (width-200, height-100), (round(width/2), round((height/2)*alpha))]])
+    polygons = np.array([[(0, height), (width, height), (round(width/2), round((height/2)*alpha))]])
     mask = np.zeros_like(image)
 
     # Fill poly-function deals with multiple polygon
@@ -91,42 +110,19 @@ def Image_GET(image):
     #cropped_image = region_of_interest(mask_canny)
     cropped_image = region_of_interest(mask_canny)
     cv2.imshow("results- Cut", cropped_image)
-    lines = cv2.HoughLinesP(cropped_image, 2, np.pi / 180, 100, np.array([]), minLineLength=20,maxLineGap=200)
+    #lines = cv2.HoughLinesP(cropped_image, 2, np.pi / 180, 100, np.array([]), minLineLength=20,maxLineGap=200)
 
-    averaged_lines = average_slope_intercept(cropped_image, lines)
+    #averaged_lines = average_slope_intercept(cropped_image, lines)
 
-    line_image = display_lines(cv_image, averaged_lines)
-    combo_image = cv2.addWeighted(cv_image, 0.8, line_image, 1, 1)
-    cv2.imshow("results", combo_image)
+    #line_image = display_lines(cv_image, averaged_lines)
+    #combo_image = cv2.addWeighted(cv_image, 0.8, line_image, 1, 1)
+    #cv2.imshow("results", combo_image)
 
 
     #image_interest = region_of_interest(mask_canny)
 
     #cv2.imshow("Region of interest in blue", image_interest)
 
-
-    # mask_canny = canny_edge_detector(cv_image)
-    # cv2.imshow("Canny", mask_canny)
-    #
-    # num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(mask_canny, 8, cv2.CV_32S)
-
-    # label = []
-    # n = 0
-    # for i in range(1, num_labels):
-    #     height = stats[i][cv2.CC_STAT_HEIGHT]
-    #     if height > 30:
-    #         label.insert(n, i)
-    #         n += 1
-
-    # Só apanhar Maiores partes branca
-    #nb_components, output, stats, centroids = cv2.connectedComponentsWithStats(mask_canny, connectivity=8)
-    # img2 = np.zeros(output.shape)
-    # for i in range(0,len(label)):
-    #     img2[output == label[i]] = 255
-    # cv2.imshow("Canny", img2)
-
-    # altura_imagem = img2.shape[0]
-    # largura_imagem = img2.shape[1]
 
     # Linha horizontal
     # for n in range(0, largura_imagem - 1):
