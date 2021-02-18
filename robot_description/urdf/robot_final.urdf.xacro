@@ -59,11 +59,11 @@
 
   <link name="wheel_left_link">
     <visual>
-      <!-- <origin xyz="0 0 0" rpy="1.57 0 0"/> -->
-      <origin xyz="0 0 0" rpy="1.57 1.57 0"/>
+      <origin xyz="0 0 0" rpy="1.57 0 0"/>
+      <!-- <origin xyz="0 0 0" rpy="1.57 1.57 0"/> -->
       <geometry>
-        <!-- <mesh filename="package://turtlebot3_description/meshes/wheels/left_tire.stl" scale="0.001 0.001 0.001"/> -->
-        <mesh filename="$(find robot_description)/meshes/Disk_5.stl" scale="0.0004 0.0004 0.0004"/>
+        <mesh filename="package://turtlebot3_description/meshes/wheels/left_tire.stl" scale="0.001 0.001 0.001"/>
+        <!-- <mesh filename="$(find robot_description)/meshes/Disk_5.stl" scale="0.0004 0.0004 0.0004"/> -->
       </geometry>
       <material name="${player_color}"/>
     </visual>
@@ -127,11 +127,11 @@
 
   <link name="wheel_right_link">
     <visual>
-      <!-- <origin xyz="0 0 0" rpy="1.57 0 0"/> -->
-      <origin xyz="0 0 0" rpy="1.57 1.57 0"/>
+      <origin xyz="0 0 0" rpy="1.57 0 0"/>
+      <!-- <origin xyz="0 0 0" rpy="1.57 1.57 0"/> -->
       <geometry>
-        <!-- <mesh filename="package://turtlebot3_description/meshes/wheels/right_tire.stl" scale="0.001 0.001 0.001"/> -->
-        <mesh filename="$(find robot_description)/meshes/Disk_5.stl" scale="0.0004 0.0004 0.0004"/>
+        <mesh filename="package://turtlebot3_description/meshes/wheels/right_tire.stl" scale="0.001 0.001 0.001"/>
+        <!-- <mesh filename="$(find robot_description)/meshes/Disk_5.stl" scale="0.0004 0.0004 0.0004"/> -->
       </geometry>
 <!--      <material name="dark"/>-->
       <material name="${player_color}"/>
