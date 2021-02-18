@@ -289,7 +289,7 @@
   </link>
 
   <joint name="camera_rgb_joint" type="fixed">
-    <origin xyz="0.003 0.011 0.6" rpy="0 0.6 0"/>
+    <origin xyz="0.003 0.011 0.45" rpy="0 0.15 0"/>    -  <!-- old values (SF):xyz="0.003 0.011 0.6" rpy="0 0.6 0"-->
     <parent link="camera_link"/>
     <child link="camera_rgb_frame"/>
   </joint>
