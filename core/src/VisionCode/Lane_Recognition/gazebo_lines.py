@@ -50,13 +50,7 @@ def average_slope_intercept(image, lines):
     right_line = make_points(image, right_fit_average)
     return np.array((left_line, right_line))
 
-def display_lines(image, lines):
-    line_image = np.zeros_like(image)
-    if lines is not None:
-        for line in lines:
-            x1, y1, x2, y2 = line.reshape(4)
-            cv2.line(line_image, (x1, y1), (x2, y2), (255, 0, 0), 10)
-    return line_image
+
 
 def canny_edge_detector(image):
     # Convert the image color to grayscale
@@ -106,15 +100,8 @@ def Image_GET(image):
     cv2.imshow("Câmara Robot", cv_image)
 
     mask_canny = canny_edge_detector(cv_image)
-
-    #cropped_image = region_of_interest(mask_canny)
     cropped_image = region_of_interest(mask_canny)
-    cv2.imshow("results- Cut", cropped_image)
-    #lines = cv2.HoughLinesP(cropped_image, 2, np.pi / 180, 100, np.array([]), minLineLength=20,maxLineGap=200)
-
-    #averaged_lines = average_slope_intercept(cropped_image, lines)
-
-    #line_image = display_lines(cv_image, averaged_lines)
+    cv2.imshow("Corte Triangular", cropped_image)
     #combo_image = cv2.addWeighted(cv_image, 0.8, line_image, 1, 1)
     #cv2.imshow("results", combo_image)
 
@@ -124,23 +111,41 @@ def Image_GET(image):
     #cv2.imshow("Region of interest in blue", image_interest)
 
 
-    # Linha horizontal
-    # for n in range(0, largura_imagem - 1):
-    #     # img2[round(altura_imagem/2-200),n]=255
-    #
-    #     # Lado esquerdo
-    #     if n < round(largura_imagem / 2) and img2[round(altura_imagem / 2) - 199, n] == 255:
-    #         print("Obstáculo à esquerda")
-    #
-    #     if n > round(largura_imagem / 2) and img2[round(altura_imagem / 2) - 199, n] == 255:
-    #         print("Obstáculo à direita")
-    #
-    # # Linha vertical
-    # for n in range(0, altura_imagem - 1):
-    #     img2[n, round(largura_imagem / 2)] = 255
-    #
-    # cv2.imshow("Region of interest in blue", img2)
-    #
+    #Linha horizontal
+    altura_imagem = cropped_image.shape[0]      #altura=480
+    largura_imagem=cropped_image.shape[1]
+    vector1x=[]
+    vector1y=[]
+
+    #Search for white points in lines
+    for t in range (200, 440, 40):
+        for n in range(0, largura_imagem - 1):
+           if cropped_image[t, n]==255:
+                vector1x.append(n)
+                vector1y.append(t)
+
+    img2= np.zeros(cropped_image.shape)
+
+    intervalo=0
+    #Show image with only lines
+    for n in range(1,len(vector1x)):
+        if intervalo<1:
+            img2[vector1y[n],vector1x[n]]=255
+            intervalo+=1
+
+        if intervalo==1:
+            intervalo=0
+
+
+
+        # # Lado esquerdo
+        # if n < round(largura_imagem / 2) and cropped_image[round(altura_imagem / 2) - 199, n] == 255:
+        #     print("Obstáculo à esquerda")
+        #
+        # if n > round(largura_imagem / 2) and cropped_image[round(altura_imagem / 2) - 199, n] == 255:
+        #     print("Obstáculo à direita")
+    cv2.imshow("results- Cut", img2)
+
     cv2.waitKey(1)
 
 def main():
