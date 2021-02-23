@@ -118,7 +118,7 @@ def Image_GET(image):
     vector1y=[]
 
     #Search for white points in lines
-    for t in range (200, 440, 40):
+    for t in range (1, 440, 1):
         for n in range(0, largura_imagem - 1):
            if cropped_image[t, n]==255:
                 vector1x.append(n)
