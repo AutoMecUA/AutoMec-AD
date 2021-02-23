@@ -6,53 +6,15 @@ import numpy as np
 import rospy
 from sensor_msgs.msg import Image, LaserScan
 from cv_bridge import CvBridge
-from sklearn.model_selection import GridSearchCV
-
-
-def make_points(image, line_parameters):
-    slope, intercept = line_parameters
-    y1 = int(image.shape[0])
-    y2 = int(y1*3/5)
-    x1 = int((y1 - intercept)/slope)
-    x2 = int((y2 - intercept)/slope)
-    print([[x1, y1, x2, y2]])
-    return [[x1, y1, x2, y2]]
-
-def average_slope_intercept(image, lines):
-
-    left_fit = []
-    right_fit = []
-    if lines is None:
-        return None
-
-    for line in lines:
-        #2D->1D
-        x1, y1, x2, y2 = line.reshape(4)
-        parameters = np.polyfit((x1, x2), (y1, y2), 1)
-
-        try:
-            slope= parameters[0]
-            intercept=parameters[1]
-        except TypeError:
-            slope = 0
-            intercept = 0
-
-        if slope < 0:
-            left_fit.append((slope, intercept))
-        else:
-            right_fit.append((slope, intercept))
-
-
-
-    left_fit_average = np.average(left_fit, axis = 0)
-    right_fit_average = np.average(right_fit, axis = 0)
-    left_line = make_points(image, left_fit_average)
-    right_line = make_points(image, right_fit_average)
-    return np.array((left_line, right_line))
-
 
 
 def canny_edge_detector(image):
+    BGR_min = (220, 150, 50)
+    BGR_max = (240, 200, 150)
+#     BGR_min = (50, 150,220)
+#     BGR_max = (150, 200, 240)
+    pintar_parede = cv2.inRange(image, BGR_min, BGR_max)
+
     # Convert the image color to grayscale
     gray_image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
 
@@ -60,23 +22,31 @@ def canny_edge_detector(image):
 
     num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(canny, 8, cv2.CV_32S)
 
-    label = []
+    #label = []
     n = 0
+    max_area = 0
+    label = 0
     for i in range(1, num_labels):
-        area = stats[i][cv2.CC_STAT_AREA]
         height=stats[i][cv2.CC_STAT_HEIGHT]
+        area = stats[i][cv2.CC_STAT_AREA]
 
-        if area > 200 and height>30:
-            label.insert(n, i)
-            n += 1
+        # if area > 200 and height>30:
+        #     label.insert(n, i)
+        #     n += 1
+
+        if area > max_area and height>30:
+            max_area = area
+            label = i
 
     #Só apanhar Maiores partes branca
     nb_components, output, stats, centroids = cv2.connectedComponentsWithStats(canny, connectivity=8)
     img2 = np.zeros(output.shape)
-    for i in range(0,len(label)):
-        img2[output == label[i]] = 255
+    img2[output == label] = 255
 
-    return img2
+    #for i in range(0,len(label)):
+        #img2[output == label[i]] = 255
+
+    return pintar_parede
 
 def region_of_interest(image):
     height = image.shape[0]
@@ -101,7 +71,8 @@ def Image_GET(image):
 
     mask_canny = canny_edge_detector(cv_image)
     cropped_image = region_of_interest(mask_canny)
-    cv2.imshow("Corte Triangular", cropped_image)
+    #cv2.imshow("Corte Triangular", cropped_image)
+    cv2.imshow("Corte Triangular", mask_canny)
     #combo_image = cv2.addWeighted(cv_image, 0.8, line_image, 1, 1)
     #cv2.imshow("results", combo_image)
 
@@ -129,12 +100,8 @@ def Image_GET(image):
     intervalo=0
     #Show image with only lines
     for n in range(1,len(vector1x)):
-        if intervalo<1:
             img2[vector1y[n],vector1x[n]]=255
-            intervalo+=1
 
-        if intervalo==1:
-            intervalo=0
 
 
 
