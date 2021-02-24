@@ -13,6 +13,21 @@ def canny_edge_detector(image):
     BGR_max = (240, 200, 150)
 #     BGR_min = (50, 150,220)
 #     BGR_max = (150, 200, 240)
+
+    # # TODO: consider like this
+    # for i in image:
+    #     for j in i:
+    #         # pixel of coordinates (i, j) TODO we may need parsing (i, j) => (x, y)
+    #         # TODO try enumerate built-in on image matrix
+    #         r, g, b = image[i][j]
+    #         # How much can pixels deviate from black/white color
+    #         deviation = 10
+    #         max, min = deviation, 255 - deviation
+    #         # For discarding colored pixels (road is not colored)
+    #         if min < r < max or min < g < max or min < b < max:
+    #             # paint black
+    #             image[i][j] = (0, 0, 0)
+
     pintar_parede = cv2.inRange(image, BGR_min, BGR_max)
 
     # Convert the image color to grayscale
