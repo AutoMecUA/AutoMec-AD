@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+# References:
+# [1] - https://note.nkmk.me/en/python-numpy-opencv-image-binarization/
+
 # Import the required libraries
 import cv2
 import numpy as np
@@ -27,7 +30,7 @@ def canny_edge_detector(image):
             if any([min < color < max for color in (r, g, b)]):
                 # Paint black
                 image_test[i][j] = (0, 0, 0)
-    # Test
+    # Testing cancellation
     cv2.imshow("Test Color Cancelation", image_test)
 
     pintar_parede = cv2.inRange(image, BGR_min, BGR_max)
@@ -65,6 +68,7 @@ def canny_edge_detector(image):
 
     return pintar_parede
 
+
 def region_of_interest(image):
     height = image.shape[0]
     width = image.shape[1]
@@ -80,6 +84,7 @@ def region_of_interest(image):
     masked_image = cv2.bitwise_and(mask, image)
     return masked_image
 
+
 def Image_GET(image):
     bridge = CvBridge()
     cv_image = bridge.imgmsg_to_cv2(image, desired_encoding='passthrough')
@@ -93,45 +98,62 @@ def Image_GET(image):
     #combo_image = cv2.addWeighted(cv_image, 0.8, line_image, 1, 1)
     #cv2.imshow("results", combo_image)
 
-
     #image_interest = region_of_interest(mask_canny)
 
     #cv2.imshow("Region of interest in blue", image_interest)
 
+    # TODO Image binarization using numpy [1]
+    th = 256 / 2
+    ret, bin_mask_canny = cv2.threshold(image, th, 255, cv2.THRESH_BINARY)
+    print(mask_canny, bin_mask_canny, sep="\n///", end="---")  # TODO remove this after purpose served
 
-    #Linha horizontal
+    cv2.imshow("binarized image (test)", bin_mask_canny)
+    cv2.waitKey(1)
+    # TODO Perform white pixels clusters removal: goal is to remove unwanted regions
+    #   - if this task is achieved, region_of_interest becomes obsolete
+
+    # Image x and y lengths
     altura_imagem = cropped_image.shape[0]      #altura=480
     print(altura_imagem)
     largura_imagem=cropped_image.shape[1]
-    vector1x=[]
-    vector1y=[]
 
-    #Search for white points in lines
-    for t in range (1, 440, 1):
-        for n in range(0, largura_imagem - 1):
-           if cropped_image[t, n]==255:
-                vector1x.append(n)
-                vector1y.append(t)
+    # Array of x and y values
+    vector1x = []
+    vector1y = []
 
-    img2= np.zeros(cropped_image.shape)
+    for i, row in enumerate(cropped_image):
+        # cropped_image[i] == row
+        for j, pixel in enumerate(row):
+            # row[j] == pixel
+            if pixel == 255:
+                vector1x.append(j)
+                vector1y.append(altura_imagem - i)  # Top row should be largest and bottom row == 0
+
+    # Robustness check
+    assert len(vector1y) == len(vector1x), "Error: Vectors x and y are not of same length!"
+
+    img2 = np.zeros(cropped_image.shape)
 
     intervalo=0
-    #Show image with only lines
-    for n in range(1,len(vector1x)):
-            img2[vector1y[n],vector1x[n]]=255
+    # Show image with only lines
+    for i in range(len(vector1x)):
+        j = len(vector1x) - i  # Y axis is inverted: inverting back here
+        img2[vector1y[j]][vector1x[i]] = 255
 
+    # # Lado esquerdo
+    # if n < round(largura_imagem / 2) and cropped_image[round(altura_imagem / 2) - 199, n] == 255:
+    #     print("Obstáculo à esquerda")
+    #
+    # if n > round(largura_imagem / 2) and cropped_image[round(altura_imagem / 2) - 199, n] == 255:
+    #     print("Obstáculo à direita")
 
+    # TODO Show image with regression curve/s
+    ...
 
-
-        # # Lado esquerdo
-        # if n < round(largura_imagem / 2) and cropped_image[round(altura_imagem / 2) - 199, n] == 255:
-        #     print("Obstáculo à esquerda")
-        #
-        # if n > round(largura_imagem / 2) and cropped_image[round(altura_imagem / 2) - 199, n] == 255:
-        #     print("Obstáculo à direita")
     cv2.imshow("results- Cut", img2)
 
     cv2.waitKey(1)
+
 
 def main():
 
