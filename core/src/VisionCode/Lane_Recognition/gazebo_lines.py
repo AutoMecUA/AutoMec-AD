@@ -11,22 +11,24 @@ from cv_bridge import CvBridge
 def canny_edge_detector(image):
     BGR_min = (220, 150, 50)
     BGR_max = (240, 200, 150)
-#     BGR_min = (50, 150,220)
-#     BGR_max = (150, 200, 240)
+    # BGR_min = (50, 150,220)
+    # BGR_max = (150, 200, 240)
 
-    # # TODO: consider like this
-    # for i in image:
-    #     for j in i:
-    #         # pixel of coordinates (i, j) TODO we may need parsing (i, j) => (x, y)
-    #         # TODO try enumerate built-in on image matrix
-    #         r, g, b = image[i][j]
-    #         # How much can pixels deviate from black/white color
-    #         deviation = 10
-    #         max, min = deviation, 255 - deviation
-    #         # For discarding colored pixels (road is not colored)
-    #         if min < r < max or min < g < max or min < b < max:
-    #             # paint black
-    #             image[i][j] = (0, 0, 0)
+    image_test = image.copy()  # copy of original image
+    # TODO: consider like this
+    for i, row in enumerate(image_test):
+        for j, pixel in enumerate(row):
+            r, g, b = image_test[i][j]
+            # How much can pixels deviate from black/white color
+            deviation = 55
+            min, max = deviation, 255 - deviation
+            # For discarding colored pixels (road is not colored)
+            # if any of r, g or b is outside the spectrum [0, 10] U [245, 255]
+            if any([min < color < max for color in (r, g, b)]):
+                # Paint black
+                image_test[i][j] = (0, 0, 0)
+    # Test
+    cv2.imshow("Test Color Cancelation", image_test)
 
     pintar_parede = cv2.inRange(image, BGR_min, BGR_max)
 
@@ -82,7 +84,7 @@ def Image_GET(image):
     bridge = CvBridge()
     cv_image = bridge.imgmsg_to_cv2(image, desired_encoding='passthrough')
     cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB)
-    cv2.imshow("Câmara Robot", cv_image)
+    cv2.imshow("Camara Robot", cv_image)
 
     mask_canny = canny_edge_detector(cv_image)
     cropped_image = region_of_interest(mask_canny)
@@ -99,6 +101,7 @@ def Image_GET(image):
 
     #Linha horizontal
     altura_imagem = cropped_image.shape[0]      #altura=480
+    print(altura_imagem)
     largura_imagem=cropped_image.shape[1]
     vector1x=[]
     vector1y=[]
@@ -133,8 +136,9 @@ def Image_GET(image):
 def main():
 
     rospy.init_node('Robot_Send', anonymous=True)
-    rospy.Subscriber("/robot/camera/rgb/image_raw", Image, Image_GET)
+    rospy.Subscriber('/robot/camera/rgb/image_raw', Image, Image_GET)
     rospy.spin()
+
 
 if __name__ == '__main__':
     main()
