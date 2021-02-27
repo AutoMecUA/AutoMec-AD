@@ -131,7 +131,7 @@ def main():
         
         first_time=False
         
-        rospy.sleep(1.5)
+        rospy.sleep(0.5)
 
 
     
