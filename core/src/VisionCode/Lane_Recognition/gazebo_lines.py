@@ -85,6 +85,26 @@ def region_of_interest(image):
     return masked_image
 
 
+def get_coeffs(image, degree=2):
+
+    height = image.shape[0]
+    vector = {"x": list(), "y": list()}
+    x, y = vector["x"], vector["y"]
+
+    for i, row in enumerate(image):
+        # cropped_image[i] == row
+        for j, pixel in enumerate(row):
+            # row[j] == pixel
+            if pixel == 255:
+                x.append(j)
+                y.append(height - i)  # Top row should be largest and bottom row == 0
+
+    # Robustness check
+    assert len(y) == len(x), "Error: Vectors x and y are not of same length!"
+
+    return np.polyfit(x=x, y=y, deg=degree)
+
+
 def Image_GET(image):
     bridge = CvBridge()
     cv_image = bridge.imgmsg_to_cv2(image, desired_encoding='passthrough')
@@ -109,7 +129,7 @@ def Image_GET(image):
 
     cv2.imshow("binarized image (test)", bin_mask_canny)
     cv2.waitKey(1)
-    # TODO Perform white pixels clusters removal: goal is to remove unwanted regions
+    # TODO Perform white pixel clusters removal: goal is to remove unwanted regions
     #   - if this task is achieved, region_of_interest becomes obsolete
 
     # Image x and y lengths
@@ -121,16 +141,9 @@ def Image_GET(image):
     vector1x = []
     vector1y = []
 
-    for i, row in enumerate(cropped_image):
-        # cropped_image[i] == row
-        for j, pixel in enumerate(row):
-            # row[j] == pixel
-            if pixel == 255:
-                vector1x.append(j)
-                vector1y.append(altura_imagem - i)  # Top row should be largest and bottom row == 0
-
-    # Robustness check
-    assert len(vector1y) == len(vector1x), "Error: Vectors x and y are not of same length!"
+    # Get a, b and c such as ax2 + bx + c is the best fit to given image
+    # TODO test this
+    a, b, c = get_coeffs(bin_mask_canny)
 
     img2 = np.zeros(cropped_image.shape)
 
@@ -146,9 +159,6 @@ def Image_GET(image):
     #
     # if n > round(largura_imagem / 2) and cropped_image[round(altura_imagem / 2) - 199, n] == 255:
     #     print("Obstáculo à direita")
-
-    # TODO Show image with regression curve/s
-    ...
 
     cv2.imshow("results- Cut", img2)
 
