@@ -19,7 +19,7 @@ for i in range(0,dataset1.shape[1]):
     new_data = new_data.map(dict_map)
     new_data = new_data.values
     final_array=np.resize(new_data,(120,170))
-    resized = cv2.resize(final_array.astype(np.uint8), (680,480), interpolation = cv2.INTER_AREA)
-    cv2.imshow('video',resized.astype(np.uint8))
+    #resized = cv2.resize(final_array.astype(np.uint8), (680,480), interpolation = cv2.INTER_AREA)
+    cv2.imshow('video',final_array.astype(np.uint8))
     cv2.waitKey(100)
 
