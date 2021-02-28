@@ -41,7 +41,7 @@ def main():
     scale_percent = 25 # percent of original size        
     from catboost import CatBoostRegressor
     regressor = CatBoostRegressor()  
-    regressor.load_model('catboost_file2')
+    regressor.load_model('catboost_file3')
     twist = Twist()
 
 
