@@ -27,11 +27,11 @@ print(dataset1.shape)
 print(dataset2.shape)
 print(dataset_train.shape)
 
-X_train = dataset_train.iloc[:,:-1]
-y_train = dataset_train.iloc[:,-1]
+X_train = dataset_train.iloc[:,:-1].values
+y_train = dataset_train.iloc[:,-1].values
 
-X_test = dataset1.iloc[:,:-1]
-y_test = dataset1.iloc[:,-1]
+X_test = dataset1.iloc[:,:-1].values
+y_test = dataset1.iloc[:,-1].values
 
 
 
@@ -46,4 +46,5 @@ y_pred=regressor.predict(X_test)
 #   Evaluating the model performance
 from sklearn.metrics import r2_score
 print(r2_score(y_test,y_pred))
+regressor.save_model('catboost_file')
 print(np.concatenate((y_pred.reshape(len(y_pred),1),y_test.reshape(len(y_test),1)),1))
