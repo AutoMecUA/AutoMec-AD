@@ -82,7 +82,7 @@ def main():
     # Create an object of the CvBridge class
     bridge = CvBridge()
 
-
+    rate = rospy.Rate(30)
     while  True:
         
         if begin_cmd==False or begin_img==False:
@@ -131,7 +131,7 @@ def main():
         
         first_time=False
         
-        rospy.sleep(0.5)
+        rate.sleep()
 
 
     
