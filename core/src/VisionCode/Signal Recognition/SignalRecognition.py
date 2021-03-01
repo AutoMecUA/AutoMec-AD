@@ -118,7 +118,7 @@ print("Number of images: " + str(Counter_Nr_Images))
 for name in dict_images.keys():
     for key in dict_images[name]['images']:
         dict_images[name]['images'][key] = cv2.GaussianBlur(dict_images[name]['images'][key], (3, 3), 0)
-        cv2.imshow(name + ' ' + key, dict_images[name]['images'][key])
+        #cv2.imshow(name + ' ' + key, dict_images[name]['images'][key])
 
 # VIDEO CAPTURE AND PROCESSING
 
@@ -196,7 +196,7 @@ while True:
 
     # Show the frame
     '''frame = cv2.resize(frame, default_dim)'''
-    cv2.imshow("Working Frame", frame)
+    #cv2.imshow("Working Frame", frame)
     cv2.imshow("Frame", def_frame)
     key = cv2.waitKey(1)
 

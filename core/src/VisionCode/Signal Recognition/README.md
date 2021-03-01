@@ -1,0 +1,3 @@
+# Code Instructions
+Running this code needs to have roscore running in the background. To do that, simply write ```roscore``` in you terminal. While running the code, a camera window will appear. After recognizing a signal, it will send the correspondent velocity to the pub_vel rostopic until another signal is found.
+The default velocity, that is, the velocity before any signal has been detected is 0.
