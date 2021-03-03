@@ -1,6 +1,9 @@
+#!/usr/bin/env python
+
 import cv2
 import numpy as np
-import time
+import rospy
+from std_msgs.msg import Int16
 
 # PARAMETERS__________________________________________________________________
 
@@ -25,6 +28,9 @@ line_thickness = 3
 scale_cap = 0.4
 detection_threshold = 0.7
 
+# Initial velocity
+vel = 0
+
 # ______________________________________________________________________________
 
 # Images to import and Images Info
@@ -42,8 +48,8 @@ for name in dict_images.keys():
 
     # Key and Value for the Zero and Tilt Images
     images_key = '0'
-    tilt1_key='45'
-    tilt2_key = '-45'
+    tilt1_key = '45'
+    # tilt2_key = '-45'
     images_value = cv2.imread(name + '.png', cv2.IMREAD_GRAYSCALE)
 
     # Determination of required dimensions for the Zero Image
@@ -59,53 +65,52 @@ for name in dict_images.keys():
 
     # Locate points of the signal which you want to transform
     pts1 = np.float32([[0, 0], [width, 0], [0, height], [width, height]])
-    pts2 = np.float32([[0, 0], [width, height*1/6], [0, height], [width, height*5/6]])
-    pts3 = np.float32([[0, height*1/6], [width, 0], [0, height*5/6], [width, height]])
+    pts2 = np.float32([[0, 0], [width, 0], [width * 1 / 6, height], [width * 5 / 6, height]])
+    # pts3 = np.float32([[0, height*1/6], [width, 0], [0, height*5/6], [width, height]])
 
-    #Transform the original images into a tilted one
+    # Transform the original images into a tilted one
     matrix1 = cv2.getPerspectiveTransform(pts1, pts2)
-    matrix2 = cv2.getPerspectiveTransform(pts1, pts3)
+    # matrix2 = cv2.getPerspectiveTransform(pts1, pts3)
     tilt1 = cv2.warpPerspective(images_value, matrix1, dim)
-    tilt2 = cv2.warpPerspective(images_value, matrix2, dim)
+    # tilt2 = cv2.warpPerspective(images_value, matrix2, dim)
 
     # Updating the dictionary with the Key and Value of the tilted Image
     dict_images[name]['images'][tilt1_key] = tilt1
-    dict_images[name]['images'][tilt2_key] = tilt2
+    # dict_images[name]['images'][tilt2_key] = tilt2
 
-    Counter_Nr_Images += 3
+    Counter_Nr_Images += 2
 
     # Piramidization of the Zero and Tilt Image, creating smaller versions of it
     for n in range(N_red):
-        #Defining the keys
-        images_key = str(2*n - 1)
-        tilt1_keypyr = tilt1_key + "." + str(2*n - 1)
-        tilt2_keypyr = tilt2_key + "." + str(2*n - 1)
-        images_keyh = str(2*n)
-        tilt1_keypyrh = tilt1_key + "." + str(2*n)
-        tilt2_keypyrh = tilt2_key + "." + str(2*n)
+        # Defining the keys
+        images_key = str(2 * n - 1)
+        tilt1_keypyr = tilt1_key + "." + str(2 * n - 1)
+        # tilt2_keypyr = tilt2_key + "." + str(2*n - 1)
+        images_keyh = str(2 * n)
+        tilt1_keypyrh = tilt1_key + "." + str(2 * n)
+        # tilt2_keypyrh = tilt2_key + "." + str(2*n)
 
-        #Creating another lair of piramidization, assuming dimensions stay the same between signals
-        width = int(images_value.shape[1] * 3/4)
-        height = int(images_value.shape[0] * 3/4)
+        # Creating another lair of piramidization, assuming dimensions stay the same between signals
+        width = int(images_value.shape[1] * 3 / 4)
+        height = int(images_value.shape[0] * 3 / 4)
         dim = (width, height)
         images_valueh = cv2.resize(images_value, dim)
         tilt1h = cv2.resize(tilt1, dim)
-        tilt2h = cv2.resize(tilt2, dim)
+        # tilt2h = cv2.resize(tilt2, dim)
 
-        #Pyramidization
+        # Pyramidization
         images_value = cv2.pyrDown(images_value)
         tilt1 = cv2.pyrDown(tilt1)
-        tilt2 = cv2.pyrDown(tilt2)
+        # tilt2 = cv2.pyrDown(tilt2)
 
         # Updating the dictionary with the Key and Value
         dict_images[name]['images'][images_key] = images_value
         dict_images[name]['images'][tilt1_keypyr] = tilt1
-        dict_images[name]['images'][tilt2_keypyr] = tilt2
+        # dict_images[name]['images'][tilt2_keypyr] = tilt2
         dict_images[name]['images'][images_keyh] = images_valueh
         dict_images[name]['images'][tilt1_keypyrh] = tilt1h
-        dict_images[name]['images'][tilt2_keypyrh] = tilt2h
+        # dict_images[name]['images'][tilt2_keypyrh] = tilt2h
         Counter_Nr_Images += 6
-
 
 # Number of Images Created
 print("Number of images: " + str(Counter_Nr_Images))
@@ -113,8 +118,7 @@ print("Number of images: " + str(Counter_Nr_Images))
 for name in dict_images.keys():
     for key in dict_images[name]['images']:
         dict_images[name]['images'][key] = cv2.GaussianBlur(dict_images[name]['images'][key], (3, 3), 0)
-        cv2.imshow(name + ' ' + key, dict_images[name]['images'][key])
-
+        #cv2.imshow(name + ' ' + key, dict_images[name]['images'][key])
 
 # VIDEO CAPTURE AND PROCESSING
 
@@ -168,7 +172,7 @@ while True:
                           dict_colors.get(dict_images[max_name]['color']), line_thickness)
             text = 'Detected: ' + max_name + ' ' + max_key + ' > ' + dict_images[max_name]['type'] + ': ' + \
                    dict_images[max_name]['title']
-            print(text)
+            # print(text)
 
             origin = (pt[0], pt[1] + subtitle_offset)
             origin_2 = (0, height_frame + subtitle_2_offset)
@@ -178,14 +182,25 @@ while True:
             subtitle_2 = cv2.putText(def_frame, text, origin_2, font, font_scale, font_color, font_thickness,
                                      cv2.LINE_AA)
 
+        # Defining and publishing the velocity of the car in regards to the signal seen
+        if max_name == "pForward":
+            vel = 1
+        elif max_name == "pStop":
+            vel = 0
+
+    # Defining the publisher and publishing the velocity
+    pub = rospy.Publisher('pub_vel', Int16, queue_size=10)
+    rospy.init_node('signal_velocity', anonymous=True)
+    rospy.loginfo(vel)
+    pub.publish(vel)
+
     # Show the frame
     '''frame = cv2.resize(frame, default_dim)'''
-    cv2.imshow("Working Frame", frame)
+    #cv2.imshow("Working Frame", frame)
     cv2.imshow("Frame", def_frame)
     key = cv2.waitKey(1)
 
     if key == 27:  # Press "ESC"
         break  # End While cycle
-
 cap.release()  # Stops Video Capture
 cv2.destroyAllWindows()  # Closes all windows

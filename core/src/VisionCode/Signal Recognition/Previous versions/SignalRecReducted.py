@@ -30,7 +30,6 @@ detection_threshold = 0.7
 # Images to import and Images Info
 dict_images = {
     'pForward': {'title': 'Follow Straight Ahead', 'type': 'Panel', 'color': 'green', 'images': {}},
-    'pEnd': {'title': 'End of trial', 'type': 'Panel', 'color': 'yellow', 'images': {}},
     'pStop': {'title': 'Stop', 'type': 'Panel', 'color': 'red', 'images': {}}
 }
 
