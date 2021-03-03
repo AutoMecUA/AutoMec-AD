@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <robot name="robot_gaz" xmlns:xacro="http://ros.org/wiki/xacro">
 
+  <!-- <xacro:include filename="$(find robot_description)/urdf/Skid_steering_drive.xacro"/> -->
   <xacro:include filename="$(find robot_description)/urdf/ros_diff_drive.gazebo.xacro"/>
 <!--  <xacro:include filename="$(find p_g5_description)/urdf/ros_control.gazebo.xacro"/>-->
 
@@ -17,7 +18,7 @@
     <mu1>0.1</mu1>
     <mu2>0.1</mu2>
     <kp>500000.0</kp>
-    <kd>10.0</kd>
+    <kd>10000.0</kd>
     <minDepth>0.001</minDepth>
     <maxVel>0.1</maxVel>
     <fdir1>1 0 0</fdir1>
@@ -25,10 +26,10 @@
   </gazebo>
   
   <gazebo reference="wheel_left_front_link">
-    <mu1>0.1</mu1>
-    <mu2>0.1</mu2>
-    <kp>500000.0</kp>
-    <!-- <kd>10.0</kd>
+    <mu1>0</mu1>
+    <mu2>0</mu2>
+    <!-- <kp>500000.0</kp>
+    <kd>10000.0</kd>
     <minDepth>0.001</minDepth>
     <maxVel>0.1</maxVel>
     <fdir1>1 0 0</fdir1> -->
@@ -39,7 +40,7 @@
     <mu1>0.1</mu1>
     <mu2>0.1</mu2>
     <kp>500000.0</kp>
-    <kd>10.0</kd>
+    <kd>10000.0</kd>
     <minDepth>0.001</minDepth>
     <maxVel>0.1</maxVel>
     <fdir1>1 0 0</fdir1>
@@ -47,10 +48,10 @@
   </gazebo>
 
   <gazebo reference="wheel_right_front_link">
-    <mu1>0.1</mu1>
-    <mu2>0.1</mu2>
-    <kp>500000.0</kp>
-    <!-- <kd>10.0</kd>
+    <mu1>0</mu1>
+    <mu2>0</mu2>
+    <!-- <kp>500000.0</kp>
+    <kd>10000.0</kd>
     <minDepth>0.001</minDepth>
     <maxVel>0.1</maxVel>
     <fdir1>1 0 0</fdir1> -->

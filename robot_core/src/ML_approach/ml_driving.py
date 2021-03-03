@@ -41,7 +41,7 @@ def main():
     scale_percent = 25 # percent of original size        
     from catboost import CatBoostRegressor
     regressor = CatBoostRegressor()  
-    regressor.load_model('catboost_file3')
+    regressor.load_model('catboost_file_test')
     twist = Twist()
 
 
@@ -54,7 +54,7 @@ def main():
     # Create an object of the CvBridge class
     bridge = CvBridge()
 
-    rate = rospy.Rate(30)
+    rate = rospy.Rate(50)
 
     while not rospy.is_shutdown():
 
@@ -89,7 +89,7 @@ def main():
 
 
         # Send twist
-        twist.linear.x = 0.5
+        twist.linear.x = 0.25
         twist.linear.y = 0
         twist.linear.z = 0
         twist.angular.x = 0
