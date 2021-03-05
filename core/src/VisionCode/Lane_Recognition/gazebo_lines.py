@@ -124,7 +124,7 @@ def Image_GET(image):
 
     # TODO Image binarization using numpy [1]
     th = 256 / 2
-    ret, bin_mask_canny = cv2.threshold(image, th, 255, cv2.THRESH_BINARY)
+    ret, bin_mask_canny = cv2.threshold(mask_canny, th, 255, cv2.THRESH_BINARY)
     print(mask_canny, bin_mask_canny, sep="\n///", end="---")  # TODO remove this after purpose served
 
     cv2.imshow("binarized image (test)", bin_mask_canny)
