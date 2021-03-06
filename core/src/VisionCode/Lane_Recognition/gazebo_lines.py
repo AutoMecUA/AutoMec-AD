@@ -85,13 +85,20 @@ def region_of_interest(image):
     return masked_image
 
 
-def get_coeffs(image, degree=2):
+def get_coeffs(bin_image, degree: int = 2) -> tuple:
+    """
 
-    height = image.shape[0]
+    :param bin_image: pixels' value must either be 0 or 255 (in gray scale)
+    :param degree:
+    :return:
+    """
+
+    print(bin_image)
+    height = bin_image.shape[0]
     vector = {"x": list(), "y": list()}
     x, y = vector["x"], vector["y"]
 
-    for i, row in enumerate(image):
+    for i, row in enumerate(bin_image):
         # cropped_image[i] == row
         for j, pixel in enumerate(row):
             # row[j] == pixel
@@ -123,7 +130,7 @@ def Image_GET(image):
     #cv2.imshow("Region of interest in blue", image_interest)
 
     # TODO Image binarization using numpy [1]
-    th = 256 / 2
+    th = 100  # TODO test for best value
     ret, bin_mask_canny = cv2.threshold(mask_canny, th, 255, cv2.THRESH_BINARY)
     print(mask_canny, bin_mask_canny, sep="\n///", end="---")  # TODO remove this after purpose served
 
