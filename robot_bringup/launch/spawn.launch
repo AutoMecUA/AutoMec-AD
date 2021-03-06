@@ -9,9 +9,9 @@
     <arg name="orientacao" default="2.0"/>
 
     <arg name="player_name" default="robot"/>
-    <arg name="player_color" default="Black"/>
-    <arg name="base_color" default="DarkGrey"/>
-    <arg name="scan_color" default="FlatBlack"/>
+    <arg name="player_color" default="Red"/>
+    <arg name="base_color" default="Black"/>
+    <arg name="scan_color" default="Black"/>
 
 
     <group ns="$(arg player_name)">
