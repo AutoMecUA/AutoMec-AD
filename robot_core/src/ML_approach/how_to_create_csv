@@ -1,7 +1,7 @@
 Step for gathering data to train the model:
 
--- roslaunch roslaunch robot_bringup bringup_gazebo.launch 
--- roslaunch roslaunch robot_bringup spawn.launch
+-- roslaunch robot_bringup bringup_gazebo.launch
+-- roslaunch robot_bringup spawn.launch
 -- rosrun robot_core write_csv.py
 -- rqt
 
