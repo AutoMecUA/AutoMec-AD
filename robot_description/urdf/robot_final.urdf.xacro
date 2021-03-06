@@ -272,6 +272,18 @@
   <link name="imu_link"/> 
 -->
 
+<!-- Daniel -->
+
+  <joint name="imu_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="imu_link"/>
+    <origin xyz="0.0 0 0.068" rpy="0 0 0"/>
+  </joint>
+
+  <link name="imu_link"/>
+<!-- Daniel End -->
+
+
 
 
 <!-- Scan base sensors -->
@@ -336,7 +348,7 @@
     <visual>
       <origin xyz="0 0 0 " rpy="1.6 0 0"/>
       <geometry>
-        <mesh filename="$(find robot_description)/meshes/kinet.STL" scale="0.001 0.001 0.001"/>
+        <mesh filename="$(find robot_description)/meshes/kinet.STL" scale="0.0001 0.0001 0.0001"/>
       </geometry>
       <material name="${base_color}"/>
     </visual>
