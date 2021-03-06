@@ -10,10 +10,10 @@ in rqt:   ---->  plugins,Robot Tools,Robot Steering    (Configure: max angle = 1
 
           Put velocity at 0.25 all the way  (never change the velocity)
 
-Now, drive the car (only the diretion), only look at the image in rqt, dont look at the gazebo
+Now, drive the car (only the direction), only look at the image in rqt, dont look at the gazebo
 
 
-If your driving was sucessfully save the csv file, if not delete it.
+If your driving was successful save the csv file, if not delete it.
 
 The csv file will be save in the path where you keep did the rosrun
 
