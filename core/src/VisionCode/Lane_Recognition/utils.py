@@ -2,6 +2,32 @@
 
 import cv2 as cv
 import os
+import numpy as np
+
+
+def get_gray_image_histogram(image):
+    """
+    As shown in https://docs.opencv.org/master/d8/dbc/tutorial_histogram_calculation.html
+    :param image:
+    :return: shows histogram of image (mapping of colors and their frequencies)
+    """
+
+    hist_size = 256
+    hist = cv.calcHist([image], [0], None, [256], [0, 255])
+
+    hist_w = 512
+    hist_h = 400
+    bin_w = int(round(hist_w / hist_size))
+    hist_image = np.zeros((hist_h, hist_w, 3), dtype=np.uint8)
+    cv.normalize(hist, hist, alpha=0, beta=hist_h, norm_type=cv.NORM_MINMAX)
+
+    for i in range(1, hist_size):
+        cv.line(hist_image, (bin_w * (i - 1), hist_h - int(hist[i - 1])),
+                (bin_w * (i), hist_h - int(hist[i])),
+                (255, 0, 0), thickness=2)
+
+    cv.imshow('calcHist Demo', hist_image)
+    cv.waitKey(1)
 
 
 def show_image(img_path):
