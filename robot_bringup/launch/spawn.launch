@@ -20,8 +20,10 @@
 
     <node pkg="robot_state_publisher" name="robot_state_publisher" type="robot_state_publisher" />
     <!--Bloco 3: Carregamento do xacro do robot para o parâmetro robot_description.-->
-    <!-- <param name="robot_description" command="$(find xacro)/xacro - -inorder $(find robot_description)/urdf/robot.urdf.xacro player_name:=$(arg player_name) player_color:=$(arg player_color) base_color:=$(arg base_color) scan_color:=$(arg scan_color) orientacao:=$(arg orientacao)" /> -->
-    <param name="robot_description" command="$(find xacro)/xacro --inorder $(find robot_description)/urdf/robot_final.urdf.xacro player_name:=$(arg player_name) player_color:=$(arg player_color) base_color:=$(arg base_color) scan_color:=$(arg scan_color) orientacao:=$(arg orientacao)" />
+
+<!-- ATENÇÃO, QUANDO SE COMENTA UM MODELO TEM DE SE DAR UM ESPAÇO ENTRE OS DOIS HIFENS PERTO DO INNORDER -->
+    <param name="robot_description" command="$(find xacro)/xacro --inorder $(find robot_description)/urdf/robot.urdf.xacro player_name:=$(arg player_name) player_color:=$(arg player_color) base_color:=$(arg base_color) scan_color:=$(arg scan_color) orientacao:=$(arg orientacao)" />
+    <!-- <param name="robot_description" command="$(find xacro)/xacro - -inorder $(find robot_description)/urdf/robot_final.urdf.xacro player_name:=$(arg player_name) player_color:=$(arg player_color) base_color:=$(arg base_color) scan_color:=$(arg scan_color) orientacao:=$(arg orientacao)" /> -->
     
 
     <!--Bloco 4: Spawning (criação instantânea) do robô definido pela descrição anteriormente carregada para o robot_description, para uma posição específica da cena. -->
