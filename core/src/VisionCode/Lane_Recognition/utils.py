@@ -78,6 +78,10 @@ def get_abs_path(rel_path: str, is_dir: bool = False):
     return path
 
 
+def draw_quadratic(a: int, b: int, c: int):
+    raise NotImplementedError
+
+
 if __name__ == '__main__':
     # Testing, maybe...
     ...

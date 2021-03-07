@@ -7,6 +7,7 @@
 import cv2
 import numpy as np
 import rospy
+import utils
 from sensor_msgs.msg import Image, LaserScan
 from cv_bridge import CvBridge
 
@@ -17,8 +18,8 @@ def canny_edge_detector(image):
     # BGR_min = (50, 150,220)
     # BGR_max = (150, 200, 240)
 
+    # For discarding colors
     image_test = image.copy()  # copy of original image
-    # TODO: consider like this
     for i, row in enumerate(image_test):
         for j, pixel in enumerate(row):
             r, g, b = image_test[i][j]
@@ -32,6 +33,22 @@ def canny_edge_detector(image):
                 image_test[i][j] = (0, 0, 0)
     # Testing cancellation
     cv2.imshow("Test Color Cancelation", image_test)
+
+    # Debug: dict pixel->count (key -> value)
+    # utils.get_gray_image_histogram(image_test)
+    # TODO Image binarization using numpy [1]
+    th = 80  # TODO test for best value
+    ret, bin_mask_canny = cv2.threshold(image_test, th, 255, cv2.THRESH_BINARY)
+
+    cv2.imshow("binarized image (test)", bin_mask_canny)
+    cv2.waitKey(1)
+    # TODO Perform white pixel clusters removal: goal is to remove unwanted regions
+    #   - if this task is achieved, region_of_interest becomes obsolete
+
+    # Get a, b and c such as ax2 + bx + c is the best fit to given image
+    # TODO test this
+    a, b, c = get_coeffs(bin_mask_canny)
+    # utils.draw_quadratic(a, b, c)
 
     pintar_parede = cv2.inRange(image, BGR_min, BGR_max)
 
@@ -93,7 +110,6 @@ def get_coeffs(bin_image, degree: int = 2) -> tuple:
     :return:
     """
 
-    print(bin_image)
     height = bin_image.shape[0]
     vector = {"x": list(), "y": list()}
     x, y = vector["x"], vector["y"]
@@ -129,16 +145,6 @@ def Image_GET(image):
 
     #cv2.imshow("Region of interest in blue", image_interest)
 
-    # TODO Image binarization using numpy [1]
-    th = 100  # TODO test for best value
-    ret, bin_mask_canny = cv2.threshold(mask_canny, th, 255, cv2.THRESH_BINARY)
-    print(mask_canny, bin_mask_canny, sep="\n///", end="---")  # TODO remove this after purpose served
-
-    cv2.imshow("binarized image (test)", bin_mask_canny)
-    cv2.waitKey(1)
-    # TODO Perform white pixel clusters removal: goal is to remove unwanted regions
-    #   - if this task is achieved, region_of_interest becomes obsolete
-
     # Image x and y lengths
     altura_imagem = cropped_image.shape[0]      #altura=480
     print(altura_imagem)
@@ -147,10 +153,6 @@ def Image_GET(image):
     # Array of x and y values
     vector1x = []
     vector1y = []
-
-    # Get a, b and c such as ax2 + bx + c is the best fit to given image
-    # TODO test this
-    a, b, c = get_coeffs(bin_mask_canny)
 
     img2 = np.zeros(cropped_image.shape)
 
