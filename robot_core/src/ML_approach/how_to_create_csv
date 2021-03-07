@@ -17,7 +17,3 @@ If your driving was successful save the csv file, if not delete it.
 
 The csv file will be save in the path where you keep did the rosrun
 
-
-WARNING:  copy the next line and past into the "robot_final.urdf.xacro", line: 292, folder "robot_description"
-
-<origin xyz="0.003 0.011 0.6" rpy="0 0.6 0"/>
