@@ -3,6 +3,7 @@
 import cv2 as cv
 import os
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 def get_gray_image_histogram(image):
@@ -78,10 +79,33 @@ def get_abs_path(rel_path: str, is_dir: bool = False):
     return path
 
 
-def draw_quadratic(a: int, b: int, c: int):
-    raise NotImplementedError
+def draw_quadratic(a: float, b: float, c: float,
+                   title: str = None, legend: str = None):
+
+    width, height = 640, 480
+
+    x = np.arange(0, width, 1)  # [0, 1, 2, ..., width - 1]
+    y = a * x**2 + b * x + c  # quadratic
+
+    plt.ylim(0, height)  # ymin and ymax
+    plt.plot(x, y, 'b')  # blue line
+
+    # Describing the graph
+    if title is not None:
+        plt.title(title)
+    if legend is not None:
+        plt.legend(legend)
+
+    plt.show()
 
 
 if __name__ == '__main__':
-    # Testing, maybe...
-    ...
+    # For individual testing of the modules
+    # draw_quadratic(-0.001, 1, 200,
+    #                title="quadratic", legend="legend")
+    gray_image = cv.cvtColor(
+        cv.imread(get_abs_path(rel_path="../images/img1.jpeg")),
+        cv.COLOR_RGB2GRAY
+    )
+    get_gray_image_histogram(gray_image)
+    cv.waitKey(0)
