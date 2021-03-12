@@ -12,17 +12,11 @@ from sensor_msgs.msg import Image, LaserScan
 from cv_bridge import CvBridge
 
 
-def canny_edge_detector(image):
-    BGR_min = (220, 150, 50)
-    BGR_max = (240, 200, 150)
-    # BGR_min = (50, 150,220)
-    # BGR_max = (150, 200, 240)
-
+def canny_alternate(image):
     # For discarding colors
-    image_test = image.copy()  # copy of original image
-    for i, row in enumerate(image_test):
+    for i, row in enumerate(image):
         for j, pixel in enumerate(row):
-            r, g, b = image_test[i][j]
+            r, g, b = image[i][j]
             # How much can pixels deviate from black/white color
             deviation = 55
             min, max = deviation, 255 - deviation
@@ -30,25 +24,29 @@ def canny_edge_detector(image):
             # if any of r, g or b is outside the spectrum [0, 10] U [245, 255]
             if any([min < color < max for color in (r, g, b)]):
                 # Paint black
-                image_test[i][j] = (0, 0, 0)
+                image[i][j] = (0, 0, 0)
     # Testing cancellation
-    cv2.imshow("Test Color Cancelation", image_test)
+    cv2.imshow("Test Color Cancelation", image)
 
-    # Debug: dict pixel->count (key -> value)
-    # utils.get_gray_image_histogram(image_test)
-    # TODO Image binarization using numpy [1]
-    th = 80  # TODO test for best value
-    ret, bin_mask_canny = cv2.threshold(image_test, th, 255, cv2.THRESH_BINARY)
+    # BGR to Gray
+    gray_image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
 
-    cv2.imshow("binarized image (test)", bin_mask_canny)
+    th = 30  # reasonably working (best value?)
+    ret, bin_img = cv2.threshold(gray_image, th, 255, cv2.THRESH_BINARY)
+
+    cv2.imshow("binarized image (test)", bin_img)
     cv2.waitKey(1)
     # TODO Perform white pixel clusters removal: goal is to remove unwanted regions
     #   - if this task is achieved, region_of_interest becomes obsolete
 
-    # Get a, b and c such as ax2 + bx + c is the best fit to given image
-    # TODO test this
-    a, b, c = get_coeffs(bin_mask_canny)
-    # utils.draw_quadratic(a, b, c)
+    return bin_img
+
+
+def canny_edge_detector(image):
+    BGR_min = (220, 150, 50)
+    BGR_max = (240, 200, 150)
+    # BGR_min = (50, 150,220)
+    # BGR_max = (150, 200, 240)
 
     pintar_parede = cv2.inRange(image, BGR_min, BGR_max)
 
@@ -128,11 +126,29 @@ def get_coeffs(bin_image, degree: int = 2) -> tuple:
     return np.polyfit(x=x, y=y, deg=degree)
 
 
+def pick_line(bin_image, side: str):
+    """
+
+    :param bin_image: image of the road: expected to be of binary form
+    :param side: left, right or center
+    :return: image with only one of the lane lines visible
+    """
+    print(f"Function {pick_line.__name__} not implemented yet")
+    pass
+
+
 def Image_GET(image):
     bridge = CvBridge()
     cv_image = bridge.imgmsg_to_cv2(image, desired_encoding='passthrough')
     cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB)
     cv2.imshow("Camara Robot", cv_image)
+
+    alt_img = canny_alternate(cv_image)
+    # Get a, b and c such as ax2 + bx + c is the best fit to given image
+    # TODO test this
+    alt_img = pick_line(alt_img, "right")
+    a, b, c = get_coeffs(alt_img)
+    utils.draw_quadratic(a, b, c)  # de-comment when bin_mask_canny is good
 
     mask_canny = canny_edge_detector(cv_image)
     cropped_image = region_of_interest(mask_canny)
