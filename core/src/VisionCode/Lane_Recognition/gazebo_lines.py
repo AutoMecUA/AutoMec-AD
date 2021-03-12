@@ -146,7 +146,7 @@ def Image_GET(image):
     alt_img = canny_alternate(cv_image)
     # Get a, b and c such as ax2 + bx + c is the best fit to given image
     # TODO test this
-    alt_img = pick_line(alt_img, "right")
+    # alt_img = pick_line(alt_img, "right")  # TODO implement this function
     a, b, c = get_coeffs(alt_img)
     utils.draw_quadratic(a, b, c)  # de-comment when bin_mask_canny is good
 
