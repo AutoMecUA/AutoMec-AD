@@ -7,13 +7,13 @@
 import cv2
 import numpy as np
 import rospy
-import utils
 from sensor_msgs.msg import Image, LaserScan
 from cv_bridge import CvBridge
 
 
 def canny_alternate(image):
-    # For discarding colors
+
+    #For discarding colors
     for i, row in enumerate(image):
         for j, pixel in enumerate(row):
             r, g, b = image[i][j]
@@ -21,20 +21,19 @@ def canny_alternate(image):
             deviation = 55
             minim, maxim = deviation, 255 - deviation
             # For discarding colored pixels (road is not colored)
-            # if any of r, g or b is outside the spectrum [0, 10] U [245, 255]
+            # if any of r, g or b is outside the spectrum [0, 55] U [215, 255]
             if any([minim < color < maxim for color in (r, g, b)]):
                 # Paint black
                 image[i][j] = (0, 0, 0)
-    # Testing cancellation
-    # cv2.imshow("Test Color Cancelation", image)
 
-    # BGR to Gray
+    # RGB to Grayscale
     gray_image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
 
     th = 30  # reasonably working (best value?)
+
+    # Binary image
     ret, bin_img = cv2.threshold(gray_image, th, 255, cv2.THRESH_BINARY)
 
-    cv2.imshow("binarized image (test)", bin_img)
     # TODO (obsolete?) Perform white pixel clusters removal: goal is to remove unwanted regions
     #   - if this task is achieved, region_of_interest becomes obsolete
 
@@ -165,6 +164,22 @@ def unify_line(bin_image, side: str = "", average: bool = True):
         else:
             return False
 
+    # Tentar colocar apenas a maior área
+    # num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(bin_image, 8, cv2.CV_32S)
+    # max_area = 0
+    # label = 0
+    #
+    # for i in range(1, num_labels):
+    #     area = stats[i][cv2.CC_STAT_AREA]
+    #
+    #     if area > max_area:
+    #         max_area = area
+    #         label=num_labels
+    #
+    # nb_components, output, stats, centroids = cv2.connectedComponentsWithStats(bin_image, connectivity=8)
+    # img2 = np.zeros(output.shape)
+    # img2[output == label] = 255
+
     for row in bin_image:
         for x, pixel in enumerate(row):
             if check_line(x):
@@ -185,10 +200,20 @@ def unify_line(bin_image, side: str = "", average: bool = True):
             row[av] = 255
             whites = list()  # flush
 
-    # Print image
-    cv2.imshow("Test single curve", bin_image)
-
     return bin_image
+
+def quadratic_image(a: float, b: float, c: float,
+                    width: int, height: int):
+
+    image = np.zeros((height, width), np.uint8)
+
+    for x in range(width):
+        y = int(a * x ** 2 + b * x + c)
+        row = height - y
+        if 0 <= row < height:
+            image[row][x] = 255
+
+    return image
 
 
 def Image_GET(image):
@@ -198,13 +223,21 @@ def Image_GET(image):
     cv2.imshow("Camara Robot", cv_image)
     altura_imagem, largura_imagem = cv_image.shape[:2]  # altura=480
 
+    # Binary image
     alt_img = canny_alternate(cv_image)
+    cv2.imshow("binarized image (test)", alt_img)
+
     # Select one road line
     alt_img = unify_line(alt_img, side="right", average=False)
+    cv2.imshow("Test single curve", alt_img)
+
     # Get a, b and c such as ax2 + bx + c is the best fit to given image
     a, b, c = get_coeffs(alt_img)
-    utils.quadratic_image(a, b, c, width=largura_imagem,
-                          height=altura_imagem)  # de-comment when bin_mask_canny is good
+
+    image_curve=quadratic_image(a, b, c, width=largura_imagem,height=altura_imagem)  # de-comment when bin_mask_canny is good
+
+    cv2.imshow("Quadratic regression result", image_curve)
+
     cv2.waitKey(1)
 
 
