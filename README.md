@@ -40,3 +40,8 @@ All files regarding robot description
 https://streamable.com/ol18mb
 
 https://streamable.com/acich8
+
+https://streamable.com/t5thi0
+
+With images delivered to the catboost model:
+https://streamable.com/kfi7j6
