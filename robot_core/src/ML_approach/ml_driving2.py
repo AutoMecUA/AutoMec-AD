@@ -23,7 +23,7 @@ def message_RGB_ReceivedCallback(message):
 
 
     img_rbg = bridge.imgmsg_to_cv2(message, "bgr8")
-    print(img_rbg.shape)
+    
 
     begin_img = True
 
@@ -69,11 +69,23 @@ def main():
         # Binarize the image
         _, img_tresh = cv2.threshold(img_gray, 127, 1, cv2.THRESH_BINARY)
 
+        # Binarize the image for visualization only
+        __, img_tresh2 = cv2.threshold(img_gray, 127, 255, cv2.THRESH_BINARY)
+
         # Resizing image
         width = int(img_tresh.shape[1] * scale_percent / 100)
         height = int(img_tresh.shape[0] * scale_percent / 100)
         dim = (width, height)
         resized = cv2.resize(img_tresh, dim, interpolation = cv2.INTER_AREA)
+
+        # Resizing image ofr visualization only
+        width_ = int(img_tresh2.shape[1] * scale_percent / 100)
+        height_ = int(img_tresh2.shape[0] * scale_percent / 100)
+        dim_ = (width_, height_)
+        resized_ = cv2.resize(img_tresh2, dim_, interpolation = cv2.INTER_AREA)
+
+        cv2.imshow('Robot View',resized_)
+        cv2.waitKey(1)
     
 
         # Tranform image in a list
