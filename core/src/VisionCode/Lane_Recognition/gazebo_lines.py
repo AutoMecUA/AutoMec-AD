@@ -125,9 +125,10 @@ def get_coeffs(bin_image, degree: int = 2) -> tuple:
     return np.polyfit(x=x, y=y, deg=degree)
 
 
-def unify_line(bin_image, side: str = "", average: bool=True):
+def unify_line(bin_image, side: str = "", average: bool = True):
     """
 
+    :param average: pixel averaging? Yes if set True
     :param bin_image: image of the road: expected to be of binary form
     :param side: left, right or center (obsolete for now)
     :return: image with only one of the lane lines visible
@@ -185,7 +186,7 @@ def unify_line(bin_image, side: str = "", average: bool=True):
             whites = list()  # flush
 
     # Print image
-    cv2.imshow("Test curve merging", bin_image)
+    cv2.imshow("Test single curve", bin_image)
 
     return bin_image
 
@@ -195,51 +196,15 @@ def Image_GET(image):
     cv_image = bridge.imgmsg_to_cv2(image, desired_encoding='passthrough')
     cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB)
     cv2.imshow("Camara Robot", cv_image)
+    altura_imagem, largura_imagem = cv_image.shape[:2]  # altura=480
 
     alt_img = canny_alternate(cv_image)
     # Select one road line
-    unify_line(alt_img, side="right", average=False)
+    alt_img = unify_line(alt_img, side="right", average=False)
     # Get a, b and c such as ax2 + bx + c is the best fit to given image
     a, b, c = get_coeffs(alt_img)
-    # utils.draw_quadratic(a, b, c)  # de-comment when bin_mask_canny is good
-
-    mask_canny = canny_edge_detector(cv_image)
-    cropped_image = region_of_interest(mask_canny)
-    # cv2.imshow("Corte Triangular", cropped_image)
-    cv2.imshow("Corte Triangular", mask_canny)
-    # combo_image = cv2.addWeighted(cv_image, 0.8, line_image, 1, 1)
-    # cv2.imshow("results", combo_image)
-
-    # image_interest = region_of_interest(mask_canny)
-
-    # cv2.imshow("Region of interest in blue", image_interest)
-
-    # Image x and y lengths
-    altura_imagem = cropped_image.shape[0]  # altura=480
-    print(altura_imagem)
-    largura_imagem = cropped_image.shape[1]
-
-    # Array of x and y values
-    vector1x = []
-    vector1y = []
-
-    img2 = np.zeros(cropped_image.shape)
-
-    intervalo = 0
-    # Show image with only lines
-    for i in range(len(vector1x)):
-        j = len(vector1x) - i  # Y axis is inverted: inverting back here
-        img2[vector1y[j]][vector1x[i]] = 255
-
-    # # Lado esquerdo
-    # if n < round(largura_imagem / 2) and cropped_image[round(altura_imagem / 2) - 199, n] == 255:
-    #     print("Obstáculo à esquerda")
-    #
-    # if n > round(largura_imagem / 2) and cropped_image[round(altura_imagem / 2) - 199, n] == 255:
-    #     print("Obstáculo à direita")
-
-    cv2.imshow("results- Cut", img2)
-
+    utils.quadratic_image(a, b, c, width=largura_imagem,
+                          height=altura_imagem)  # de-comment when bin_mask_canny is good
     cv2.waitKey(1)
 
 
