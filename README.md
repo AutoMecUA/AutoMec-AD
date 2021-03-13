@@ -1,12 +1,138 @@
+
+
 # AutoMec-AD
-AutoMec Repositório
 
-Versões Software:
-  -Python3
-  -Ubuntu 20.04
-  -Ros Noetic
+This project goal is to develop a fully autonomous car to compete in the National Robotics Festival of Portugal. This repository is where the main code of University of Aveiro car is hosted. 
 
-# Organization of Repository
+
+# Dependencies
+Make sure you have these installed before booting 
+
+  - Python3
+  - Ubuntu 20.04
+  - Ros Noetic
+  - opencv 4.2.0
+  - numpy 1.17.4
+
+# How to run
+The code used in this repository is meant to drive a real world car , however using ros we can simulate an enviroment where we can test our robot (car). 
+
+First we need to create a catkin **workspace** to build our project. Choose an apropriate location for this.
+
+## Setting up ROS Enviroment
+```bash
+$ mkdir -p ~/catkin_ws/src
+$ cd ~/catkin_ws/
+$ catkin_make
+```
+Next you need to source catkin to your setup.bash
+
+If you are using bash terminal
+
+```bash
+$ source ~/catkin_ws/devel/setup.bash
+```
+
+Using zsh
+```bash
+$ source ~/catkin_ws/devel/setup.zsh
+```
+
+Next move in to the catkin src folder if you havent already and clone the repo.
+```bash
+cd catkin_ws
+cd src
+git clone https://github.com/DanielCoelho112/AutoMec-AD.git
+cd ..
+
+```
+Now you have the **main code** of our application but we still need to add some extra dependencies, ​this new repository that includes the turtle bot file and the arena used to simulate.
+
+```bash
+cd catkin_ws
+cd src
+git clone https://github.com/DaTeste
+cd ..
+
+```
+
+All that's left to do is to run catkin_make, bhis will build your ros packages and install any depencies they have. When running catkin_make any dependencies installed in previous packages will still run in your new ones so be carefull when creating a new package
+.
+
+
+Add the following to your .bashrc  file
+```bash
+export TURTLEBOT3_MODEL=waffle_pi 
+```
+
+
+If you don't know how to edit your .bashrc file type
+
+```bash
+nano ~/.bashrc
+```
+
+And add the previous line to the end of your file. Same procedure if you use zsh terminal but with .zshrc
+To Save press Cntrl+O , Enter . Cntrl+X to exit
+
+# Running the simulation enviroment
+
+Execute the following on one terminal 
+```bash
+roslaunch robot_bringup bringup_gazebo.launch
+roslaunch robot_bringup spawn.launch
+```
+On a secound terminal.
+
+```bash
+
+roslaunch robot_bringup spawn.launch
+```
+First command will launch gazebo, secound one will spawn the robotcar. 
+After this you should see gazebo opening with the racing track as shown.
+![alt text](https://prnt.sc/10kwm8i)
+
+# How to drive 
+To test drive the car  type in gazebo  run
+```bash
+rqt
+```
+Now head down to pluggins --> Robot Tools --> Robot Stearing and select /robot/cmd_vel as it's topic.
+
+![Driving](https://prnt.sc/10kwxpe)
+After this we need to add the camera Go to  **Plugins --> Vizualization --> Image View** and select  */robot/camera/rgb/image_raw*
+
+# Vision Code
+During this project multiple aproaches are being tested , raw computer vision with opencv and a Machine Learning aproach. 
+
+## Lane_Recognition
+To test. cd into /core/src/VisionCode/Lane_Recognition
+Launch gazebo and the robot as in the **Running the simulation** section
+
+and run the script
+
+```bash
+rosrun core gazebo_lines.py
+```
+
+You should see multiple camera windows with different filters show up.
+
+## Signal Recognition
+To test. cd into /core/src/VisionCode/Signal Recognition
+
+Open a terminal and run
+
+```bash
+roscore
+```
+On a secound terminal
+```bash
+python3 SignalRecognition.py
+```
+
+
+# Code structure
+This project uses ROS as it's building blocks. It's divided into 4 packages
 
 ## core 
 
@@ -18,21 +144,23 @@ VisionCode: All attempts at vision codes made.
 
 ManualDriving: Only contains the files for manual driving to be possible, latest version of the Arduino, twist converter.
 
-CommonFiles: Files that do not fit anywhere, initialization files, etc.
+CommonFiles: Files that do not fit elsewhere, initialization files, etc.
 
 ## robot_bringup
-  
-Code to launch the gazebo and the robot
+Code to launch the gazebo and the robot in the simulation
 
 ## robot_core
-  
+ ​
 Vision code ready to be implemented in gazebo
 
-Automatic driving
+Automatic driving using a ML Aproach
 
 ## robot_description
 
-All files regarding robot description
+All files regarding robot description and stats
+
+
+
 
 
 # ML driving
@@ -40,3 +168,7 @@ All files regarding robot description
 https://streamable.com/ol18mb
 
 https://streamable.com/acich8
+
+
+
+## License
