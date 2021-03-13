@@ -19,10 +19,10 @@ def canny_alternate(image):
             r, g, b = image[i][j]
             # How much can pixels deviate from black/white color
             deviation = 55
-            min, max = deviation, 255 - deviation
+            minim, maxim = deviation, 255 - deviation
             # For discarding colored pixels (road is not colored)
             # if any of r, g or b is outside the spectrum [0, 10] U [245, 255]
-            if any([min < color < max for color in (r, g, b)]):
+            if any([minim < color < maxim for color in (r, g, b)]):
                 # Paint black
                 image[i][j] = (0, 0, 0)
     # Testing cancellation
@@ -126,15 +126,37 @@ def get_coeffs(bin_image, degree: int = 2) -> tuple:
     return np.polyfit(x=x, y=y, deg=degree)
 
 
-def pick_line(bin_image, side: str):
+def unify_line(bin_image, side: str = ""):
     """
 
     :param bin_image: image of the road: expected to be of binary form
-    :param side: left, right or center
+    :param side: left, right or center (obsolete for now)
     :return: image with only one of the lane lines visible
+
+    Algorithm (pseudocode):
+    for row in image:
+      for x, pixel in enum(row):  # x == column number of pixel
+          if pixel is white:
+              add x to list; set row[x] (pixel) black
+      row[list.average] = white
+      flush list
+
     """
-    print(f"Function {pick_line.__name__} not implemented yet")
-    pass
+
+    whites: list = list()
+
+    for row in bin_image:
+        for x, pixel in enumerate(row):
+            if pixel == 255:  # pixel is white
+                whites.append(x)
+                row[x] = 0  # set black
+        row[np.average(whites)] = 255
+        whites = list()  # flush
+
+    # Print image
+    cv2.imshow("Test curve merging", bin_image)
+
+    return bin_image
 
 
 def Image_GET(image):
@@ -146,9 +168,9 @@ def Image_GET(image):
     alt_img = canny_alternate(cv_image)
     # Get a, b and c such as ax2 + bx + c is the best fit to given image
     # TODO test this
-    # alt_img = pick_line(alt_img, "right")  # TODO implement this function
+    unify_line(alt_img)
     a, b, c = get_coeffs(alt_img)
-    utils.draw_quadratic(a, b, c)  # de-comment when bin_mask_canny is good
+    # utils.draw_quadratic(a, b, c)  # de-comment when bin_mask_canny is good
 
     mask_canny = canny_edge_detector(cv_image)
     cropped_image = region_of_interest(mask_canny)
