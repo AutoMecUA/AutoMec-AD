@@ -26,7 +26,7 @@ def canny_alternate(image):
                 # Paint black
                 image[i][j] = (0, 0, 0)
     # Testing cancellation
-    cv2.imshow("Test Color Cancelation", image)
+    # cv2.imshow("Test Color Cancelation", image)
 
     # BGR to Gray
     gray_image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
@@ -35,8 +35,7 @@ def canny_alternate(image):
     ret, bin_img = cv2.threshold(gray_image, th, 255, cv2.THRESH_BINARY)
 
     cv2.imshow("binarized image (test)", bin_img)
-    cv2.waitKey(1)
-    # TODO Perform white pixel clusters removal: goal is to remove unwanted regions
+    # TODO (obsolete?) Perform white pixel clusters removal: goal is to remove unwanted regions
     #   - if this task is achieved, region_of_interest becomes obsolete
 
     return bin_img
@@ -57,29 +56,29 @@ def canny_edge_detector(image):
 
     num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(canny, 8, cv2.CV_32S)
 
-    #label = []
+    # label = []
     n = 0
     max_area = 0
     label = 0
     for i in range(1, num_labels):
-        height=stats[i][cv2.CC_STAT_HEIGHT]
+        height = stats[i][cv2.CC_STAT_HEIGHT]
         area = stats[i][cv2.CC_STAT_AREA]
 
         # if area > 200 and height>30:
         #     label.insert(n, i)
         #     n += 1
 
-        if area > max_area and height>30:
+        if area > max_area and height > 30:
             max_area = area
             label = i
 
-    #Só apanhar Maiores partes branca
+    # Só apanhar Maiores partes branca
     nb_components, output, stats, centroids = cv2.connectedComponentsWithStats(canny, connectivity=8)
     img2 = np.zeros(output.shape)
     img2[output == label] = 255
 
-    #for i in range(0,len(label)):
-        #img2[output == label[i]] = 255
+    # for i in range(0,len(label)):
+    # img2[output == label[i]] = 255
 
     return pintar_parede
 
@@ -87,9 +86,9 @@ def canny_edge_detector(image):
 def region_of_interest(image):
     height = image.shape[0]
     width = image.shape[1]
-    alpha=0
-    #Define vertices
-    polygons = np.array([[(0, height), (width, height), (round(width/2), round((height/2)*alpha))]])
+    alpha = 0
+    # Define vertices
+    polygons = np.array([[(0, height), (width, height), (round(width / 2), round((height / 2) * alpha))]])
     mask = np.zeros_like(image)
 
     # Fill poly-function deals with multiple polygon
@@ -126,7 +125,7 @@ def get_coeffs(bin_image, degree: int = 2) -> tuple:
     return np.polyfit(x=x, y=y, deg=degree)
 
 
-def unify_line(bin_image, side: str = ""):
+def unify_line(bin_image, side: str = "", average: bool=True):
     """
 
     :param bin_image: image of the road: expected to be of binary form
@@ -143,15 +142,47 @@ def unify_line(bin_image, side: str = ""):
 
     """
 
+    assert side in ["right", "left"]  # side is left or right
+
     whites: list = list()
+    vertical_line: float = 0.55  # line on the right/left of which pixels are not accounted for
+    image_width = bin_image.shape[1]
+
+    def check_line(col: int):
+        """
+
+        :param col: Column number of a given pixel
+        :return:True if pixel is to the right and side=="right",
+                    also if pixel is to the left and side=="left".
+                False otherwise
+        """
+        right: bool = col > vertical_line * image_width  # if true, pixel is to the right of line
+        if right and side == "right":
+            return True
+        elif not right and side == "left":
+            return True
+        else:
+            return False
 
     for row in bin_image:
         for x, pixel in enumerate(row):
-            if pixel == 255:  # pixel is white
-                whites.append(x)
-                row[x] = 0  # set black
-        row[np.average(whites)] = 255
-        whites = list()  # flush
+            if check_line(x):
+                if average:  #
+                    if pixel == 255:  # pixel is white
+                        whites.append(x)
+                        row[x] = 0  # set black
+            else:
+                # Also set black because it's not an interest region
+                row[x] = 0
+        # ...
+        if average:
+            try:
+                av: int = int(np.average(whites))
+            except ValueError:
+                whites = list()
+                continue
+            row[av] = 255
+            whites = list()  # flush
 
     # Print image
     cv2.imshow("Test curve merging", bin_image)
@@ -166,27 +197,27 @@ def Image_GET(image):
     cv2.imshow("Camara Robot", cv_image)
 
     alt_img = canny_alternate(cv_image)
+    # Select one road line
+    unify_line(alt_img, side="right", average=False)
     # Get a, b and c such as ax2 + bx + c is the best fit to given image
-    # TODO test this
-    unify_line(alt_img)
     a, b, c = get_coeffs(alt_img)
     # utils.draw_quadratic(a, b, c)  # de-comment when bin_mask_canny is good
 
     mask_canny = canny_edge_detector(cv_image)
     cropped_image = region_of_interest(mask_canny)
-    #cv2.imshow("Corte Triangular", cropped_image)
+    # cv2.imshow("Corte Triangular", cropped_image)
     cv2.imshow("Corte Triangular", mask_canny)
-    #combo_image = cv2.addWeighted(cv_image, 0.8, line_image, 1, 1)
-    #cv2.imshow("results", combo_image)
+    # combo_image = cv2.addWeighted(cv_image, 0.8, line_image, 1, 1)
+    # cv2.imshow("results", combo_image)
 
-    #image_interest = region_of_interest(mask_canny)
+    # image_interest = region_of_interest(mask_canny)
 
-    #cv2.imshow("Region of interest in blue", image_interest)
+    # cv2.imshow("Region of interest in blue", image_interest)
 
     # Image x and y lengths
-    altura_imagem = cropped_image.shape[0]      #altura=480
+    altura_imagem = cropped_image.shape[0]  # altura=480
     print(altura_imagem)
-    largura_imagem=cropped_image.shape[1]
+    largura_imagem = cropped_image.shape[1]
 
     # Array of x and y values
     vector1x = []
@@ -194,7 +225,7 @@ def Image_GET(image):
 
     img2 = np.zeros(cropped_image.shape)
 
-    intervalo=0
+    intervalo = 0
     # Show image with only lines
     for i in range(len(vector1x)):
         j = len(vector1x) - i  # Y axis is inverted: inverting back here
@@ -213,7 +244,6 @@ def Image_GET(image):
 
 
 def main():
-
     rospy.init_node('Robot_Send', anonymous=True)
     rospy.Subscriber('/robot/camera/rgb/image_raw', Image, Image_GET)
     rospy.spin()
