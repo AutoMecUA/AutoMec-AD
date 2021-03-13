@@ -99,6 +99,20 @@ def draw_quadratic(a: float, b: float, c: float,
     plt.show()
 
 
+def quadratic_image(a: float, b: float, c: float,
+                    width: int, height: int):
+
+    image = np.zeros((height, width), np.uint8)
+
+    for x in range(width):
+        y = int(a * x**2 + b * x + c)
+        row = height - y
+        if 0 <= row < height:
+            image[row][x] = 255
+    # show image
+    cv.imshow("Quadratic regression result", image)
+
+
 if __name__ == '__main__':
     # For individual testing of the modules
     # draw_quadratic(-0.001, 1, 200,
