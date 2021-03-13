@@ -8,32 +8,35 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 #   Importing the dataset
-dataset1 = pd.read_csv('../good_train_data/27_02_21__13_48_11.csv')
-dataset2 = pd.read_csv('../good_train_data/27_02_21__13_58_02.csv')
+#dataset1 = pd.read_csv('../good_train_data_turtle/07_03_21__18_56_30.csv')
+dataset2 = pd.read_csv('../good_train_data_turtle/13_03_21__16_17_03.csv')
+#dataset3 = pd.read_csv('../good_train_data_turtle/11_03_21__20_17_43.csv')
+#dataset4 = pd.read_csv('../good_train_data_turtle/11_03_21__20_19_04.csv')
 
-dataset1 = dataset1.drop(columns=['linear','angular','pixel.20400'])
+#dataset1 = dataset1.drop(columns=['linear','angular','pixel.20400'])
 dataset2 = dataset2.drop(columns=['linear','angular','pixel.20400'])
-dataset = dataset1.append(dataset2)
-print(dataset.shape)
-print(dataset1.shape)
-print(dataset2.shape)
+#dataset3 = dataset3.drop(columns=['linear','angular','pixel.20400'])
+#dataset4 = dataset4.drop(columns=['linear','angular','pixel.20400'])
 
-X = dataset.iloc[:,:-1]
-y = dataset.iloc[:,-1]
+print('excel done')
 
-#  Splitting the data
-from sklearn.model_selection import train_test_split
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size= 0.2, random_state = 0) 
 
+#dataset = dataset2.append([dataset3,dataset4])
+dataset=dataset2
+print('append off')
+
+X = dataset.iloc[:,:-1].values
+y = dataset.iloc[:,-1].values
+
+print('train begin')
 
 # Training the model
 from catboost import CatBoostRegressor
 regressor = CatBoostRegressor()
-regressor.fit(X_train, y_train) 
+regressor.fit(X, y) 
 
-#Predicting                             
-y_pred=regressor.predict(X_test)
+regressor.save_model('catboost_file_turtle_test2')                       
 
-#   Evaluating the model performance
-from sklearn.metrics import r2_score
-print(r2_score(y_test,y_pred))
+
+
+

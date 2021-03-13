@@ -23,6 +23,7 @@ def message_RGB_ReceivedCallback(message):
 
 
     img_rbg = bridge.imgmsg_to_cv2(message, "bgr8")
+    print(img_rbg.shape)
 
     begin_img = True
 
@@ -41,7 +42,7 @@ def main():
     scale_percent = 25 # percent of original size        
     from catboost import CatBoostRegressor
     regressor = CatBoostRegressor()  
-    regressor.load_model('catboost_file_new_robot2')
+    regressor.load_model('catboost_file_turtle_test2')
     twist = Twist()
 
 
@@ -54,7 +55,7 @@ def main():
     # Create an object of the CvBridge class
     bridge = CvBridge()
 
-    rate = rospy.Rate(50)
+    rate = rospy.Rate(10)
 
     while not rospy.is_shutdown():
 
