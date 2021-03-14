@@ -1,4 +1,4 @@
-# File for useful functions in the context of lane recognition
+# General purpose image processing and other useful functions
 
 import cv2 as cv
 import os
@@ -99,27 +99,19 @@ def draw_quadratic(a: float, b: float, c: float,
     plt.show()
 
 
-def quadratic_image(a: float, b: float, c: float,
-                    width: int, height: int):
-
-    image = np.zeros((height, width), np.uint8)
-
-    for x in range(width):
-        y = int(a * x**2 + b * x + c)
-        row = height - y
-        if 0 <= row < height:
-            image[row][x] = 255
-    # show image
-    cv.imshow("Quadratic regression result", image)
-
-
 if __name__ == '__main__':
-    # For individual testing of the modules
-    # draw_quadratic(-0.001, 1, 200,
-    #                title="quadratic", legend="legend")
-    gray_image = cv.cvtColor(
-        cv.imread(get_abs_path(rel_path="../images/img1.jpeg")),
-        cv.COLOR_RGB2GRAY
-    )
-    get_gray_image_histogram(gray_image)
-    cv.waitKey(0)
+    # Testing image processing efficiency of various methods
+    image = cv.imread(get_abs_path("../images/road3.jpg"))
+    # Start timer
+    ...
+    # for(for) loops
+    ...
+    # Tick
+    # scipy module
+    from scipy.misc import fromimage
+    ...
+    # Tick
+    ...
+    # ...
+    ...
+

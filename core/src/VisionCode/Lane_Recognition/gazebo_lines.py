@@ -98,7 +98,7 @@ def region_of_interest(image):
     return masked_image
 
 
-def get_coeffs(bin_image, degree: int = 2) -> tuple:
+def get_coeffs(bin_image, degree: int) -> list:
     """
 
     :param bin_image: pixels' value must either be 0 or 255 (in gray scale)
@@ -203,13 +203,15 @@ def unify_line(bin_image, side: str = "", average: bool = True):
     return bin_image
 
 
-def quadratic_image(a: float, b: float, c: float,
+def quadratic_image(coeffs: list,
                     width: int, height: int):
 
     image = np.zeros((height, width), np.uint8)
 
     for x in range(width):
-        y = int(a * x ** 2 + b * x + c)
+        y = sum(
+            [ak * x ** (len(coeffs) - i) for i, ak in enumerate(coeffs)]
+        )  # a0x**n + a1x**n-1 + ... + an -> poly equation
         row = height - y
         if 0 <= row < height:
             image[row][x] = 255
@@ -233,9 +235,10 @@ def Image_GET(image):
     cv2.imshow("Test single curve", alt_img)
 
     # Get a, b and c such as ax2 + bx + c is the best fit to given image
-    a, b, c = get_coeffs(alt_img)
+    coeffs: list = get_coeffs(alt_img, degree=2)
 
-    image_curve = quadratic_image(a, b, c, width=largura_imagem,
+    # Draw a graph with the estimated curve
+    image_curve = quadratic_image(coeffs=coeffs, width=largura_imagem,
                                   height=altura_imagem)  # de-comment when bin_mask_canny is good
 
     cv2.imshow("Quadratic regression result", image_curve)
