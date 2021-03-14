@@ -17,7 +17,7 @@ Make sure you have these installed before booting
   - matplotlib==3.3.4
 
 # How to run
-The code used in this repository is meant to drive a real world car , however using ros we can simulate an enviroment where we can test our robot (car). 
+The code used in this repository is meant to drive a real world car you can do so by folliwing the instructions on [Manual Driving](https://github.com/DanielCoelho112/AutoMec-AD/tree/readme/core/src/ManualDriving#manual-driving), however using ROS we can simulate an enviroment where we can test our robot (car). To do so, continue following the Setting up ROS Enviroment section.
 
 First we need to create a catkin **workspace** to build our project. Choose an apropriate location for this.
 
