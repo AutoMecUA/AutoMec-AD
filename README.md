@@ -61,6 +61,9 @@ cd ..
 All that's left to do is to run catkin_make, bhis will build your ros packages and install any depencies they have. When running catkin_make any dependencies installed in previous packages will still run in your new ones so be carefull when creating a new package
 .
 
+```bash
+catkin_make
+```
 
 Add the following to your .bashrc  file
 ```bash
