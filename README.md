@@ -1,5 +1,3 @@
-
-
 # AutoMec-AD
 
 This project goal is to develop a fully autonomous car to compete in the National Robotics Festival of Portugal. This repository is where the main code of University of Aveiro car is hosted. 
@@ -176,5 +174,10 @@ https://streamable.com/ol18mb
 https://streamable.com/acich8
 
 
+With images delivered to the catboost model:
+https://streamable.com/kfi7j6
+
 
 ## License
+https://streamable.com/t5thi0
+

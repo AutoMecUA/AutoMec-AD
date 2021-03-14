@@ -7,9 +7,37 @@
 import cv2
 import numpy as np
 import rospy
-import utils
 from sensor_msgs.msg import Image, LaserScan
 from cv_bridge import CvBridge
+
+
+def canny_alternate(image):
+
+    #For discarding colors
+    for i, row in enumerate(image):
+        for j, pixel in enumerate(row):
+            r, g, b = image[i][j]
+            # How much can pixels deviate from black/white color
+            deviation = 55
+            minim, maxim = deviation, 255 - deviation
+            # For discarding colored pixels (road is not colored)
+            # if any of r, g or b is outside the spectrum [0, 55] U [215, 255]
+            if any([minim < color < maxim for color in (r, g, b)]):
+                # Paint black
+                image[i][j] = (0, 0, 0)
+
+    # RGB to Grayscale
+    gray_image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+
+    th = 30  # reasonably working (best value?)
+
+    # Binary image
+    ret, bin_img = cv2.threshold(gray_image, th, 255, cv2.THRESH_BINARY)
+
+    # TODO (obsolete?) Perform white pixel clusters removal: goal is to remove unwanted regions
+    #   - if this task is achieved, region_of_interest becomes obsolete
+
+    return bin_img
 
 
 def canny_edge_detector(image):
@@ -17,38 +45,6 @@ def canny_edge_detector(image):
     BGR_max = (240, 200, 150)
     # BGR_min = (50, 150,220)
     # BGR_max = (150, 200, 240)
-
-    # For discarding colors
-    image_test = image.copy()  # copy of original image
-    for i, row in enumerate(image_test):
-        for j, pixel in enumerate(row):
-            r, g, b = image_test[i][j]
-            # How much can pixels deviate from black/white color
-            deviation = 55
-            min, max = deviation, 255 - deviation
-            # For discarding colored pixels (road is not colored)
-            # if any of r, g or b is outside the spectrum [0, 10] U [245, 255]
-            if any([min < color < max for color in (r, g, b)]):
-                # Paint black
-                image_test[i][j] = (0, 0, 0)
-    # Testing cancellation
-    cv2.imshow("Test Color Cancelation", image_test)
-
-    # Debug: dict pixel->count (key -> value)
-    # utils.get_gray_image_histogram(image_test)
-    # TODO Image binarization using numpy [1]
-    th = 80  # TODO test for best value
-    ret, bin_mask_canny = cv2.threshold(image_test, th, 255, cv2.THRESH_BINARY)
-
-    cv2.imshow("binarized image (test)", bin_mask_canny)
-    cv2.waitKey(1)
-    # TODO Perform white pixel clusters removal: goal is to remove unwanted regions
-    #   - if this task is achieved, region_of_interest becomes obsolete
-
-    # Get a, b and c such as ax2 + bx + c is the best fit to given image
-    # TODO test this
-    a, b, c = get_coeffs(bin_mask_canny)
-    # utils.draw_quadratic(a, b, c)
 
     pintar_parede = cv2.inRange(image, BGR_min, BGR_max)
 
@@ -59,29 +55,29 @@ def canny_edge_detector(image):
 
     num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(canny, 8, cv2.CV_32S)
 
-    #label = []
+    # label = []
     n = 0
     max_area = 0
     label = 0
     for i in range(1, num_labels):
-        height=stats[i][cv2.CC_STAT_HEIGHT]
+        height = stats[i][cv2.CC_STAT_HEIGHT]
         area = stats[i][cv2.CC_STAT_AREA]
 
         # if area > 200 and height>30:
         #     label.insert(n, i)
         #     n += 1
 
-        if area > max_area and height>30:
+        if area > max_area and height > 30:
             max_area = area
             label = i
 
-    #Só apanhar Maiores partes branca
+    # Só apanhar Maiores partes branca
     nb_components, output, stats, centroids = cv2.connectedComponentsWithStats(canny, connectivity=8)
     img2 = np.zeros(output.shape)
     img2[output == label] = 255
 
-    #for i in range(0,len(label)):
-        #img2[output == label[i]] = 255
+    # for i in range(0,len(label)):
+    # img2[output == label[i]] = 255
 
     return pintar_parede
 
@@ -89,9 +85,9 @@ def canny_edge_detector(image):
 def region_of_interest(image):
     height = image.shape[0]
     width = image.shape[1]
-    alpha=0
-    #Define vertices
-    polygons = np.array([[(0, height), (width, height), (round(width/2), round((height/2)*alpha))]])
+    alpha = 0
+    # Define vertices
+    polygons = np.array([[(0, height), (width, height), (round(width / 2), round((height / 2) * alpha))]])
     mask = np.zeros_like(image)
 
     # Fill poly-function deals with multiple polygon
@@ -128,54 +124,124 @@ def get_coeffs(bin_image, degree: int = 2) -> tuple:
     return np.polyfit(x=x, y=y, deg=degree)
 
 
+def unify_line(bin_image, side: str = "", average: bool = True):
+    """
+
+    :param average: pixel averaging? Yes if set True
+    :param bin_image: image of the road: expected to be of binary form
+    :param side: left, right or center (obsolete for now)
+    :return: image with only one of the lane lines visible
+
+    Algorithm (pseudocode):
+    for row in image:
+      for x, pixel in enum(row):  # x == column number of pixel
+          if pixel is white:
+              add x to list; set row[x] (pixel) black
+      row[list.average] = white
+      flush list
+
+    """
+
+    assert side in ["right", "left"]  # side is left or right
+
+    whites: list = list()
+    vertical_line: float = 0.55  # line on the right/left of which pixels are not accounted for
+    image_width = bin_image.shape[1]
+
+    def check_line(col: int):
+        """
+
+        :param col: Column number of a given pixel
+        :return:True if pixel is to the right and side=="right",
+                    also if pixel is to the left and side=="left".
+                False otherwise
+        """
+        right: bool = col > vertical_line * image_width  # if true, pixel is to the right of line
+        if right and side == "right":
+            return True
+        elif not right and side == "left":
+            return True
+        else:
+            return False
+
+    # Tentar colocar apenas a maior área
+    # num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(bin_image, 8, cv2.CV_32S)
+    # max_area = 0
+    # label = 0
+    #
+    # for i in range(1, num_labels):
+    #     area = stats[i][cv2.CC_STAT_AREA]
+    #
+    #     if area > max_area:
+    #         max_area = area
+    #         label=num_labels
+    #
+    # nb_components, output, stats, centroids = cv2.connectedComponentsWithStats(bin_image, connectivity=8)
+    # img2 = np.zeros(output.shape)
+    # img2[output == label] = 255
+
+    for row in bin_image:
+        for x, pixel in enumerate(row):
+            if check_line(x):
+                if average:  #
+                    if pixel == 255:  # pixel is white
+                        whites.append(x)
+                        row[x] = 0  # set black
+            else:
+                # Also set black because it's not an interest region
+                row[x] = 0
+        # ...
+        if average:
+            try:
+                av: int = int(np.average(whites))
+            except ValueError:
+                whites = list()
+                continue
+            row[av] = 255
+            whites = list()  # flush
+
+    return bin_image
+
+def quadratic_image(a: float, b: float, c: float,
+                    width: int, height: int):
+
+    image = np.zeros((height, width), np.uint8)
+
+    for x in range(width):
+        y = int(a * x ** 2 + b * x + c)
+        row = height - y
+        if 0 <= row < height:
+            image[row][x] = 255
+
+    return image
+
+
 def Image_GET(image):
     bridge = CvBridge()
     cv_image = bridge.imgmsg_to_cv2(image, desired_encoding='passthrough')
     cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB)
     cv2.imshow("Camara Robot", cv_image)
+    altura_imagem, largura_imagem = cv_image.shape[:2]  # altura=480
 
-    mask_canny = canny_edge_detector(cv_image)
-    cropped_image = region_of_interest(mask_canny)
-    #cv2.imshow("Corte Triangular", cropped_image)
-    cv2.imshow("Corte Triangular", mask_canny)
-    #combo_image = cv2.addWeighted(cv_image, 0.8, line_image, 1, 1)
-    #cv2.imshow("results", combo_image)
+    # Binary image
+    alt_img = canny_alternate(cv_image)
+    cv2.imshow("binarized image (test)", alt_img)
 
-    #image_interest = region_of_interest(mask_canny)
+    # Select one road line
+    alt_img = unify_line(alt_img, side="right", average=False)
+    cv2.imshow("Test single curve", alt_img)
 
-    #cv2.imshow("Region of interest in blue", image_interest)
+    # Get a, b and c such as ax2 + bx + c is the best fit to given image
+    a, b, c = get_coeffs(alt_img)
 
-    # Image x and y lengths
-    altura_imagem = cropped_image.shape[0]      #altura=480
-    print(altura_imagem)
-    largura_imagem=cropped_image.shape[1]
+    image_curve=quadratic_image(a, b, c, width=largura_imagem,height=altura_imagem)  # de-comment when bin_mask_canny is good
 
-    # Array of x and y values
-    vector1x = []
-    vector1y = []
-
-    img2 = np.zeros(cropped_image.shape)
-
-    intervalo=0
-    # Show image with only lines
-    for i in range(len(vector1x)):
-        j = len(vector1x) - i  # Y axis is inverted: inverting back here
-        img2[vector1y[j]][vector1x[i]] = 255
-
-    # # Lado esquerdo
-    # if n < round(largura_imagem / 2) and cropped_image[round(altura_imagem / 2) - 199, n] == 255:
-    #     print("Obstáculo à esquerda")
-    #
-    # if n > round(largura_imagem / 2) and cropped_image[round(altura_imagem / 2) - 199, n] == 255:
-    #     print("Obstáculo à direita")
-
-    cv2.imshow("results- Cut", img2)
+    cv2.imshow("Quadratic regression result", image_curve)
 
     cv2.waitKey(1)
 
 
 def main():
-
     rospy.init_node('Robot_Send', anonymous=True)
     rospy.Subscriber('/robot/camera/rgb/image_raw', Image, Image_GET)
     rospy.spin()
