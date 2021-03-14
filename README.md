@@ -12,8 +12,9 @@ Make sure you have these installed before booting
   - Python3
   - Ubuntu 20.04
   - Ros Noetic
-  - opencv 4.2.0
-  - numpy 1.17.4
+  - numpy==1.20.1
+  - opencv-python==4.5.1.48
+  - matplotlib==3.3.4
 
 # How to run
 The code used in this repository is meant to drive a real world car , however using ros we can simulate an enviroment where we can test our robot (car). 
