@@ -11,31 +11,24 @@ from sensor_msgs.msg import Image, LaserScan
 from cv_bridge import CvBridge
 
 
-def canny_alternate(image):
+def color_threshold(image):
 
-    #For discarding colors
-    for i, row in enumerate(image):
-        for j, pixel in enumerate(row):
-            r, g, b = image[i][j]
-            # How much can pixels deviate from black/white color
-            deviation = 55
-            minim, maxim = deviation, 255 - deviation
-            # For discarding colored pixels (road is not colored)
-            # if any of r, g or b is outside the spectrum [0, 55] U [215, 255]
-            if any([minim < color < maxim for color in (r, g, b)]):
-                # Paint black
-                image[i][j] = (0, 0, 0)
+    # For discarding colors
+    # How much can pixels deviate from black/white color
+    deviation = 40  # re-adjustable
+    minim, maxim = deviation, 255 - deviation
+    # For each of the r, g and b scales
+    for i in range(3):
+        # If < maxim -> to_zero
+        _, image[:][:][i] = cv2.threshold(image[:][:][i], maxim, 255, cv2.THRESH_TOZERO)
 
     # RGB to Grayscale
     gray_image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
 
-    th = 30  # reasonably working (best value?)
+    th = 100  # reasonably working (best value?)
 
     # Binary image
-    ret, bin_img = cv2.threshold(gray_image, th, 255, cv2.THRESH_BINARY)
-
-    # TODO (obsolete?) Perform white pixel clusters removal: goal is to remove unwanted regions
-    #   - if this task is achieved, region_of_interest becomes obsolete
+    _, bin_img = cv2.threshold(gray_image, th, 255, cv2.THRESH_BINARY)
 
     return bin_img
 
@@ -121,7 +114,7 @@ def get_coeffs(bin_image, degree: int) -> list:
     # Robustness check
     assert len(y) == len(x), "Error: Vectors x and y are not of same length!"
 
-    return np.polyfit(x=x, y=y, deg=degree)
+    return np.polyfit(x=x, y=y, deg=degree) if len(x) != 0 else None
 
 
 def unify_line(bin_image, side: str = "", average: bool = True):
@@ -206,13 +199,17 @@ def unify_line(bin_image, side: str = "", average: bool = True):
 def quadratic_image(coeffs: list,
                     width: int, height: int):
 
+    if coeffs is None:
+        print("No white pixels found!")
+        return None
+
     image = np.zeros((height, width), np.uint8)
 
     for x in range(width):
         y = sum(
-            [ak * x ** (len(coeffs) - i) for i, ak in enumerate(coeffs)]
+            [ak * x ** (len(coeffs) - i - 1) for i, ak in enumerate(coeffs)]
         )  # a0x**n + a1x**n-1 + ... + an -> poly equation
-        row = height - y
+        row = int(height - y)
         if 0 <= row < height:
             image[row][x] = 255
 
@@ -226,22 +223,30 @@ def Image_GET(image):
     cv2.imshow("Camara Robot", cv_image)
     altura_imagem, largura_imagem = cv_image.shape[:2]  # altura=480
 
-    # Binary image
-    alt_img = canny_alternate(cv_image)
-    cv2.imshow("binarized image (test)", alt_img)
+    # Binary image (TODO instead of color_threshold we can try
+    #                   one of the adaptive ones: gaussian, otsu's, ...)
+    alt_img = color_threshold(cv_image)
+    # alt_img2 = cv2.adaptiveThreshold(cv_image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+    #                                  cv2.THRESH_BINARY, 11, 2)
+    cv2.imshow("binarized image", alt_img)
+    # cv2.imshow("binarized image 2", alt_img2)
 
     # Select one road line
-    alt_img = unify_line(alt_img, side="right", average=False)
+    alt_img = unify_line(alt_img, side="right", average=True)
     cv2.imshow("Test single curve", alt_img)
 
     # Get a, b and c such as ax2 + bx + c is the best fit to given image
-    coeffs: list = get_coeffs(alt_img, degree=2)
+    coeffs: list = get_coeffs(alt_img, degree=3)
+
+    # Debug
+    print(f"coeffs: {coeffs}")
 
     # Draw a graph with the estimated curve
     image_curve = quadratic_image(coeffs=coeffs, width=largura_imagem,
                                   height=altura_imagem)  # de-comment when bin_mask_canny is good
 
-    cv2.imshow("Quadratic regression result", image_curve)
+    if image_curve is not None:
+        cv2.imshow("Quadratic regression result", image_curve)
 
     cv2.waitKey(1)
 

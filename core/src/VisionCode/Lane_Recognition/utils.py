@@ -6,15 +6,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def get_gray_image_histogram(image):
+def get_gray_image_histogram(img):
     """
     As shown in https://docs.opencv.org/master/d8/dbc/tutorial_histogram_calculation.html
-    :param image:
+    :param img:
     :return: shows histogram of image (mapping of colors and their frequencies)
     """
 
     hist_size = 256
-    hist = cv.calcHist([image], [0], None, [256], [0, 255])
+    hist = cv.calcHist([img], [0], None, [256], [0, 255])
 
     hist_w = 512
     hist_h = 400
@@ -100,18 +100,6 @@ def draw_quadratic(a: float, b: float, c: float,
 
 
 if __name__ == '__main__':
-    # Testing image processing efficiency of various methods
-    image = cv.imread(get_abs_path("../images/road3.jpg"))
-    # Start timer
-    ...
-    # for(for) loops
-    ...
-    # Tick
-    # scipy module
-    from scipy.misc import fromimage
-    ...
-    # Tick
-    ...
-    # ...
+    # For eventual testings
     ...
 
