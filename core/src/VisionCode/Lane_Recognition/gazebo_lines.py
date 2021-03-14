@@ -202,6 +202,7 @@ def unify_line(bin_image, side: str = "", average: bool = True):
 
     return bin_image
 
+
 def quadratic_image(a: float, b: float, c: float,
                     width: int, height: int):
 
@@ -234,7 +235,8 @@ def Image_GET(image):
     # Get a, b and c such as ax2 + bx + c is the best fit to given image
     a, b, c = get_coeffs(alt_img)
 
-    image_curve=quadratic_image(a, b, c, width=largura_imagem,height=altura_imagem)  # de-comment when bin_mask_canny is good
+    image_curve = quadratic_image(a, b, c, width=largura_imagem,
+                                  height=altura_imagem)  # de-comment when bin_mask_canny is good
 
     cv2.imshow("Quadratic regression result", image_curve)
 
