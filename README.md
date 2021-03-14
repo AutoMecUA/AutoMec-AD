@@ -51,7 +51,11 @@ Now you have the **main code** of our application but we still need to add some 
 ```bash
 cd catkin_ws
 cd src
-git clone https://github.com/DaTeste
+git clone https://github.com/ROBOTIS-GIT/turtlebot3_msgs
+git clone https://github.com/ROBOTIS-GIT/turtlebot3_simulations
+git clone https://github.com/ROBOTIS-GIT/turtlebot3
+git clone https://github.com/callmesora/AutoMec-Deppendencies
+git clone https://github.com/prolo09/pari_trabalho3
 cd ..
 
 ```
