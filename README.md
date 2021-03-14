@@ -4,6 +4,7 @@
 
 This project goal is to develop a fully autonomous car to compete in the National Robotics Festival of Portugal. This repository is where the main code of University of Aveiro car is hosted. 
 
+![alt text](https://i.imgur.com/7FCETQ1.png)
 
 # Dependencies
 Make sure you have these installed before booting 
@@ -90,7 +91,7 @@ roslaunch robot_bringup spawn.launch
 ```
 First command will launch gazebo, secound one will spawn the robotcar. 
 After this you should see gazebo opening with the racing track as shown.
-![alt text](https://prnt.sc/10kwm8i)
+![Gazebo](https://i.imgur.com/w7EFh7k.png)
 
 # How to drive 
 To test drive the car  type in gazebo  run
@@ -99,7 +100,8 @@ rqt
 ```
 Now head down to pluggins --> Robot Tools --> Robot Stearing and select /robot/cmd_vel as it's topic.
 
-![Driving](https://prnt.sc/10kwxpe)
+![Driving](https://i.imgur.com/ME4mgl7.png)
+
 After this we need to add the camera Go to  **Plugins --> Vizualization --> Image View** and select  */robot/camera/rgb/image_raw*
 
 # Vision Code
