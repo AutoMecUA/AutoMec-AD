@@ -3,31 +3,32 @@
 # Random Forest Regression
 
 # Importing the libraries
+from datetime import datetime
+
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-from datetime import datetime
 
 #   Importing the dataset
 
-dataset1 = pd.read_csv('../csv_data/20_03_21__13_44_5220_20.csv') 
-dataset2 = pd.read_csv('../csv_data/20_03_21__15_55_4720_20.csv') 
-dataset3 = pd.read_csv('../csv_data/20_03_21__16_18_5920_20.csv') 
-# # dataset4 = pd.read_csv('../write_csv/20_03_21__14_13_1120_20.csv') 
-# # dataset5 = pd.read_csv('../write_csv/20_03_21__14_14_0520_20.csv') 
+dataset1 = pd.read_csv('../csv_data/20_03_21__16_18_5920_20.csv')
+dataset2 = pd.read_csv('../csv_data/20_03_21__20_59_4920_20.csv')
+dataset3 = pd.read_csv('../csv_data/20_03_21__21_09_4120_20.csv')
+dataset4 = pd.read_csv('../csv_data/20_03_21__21_21_0420_20.csv')
 
 
 print("Excel accepted")
 
 dataset = dataset1.append(dataset2,ignore_index=True)
 dataset = dataset.append(dataset3,ignore_index=True)
-
-
+dataset = dataset.append(dataset4,ignore_index=True)
 
 
 
 X_train = dataset.iloc[:,:-1].values
 y_train = dataset.iloc[:,-1].values
+
+
 
 
 # Training the model
@@ -37,7 +38,7 @@ regressor.fit(X_train, y_train)
 
 
 
-#   Evaluating the model performance
+# Evaluating the model performance
 from sklearn.metrics import r2_score
 # print(r2_score(y_test,y_pred))
 now = datetime.now()
