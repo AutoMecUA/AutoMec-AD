@@ -6,28 +6,28 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+from datetime import datetime
 
 #   Importing the dataset
 
-dataset = pd.read_csv('../csv_data/20_03_21__13_44_5220_20.csv') 
-# dataset2 = pd.read_csv('../write_csv/20_03_21__14_05_3920_20.csv') 
-# # dataset3 = pd.read_csv('../write_csv/20_03_21__14_11_3220_20.csv') 
+dataset1 = pd.read_csv('../csv_data/20_03_21__13_44_5220_20.csv') 
+dataset2 = pd.read_csv('../csv_data/20_03_21__15_55_4720_20.csv') 
+dataset3 = pd.read_csv('../csv_data/20_03_21__16_18_5920_20.csv') 
 # # dataset4 = pd.read_csv('../write_csv/20_03_21__14_13_1120_20.csv') 
 # # dataset5 = pd.read_csv('../write_csv/20_03_21__14_14_0520_20.csv') 
 
 
 print("Excel accepted")
 
-#dataset = dataset1.append(dataset2,ignore_index=True)
-# dataset = dataset.append(dataset3)
-# dataset = dataset.append(dataset4)
-# dataset = dataset.append(dataset5)
+dataset = dataset1.append(dataset2,ignore_index=True)
+dataset = dataset.append(dataset3,ignore_index=True)
+
+
+
 
 
 X_train = dataset.iloc[:,:-1].values
 y_train = dataset.iloc[:,-1].values
-
-
 
 
 # Training the model
@@ -40,5 +40,8 @@ regressor.fit(X_train, y_train)
 #   Evaluating the model performance
 from sklearn.metrics import r2_score
 # print(r2_score(y_test,y_pred))
-regressor.save_model('catboost_file_turtle_20_03_21__15_09_00_2020')
+now = datetime.now()
+time_now = now.strftime("%H_%M_%S")
+model_name = now.strftime("%d") + "_" + now.strftime("%m") + "_" + now.strftime("%y") + "__" + time_now
+regressor.save_model('catboost_file_turtle_' + str(model_name) +'_2020')
 # print(np.concatenate((y_pred.reshape(len(y_pred),1),y_test.reshape(len(y_test),1)),1))

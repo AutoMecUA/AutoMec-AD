@@ -91,8 +91,16 @@ def main():
         img_gray = cv2.cvtColor(img_rbg,cv2.COLOR_BGR2GRAY)
 
         # Binarize the image
-        _, img_tresh = cv2.threshold(img_gray, 127, 1, cv2.THRESH_BINARY)
+        _, img_tresh = cv2.threshold(img_gray, 150, 1, cv2.THRESH_BINARY)
 
+        #----------------------------------------------------------- UNCOMMENT TO TEST THE TRESHOLD---------------------------------------------------
+        # Binarize the image for visualization 
+        # _, img_tresh2 = cv2.threshold(img_gray, 150, 255, cv2.THRESH_BINARY)
+        
+
+        # cv2.imshow('binarize',img_tresh2)
+        # cv2.waitKey(1)
+        # ----------------------------------------------------------------------------------------------------------------------------------------------
         # Resizing image
         width = 20
         height = 20
@@ -120,6 +128,7 @@ def main():
             time_now = now.strftime("%H_%M_%S")
             csv_name = now.strftime("%d") + "_" + now.strftime("%m") + "_" + now.strftime("%y") + "__" + time_now
             csv_name += '20_20'
+            csv_name += '0.59_0.6'   # height_angle
             csv_name += ".csv"
             append_list_as_row(csv_name, header)
             print("File Created")
