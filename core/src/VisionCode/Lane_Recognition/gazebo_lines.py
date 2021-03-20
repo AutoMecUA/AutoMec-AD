@@ -2,7 +2,9 @@
 
 # References:
 # [1] - https://note.nkmk.me/en/python-numpy-opencv-image-binarization/
-
+global cv_image
+global see_image
+global get_out
 # Import the required libraries
 import cv2
 import numpy as np
@@ -11,89 +13,17 @@ from sensor_msgs.msg import Image, LaserScan
 from cv_bridge import CvBridge
 
 
-def color_threshold(image):
+def canny_alternate(image):
 
-    # For discarding colors
-    # How much can pixels deviate from black/white color
-    deviation = 40  # re-adjustable
-    minim, maxim = deviation, 255 - deviation
-    # For each of the r, g and b scales
-    for i in range(3):
-        # If < maxim -> to_zero
-        _, image[:][:][i] = cv2.threshold(image[:][:][i], maxim, 255, cv2.THRESH_TOZERO)
-
-    # RGB to Grayscale
     gray_image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+    th = 100 # (to keep the wall out of the binary image, 100 does the work)
 
-    th = 100  # reasonably working (best value?)
-
-    # Binary image
     _, bin_img = cv2.threshold(gray_image, th, 255, cv2.THRESH_BINARY)
 
     return bin_img
 
-
-def canny_edge_detector(image):
-    BGR_min = (220, 150, 50)
-    BGR_max = (240, 200, 150)
-    # BGR_min = (50, 150,220)
-    # BGR_max = (150, 200, 240)
-
-    pintar_parede = cv2.inRange(image, BGR_min, BGR_max)
-
-    # Convert the image color to grayscale
-    gray_image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
-
-    th, canny = cv2.threshold(gray_image, 128, 255, cv2.THRESH_BINARY)
-
-    num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(canny, 8, cv2.CV_32S)
-
-    # label = []
-    n = 0
-    max_area = 0
-    label = 0
-    for i in range(1, num_labels):
-        height = stats[i][cv2.CC_STAT_HEIGHT]
-        area = stats[i][cv2.CC_STAT_AREA]
-
-        # if area > 200 and height>30:
-        #     label.insert(n, i)
-        #     n += 1
-
-        if area > max_area and height > 30:
-            max_area = area
-            label = i
-
-    # Só apanhar Maiores partes branca
-    nb_components, output, stats, centroids = cv2.connectedComponentsWithStats(canny, connectivity=8)
-    img2 = np.zeros(output.shape)
-    img2[output == label] = 255
-
-    # for i in range(0,len(label)):
-    # img2[output == label[i]] = 255
-
-    return pintar_parede
-
-
-def region_of_interest(image):
-    height = image.shape[0]
-    width = image.shape[1]
-    alpha = 0
-    # Define vertices
-    polygons = np.array([[(0, height), (width, height), (round(width / 2), round((height / 2) * alpha))]])
-    mask = np.zeros_like(image)
-
-    # Fill poly-function deals with multiple polygon
-    cv2.fillPoly(mask, polygons, 255)
-
-    # Bitwise operation between canny image and mask image
-    masked_image = cv2.bitwise_and(mask, image)
-    return masked_image
-
-
-def get_coeffs(bin_image, degree: int) -> list:
+def get_coeffs(bin_image) -> list:
     """
-
     :param bin_image: pixels' value must either be 0 or 255 (in gray scale)
     :param degree:
     :return:
@@ -114,17 +44,33 @@ def get_coeffs(bin_image, degree: int) -> list:
     # Robustness check
     assert len(y) == len(x), "Error: Vectors x and y are not of same length!"
 
+    #Here the codes seachs for the best corresondent degree
+    degree=0
+    get_out=False
+    while True:
+        coeffs=np.polyfit(x=x, y=y, deg=degree)
+        print(coeffs)
+        for i in range(0,len(coeffs)):
+            if abs(coeffs[i])<1 :
+                get_out=True
+                coeffs[i]=0
+                print(coeffs)
+                print(degree)
+                break
+
+        if get_out==True:
+            break
+        degree+=1
+
     return np.polyfit(x=x, y=y, deg=degree) if len(x) != 0 else None
 
 
 def unify_line(bin_image, side: str = "", average: bool = True):
     """
-
     :param average: pixel averaging? Yes if set True
     :param bin_image: image of the road: expected to be of binary form
     :param side: left, right or center (obsolete for now)
     :return: image with only one of the lane lines visible
-
     Algorithm (pseudocode):
     for row in image:
       for x, pixel in enum(row):  # x == column number of pixel
@@ -132,7 +78,6 @@ def unify_line(bin_image, side: str = "", average: bool = True):
               add x to list; set row[x] (pixel) black
       row[list.average] = white
       flush list
-
     """
 
     assert side in ["right", "left"]  # side is left or right
@@ -143,7 +88,6 @@ def unify_line(bin_image, side: str = "", average: bool = True):
 
     def check_line(col: int):
         """
-
         :param col: Column number of a given pixel
         :return:True if pixel is to the right and side=="right",
                     also if pixel is to the left and side=="left".
@@ -156,22 +100,6 @@ def unify_line(bin_image, side: str = "", average: bool = True):
             return True
         else:
             return False
-
-    # Tentar colocar apenas a maior área
-    # num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(bin_image, 8, cv2.CV_32S)
-    # max_area = 0
-    # label = 0
-    #
-    # for i in range(1, num_labels):
-    #     area = stats[i][cv2.CC_STAT_AREA]
-    #
-    #     if area > max_area:
-    #         max_area = area
-    #         label=num_labels
-    #
-    # nb_components, output, stats, centroids = cv2.connectedComponentsWithStats(bin_image, connectivity=8)
-    # img2 = np.zeros(output.shape)
-    # img2[output == label] = 255
 
     for row in bin_image:
         for x, pixel in enumerate(row):
@@ -193,8 +121,9 @@ def unify_line(bin_image, side: str = "", average: bool = True):
             row[av] = 255
             whites = list()  # flush
 
-    return bin_image
 
+
+    return bin_image
 
 def quadratic_image(coeffs: list,
                     width: int, height: int):
@@ -204,7 +133,6 @@ def quadratic_image(coeffs: list,
         return None
 
     image = np.zeros((height, width), np.uint8)
-
     for x in range(width):
         y = sum(
             [ak * x ** (len(coeffs) - i - 1) for i, ak in enumerate(coeffs)]
@@ -217,45 +145,66 @@ def quadratic_image(coeffs: list,
 
 
 def Image_GET(image):
+    global cv_image
     bridge = CvBridge()
     cv_image = bridge.imgmsg_to_cv2(image, desired_encoding='passthrough')
     cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB)
-    cv2.imshow("Camara Robot", cv_image)
-    altura_imagem, largura_imagem = cv_image.shape[:2]  # altura=480
+    global see_image
+    see_image=True
 
-    # Binary image (TODO instead of color_threshold we can try
-    #                   one of the adaptive ones: gaussian, otsu's, ...)
-    alt_img = color_threshold(cv_image)
-    # alt_img2 = cv2.adaptiveThreshold(cv_image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-    #                                  cv2.THRESH_BINARY, 11, 2)
-    cv2.imshow("binarized image", alt_img)
-    # cv2.imshow("binarized image 2", alt_img2)
+def biggest_area(image):
+    max_area = 0
+    label = 0
+    nb_components, output, stats, centroids = cv2.connectedComponentsWithStats(image, connectivity=4)
+    for i in range(1, nb_components):
+        area = stats[i][cv2.CC_STAT_AREA]
+        if area > max_area:
+            max_area = area
+            label = i
+    img2 = np.zeros(output.shape)
+    img2[output == label] = 255
 
-    # Select one road line
-    alt_img = unify_line(alt_img, side="right", average=True)
-    cv2.imshow("Test single curve", alt_img)
-
-    # Get a, b and c such as ax2 + bx + c is the best fit to given image
-    coeffs: list = get_coeffs(alt_img, degree=3)
-
-    # Debug
-    print(f"coeffs: {coeffs}")
-
-    # Draw a graph with the estimated curve
-    image_curve = quadratic_image(coeffs=coeffs, width=largura_imagem,
-                                  height=altura_imagem)  # de-comment when bin_mask_canny is good
-
-    if image_curve is not None:
-        cv2.imshow("Quadratic regression result", image_curve)
-
-    cv2.waitKey(1)
-
+    return img2
 
 def main():
+    global cv_image
     rospy.init_node('Robot_Send', anonymous=True)
     rospy.Subscriber('/robot/camera/rgb/image_raw', Image, Image_GET)
-    rospy.spin()
+    global see_image
+    see_image=False
+    while not rospy.is_shutdown():
+        if see_image==False:
+            continue
+        cv2.imshow("Camara Robot", cv_image)
+        altura_imagem, largura_imagem = cv_image.shape[:2]  # altura=480
 
+        # Binary image
+        alt_img = canny_alternate(cv_image)
+        cv2.imshow("binarized image (test)", alt_img)
+
+        #Biggest area - trial fase
+        #alt_img=biggest_area(alt_img)
+
+        # Select one road line
+        alt_img = unify_line(alt_img, side="right", average=False)
+        cv2.imshow("Test single curve", alt_img)
+
+        # Get a, b and c such as ax2 + bx + c is the best fit to given image
+        coeffs: list = get_coeffs(alt_img)
+
+        # Debug
+        print(f"coeffs: {coeffs}")
+
+        image_curve = quadratic_image(coeffs=coeffs, width=largura_imagem,
+                                      height=altura_imagem)  # de-comment when bin_mask_canny is good
+
+        if image_curve is not None:
+            cv2.imshow("Polyfit regression result", image_curve)
+
+
+        cv2.waitKey(1)
+
+        rospy.Rate(1).sleep()
 
 if __name__ == '__main__':
     main()
