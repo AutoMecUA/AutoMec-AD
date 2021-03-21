@@ -54,7 +54,7 @@ def get_coeffs(bin_image) -> list:
             if abs(coeffs[i])<1 :
                 get_out=True
                 coeffs[i]=0
-                print(coeffs)
+                #print(coeffs)
                 print(degree)
                 break
 
@@ -183,7 +183,7 @@ def main():
         cv2.imshow("binarized image (test)", alt_img)
 
         #Biggest area - trial fase
-        #alt_img=biggest_area(alt_img)
+        alt_img=biggest_area(alt_img)
 
         # Select one road line
         alt_img = unify_line(alt_img, side="right", average=False)
