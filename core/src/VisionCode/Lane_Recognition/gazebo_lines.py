@@ -2,6 +2,8 @@
 
 # References:
 # [1] - https://note.nkmk.me/en/python-numpy-opencv-image-binarization/
+from geometry_msgs.msg import Twist
+
 global cv_image
 global see_image
 global get_out
@@ -47,22 +49,25 @@ def get_coeffs(bin_image) -> list:
     #Here the codes seachs for the best corresondent degree
     degree=0
     get_out=False
+
     while True:
         coeffs=np.polyfit(x=x, y=y, deg=degree)
-        print(coeffs)
+        #print(coeffs)
+        #print(coeffs[0]) o zero é sempre o de maior grau
         for i in range(0,len(coeffs)):
-            if abs(coeffs[i])<1 :
+            if abs(coeffs[0])<1 :
                 get_out=True
-                coeffs[i]=0
+                #coeffs[0]=0
+                #print("corrected----------")
                 #print(coeffs)
-                print(degree)
+                #print(degree-1)
                 break
 
         if get_out==True:
             break
         degree+=1
 
-    return np.polyfit(x=x, y=y, deg=degree) if len(x) != 0 else None
+    return np.polyfit(x=x, y=y, deg=degree-1) if len(x) != 0 else None
 
 
 def unify_line(bin_image, side: str = "", average: bool = True):
@@ -170,6 +175,7 @@ def main():
     global cv_image
     rospy.init_node('Robot_Send', anonymous=True)
     rospy.Subscriber('/robot/camera/rgb/image_raw', Image, Image_GET)
+    velocity_publisher = rospy.Publisher('/robot/cmd_vel', Twist, queue_size=10)
     global see_image
     see_image=False
     while not rospy.is_shutdown():
@@ -183,7 +189,7 @@ def main():
         cv2.imshow("binarized image (test)", alt_img)
 
         #Biggest area - trial fase
-        alt_img=biggest_area(alt_img)
+        #alt_img=biggest_area(alt_img)
 
         # Select one road line
         alt_img = unify_line(alt_img, side="right", average=False)
@@ -192,8 +198,31 @@ def main():
         # Get a, b and c such as ax2 + bx + c is the best fit to given image
         coeffs: list = get_coeffs(alt_img)
 
+
+        #Velocity parameters:
+        vel_msg = Twist()
+        #vel_msg.linear.x = 0.05  # change constant value to change linear velocity
+        #vel_msg.linear.y = 0
+        #vel_msg.linear.z = 0
+        # Angular velocity in the z-axis.
+        #vel_msg.angular.x = 0
+        #vel_msg.angular.y = 0
+
         # Debug
         print(f"coeffs: {coeffs}")
+        if len(coeffs)==2:
+            print("Declive da Reta: " + str(coeffs[1]))
+            vel_msg.linear.x = 0.05
+            if coeffs[1]>0:
+                vel_msg.angular.z = -0.2
+            else:
+                vel_msg.angular.z=0.2
+        elif len(coeffs) == 1:
+            print("Reta Horizontal: " + str(coeffs[0]))
+            vel_msg.angular.z=0
+            vel_msg.linear.x = 0.05
+        else:
+            print("Grau Superior:" + str(len(coeffs)))
 
         image_curve = quadratic_image(coeffs=coeffs, width=largura_imagem,
                                       height=altura_imagem)  # de-comment when bin_mask_canny is good
@@ -202,6 +231,10 @@ def main():
             cv2.imshow("Polyfit regression result", image_curve)
 
 
+
+
+
+        velocity_publisher.publish(vel_msg)
         cv2.waitKey(1)
 
         rospy.Rate(1).sleep()
