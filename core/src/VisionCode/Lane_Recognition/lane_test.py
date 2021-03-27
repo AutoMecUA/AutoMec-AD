@@ -42,7 +42,7 @@ def perspective_transform(img):
     #print (dst)
     M = cv2.getPerspectiveTransform(src, dst)
 
-    Minv = cv2.getPerspectiveTransform(dst, src)
+    #Minv = cv2.getPerspectiveTransform(dst, src)
     img_size = (imshape[1], imshape[0])
     perspective_img = cv2.warpPerspective(img, M, img_size, flags = cv2.INTER_LINEAR)
     return perspective_img
@@ -326,7 +326,7 @@ def main():
     cv2.imshow('perspective', perspective_img)
 
     leftx, lefty, rightx, righty = find_lane_pixels(perspective_img)
-    left_fit, right_fit = fit_poly(leftx, lefty, rightx, righty)
+    left_fit, right_fit = fit_poly(leftx, lefty, rightx, righty)          #TODO if values very small = 0
 
     print(left_fit, right_fit)
 
