@@ -5,6 +5,8 @@ import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 
+# Todo - Adicionar conditionals para treinar o modelo se ele já existe
+
 # STEP 1 - Initialize Data
 path = 'myData'
 data = importDataInfo(path)

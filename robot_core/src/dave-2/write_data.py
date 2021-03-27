@@ -136,6 +136,7 @@ def main():
                 "%d") + "_" + now.strftime("%m") + "_" + now.strftime("%y") + "__" + time_now
             csv_name += '20_20'
             csv_name += ".csv"
+            csv_name = "driving_log.csv" # Overwrite Name - Falar com daniel sobre isto 
             # header comentado para não ter que o filtrar mais tarde
             append_list_as_row(csv_name, row)
             print("File Created")
