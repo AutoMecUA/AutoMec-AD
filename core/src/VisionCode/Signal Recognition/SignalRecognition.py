@@ -26,7 +26,7 @@ line_thickness = 3
 # Detection Parameters
 
 scale_cap = 0.4
-detection_threshold = 0.7
+detection_threshold = 0.8
 
 # Initial velocity
 vel = 0
