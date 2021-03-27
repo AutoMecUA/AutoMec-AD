@@ -11,10 +11,22 @@ from geometry_msgs.msg._Twist import Twist
 from sensor_msgs.msg._Image import Image
 from cv_bridge.core import CvBridge
 from datetime import datetime
+from tensorflow.keras.models import load_model
+
 
 global img_rbg
 global bridge
 global begin_img
+
+
+def preProcess(img):
+    # Define Region of intrest- Perguntar ao Daniel se corto ou não , problema do angulo da camera
+   # img = img[60:135, :, :]
+    img = cv2.cvtColor(img, cv2.COLOR_RGB2YUV)
+    img = cv2.GaussianBlur(img,  (3, 3), 0)
+    img = cv2.resize(img, (200, 66))
+    img = img/255
+    return img
 
 
 def message_RGB_ReceivedCallback(message):
@@ -34,10 +46,7 @@ def main():
     global bridge
     global begin_img
     begin_img = False
-    scale_percent = 25  # percent of original size
-    from catboost import CatBoostRegressor
-    regressor = CatBoostRegressor()
-    regressor.load_model('catboost_file_turtle_test2')
+
     twist = Twist()
 
     # Init Node
@@ -57,39 +66,16 @@ def main():
         if begin_img == False:
             continue
 
-        # Gray scale the image
-        img_gray = cv2.cvtColor(img_rbg, cv2.COLOR_BGR2GRAY)
+        resized_ = preProcess(img_rbg)
 
-        # Binarize the image
-        _, img_tresh = cv2.threshold(img_gray, 127, 1, cv2.THRESH_BINARY)
-
-        # Binarize the image for visualization only
-        __, img_tresh2 = cv2.threshold(img_gray, 127, 255, cv2.THRESH_BINARY)
-
-        # Resizing image
-        width = int(img_tresh.shape[1] * scale_percent / 100)
-        height = int(img_tresh.shape[0] * scale_percent / 100)
-        dim = (width, height)
-        resized = cv2.resize(img_tresh, dim, interpolation=cv2.INTER_AREA)
-
-        # Resizing image ofr visualization only
-        width_ = int(img_tresh2.shape[1] * scale_percent / 100)
-        height_ = int(img_tresh2.shape[0] * scale_percent / 100)
-        dim_ = (width_, height_)
-        resized_ = cv2.resize(img_tresh2, dim_, interpolation=cv2.INTER_AREA)
-
-        cv2.imshow('Robot View', resized_)
+        cv2.imshow('Robot View Processed', resized_)
+        cv2.imshow('Robot View', img_rbg)
         cv2.waitKey(1)
 
-        # Tranform image in a list
-        initial_array = copy.deepcopy(resized)
-        final_array = np.resize(
-            initial_array, (1, initial_array.shape[0]*initial_array.shape[1]))
-        final_list = final_array.tolist()[0]
-
         # Predict angle
-
-        angle = regressor.predict(np.array(final_list))
+        image = np.array([resized_])
+        steering = float(model.predict(image))
+        angle = steering
 
         # Send twist
         twist.linear.x = 0.25
@@ -105,4 +91,5 @@ def main():
 
 
 if __name__ == '__main__':
+    model = load_model('model.h5')
     main()
