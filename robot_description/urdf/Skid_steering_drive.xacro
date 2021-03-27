@@ -8,8 +8,8 @@
       <rightFrontJoint>wheel_right_front_joint</rightFrontJoint>
       <leftRearJoint>wheel_left_joint</leftRearJoint>
       <rightRearJoint>wheel_right_joint</rightRearJoint>
-      <wheelSeparation>0.243</wheelSeparation>
-      <wheelDiameter>0.124</wheelDiameter>
+      <wheelSeparation>0.400</wheelSeparation>
+      <wheelDiameter>0.125</wheelDiameter>
       <robotBaseFrame>base_link</robotBaseFrame>
       <torque>20</torque>
       <topicName>cmd_vel</topicName>

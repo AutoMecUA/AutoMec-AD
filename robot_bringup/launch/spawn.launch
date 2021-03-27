@@ -9,7 +9,7 @@
     <arg name="orientacao" default="2.0"/>
 
     <arg name="player_name" default="robot"/>
-    <arg name="player_color" default="Red"/>
+    <arg name="player_color" default="White"/>
     <arg name="base_color" default="Black"/>
     <arg name="scan_color" default="Black"/>
 
