@@ -47,20 +47,23 @@ def get_coeffs(bin_image) -> list:
     # Robustness check
     assert len(y) == len(x), "Error: Vectors x and y are not of same length!"
 
-    #Here the codes searchs for the best corresondent degree
-    degree=0
-    get_out=False
+    # Here the codes searchs for the best corresondent degree
+    degree = 0
+    get_out = False
 
     while True:
-        coeffs=np.polyfit(x=x, y=y, deg=degree)
-        for i in range(0,len(coeffs)):
-            if abs(coeffs[0])<1 :
+        coeffs = np.polyfit(x=x, y=y, deg=degree)
+        for i in range(0, len(coeffs)):
+            if abs(coeffs[0]) < 1:
                 get_out = True
                 break
 
-        if get_out==True:
+        if get_out:
             break
-        degree+=1
+
+        radius_stats(coeffs=coeffs,
+                     exes=x)
+        degree += 1
 
     return np.polyfit(x=x, y=y, deg=degree-1) if len(x) != 0 else None
 
@@ -167,6 +170,18 @@ def biggest_area(image):
     img2[output == label] = 255
 
     return img2
+
+
+def radius_stats(coeffs: list, exes: list):
+
+    if len(coeffs) == 3:
+        return
+
+    radiuses: list = [radius_2poly(*coeffs, result) for result in exes]
+
+    print(f"Average: {np.average(radiuses)}",
+          f"Standard deviation {np.std(radiuses)}",
+          sep="; ", end=".")
 
 
 def radius_2poly(a: float, b: float,
