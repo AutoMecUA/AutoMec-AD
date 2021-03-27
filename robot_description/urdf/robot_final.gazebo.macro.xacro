@@ -2,7 +2,7 @@
 <robot name="robot_gaz" xmlns:xacro="http://ros.org/wiki/xacro">
 
   <!-- <xacro:include filename="$(find robot_description)/urdf/Skid_steering_drive.xacro"/> -->
-  <xacro:include filename="$(find robot_description)/urdf/ros_diff_drive.gazebo.xacro"/>
+  <!-- <xacro:include filename="$(find robot_description)/urdf/ros_diff_drive.gazebo.xacro"/> -->
 <!--  <xacro:include filename="$(find p_g5_description)/urdf/ros_control.gazebo.xacro"/>-->
 
 
@@ -11,50 +11,83 @@
   <xacro:arg name="imu_visual"    default="false"/>
 
   <gazebo reference="base_link">
-    <material>Gazebo/${base_color}</material>
+    <!-- <material>Gazebo/${base_color}</material> -->
+    <material>Gazebo/${player_color}</material>
   </gazebo>
 
   <gazebo reference="wheel_left_link">
-    <mu1>0.1</mu1>
-    <mu2>0.1</mu2>
-    <kp>500000.0</kp>
-    <kd>10000.0</kd>
-    <minDepth>0.001</minDepth>
+    <!-- <mu1>0.7</mu1>
+    <mu2>0.7</mu2>
+    <kp>100000000.0</kp>
+    <kd>1.0</kd>
+    <minDepth>0.01</minDepth>
     <maxVel>0.1</maxVel>
     <fdir1>1 0 0</fdir1>
+    <maxVel>10</maxVel> -->
+    <mu1>0.9</mu1>
+    <mu2>0.9</mu2>
+    <kp>1000000.0</kp>
+    <kd>10.0</kd>            
+    <minDepth>0.001</minDepth>
+    <maxContacts>1</maxContacts>
+    <fdir1>0 1 0</fdir1>
     <material>Gazebo/${player_color}</material>
   </gazebo>
   
   <gazebo reference="wheel_left_front_link">
-    <mu1>0</mu1>
-    <mu2>0</mu2>
-    <!-- <kp>500000.0</kp>
-    <kd>10000.0</kd>
-    <minDepth>0.001</minDepth>
+    <!-- <mu1>0.7</mu1>
+    <mu2>0.7</mu2>
+    <kp>100000000.0</kp>
+    <kd>1.0</kd>
+    <minDepth>0.01</minDepth>
     <maxVel>0.1</maxVel>
-    <fdir1>1 0 0</fdir1> -->
+    <fdir1>1 0 0</fdir1>
+    <maxVel>10</maxVel> -->
+   <mu1>0.9</mu1>
+    <mu2>0.9</mu2>
+    <kp>1000000.0</kp>
+    <kd>10.0</kd>            
+    <minDepth>0.001</minDepth>
+    <maxContacts>1</maxContacts>
+    <fdir1>0 1 0</fdir1>
     <material>Gazebo/${player_color}</material>
   </gazebo>
 
   <gazebo reference="wheel_right_link">
-    <mu1>0.1</mu1>
-    <mu2>0.1</mu2>
-    <kp>500000.0</kp>
-    <kd>10000.0</kd>
-    <minDepth>0.001</minDepth>
+    <!-- <mu1>0.7</mu1>
+    <mu2>0.7</mu2>
+    <kp>100000000.0</kp>
+    <kd>1.0</kd>
+    <minDepth>0.01</minDepth>
     <maxVel>0.1</maxVel>
     <fdir1>1 0 0</fdir1>
+    <maxVel>10</maxVel> -->
+   <mu1>0.9</mu1>
+    <mu2>0.9</mu2>
+    <kp>1000000.0</kp>
+    <kd>10.0</kd>            
+    <minDepth>0.001</minDepth>
+    <maxContacts>1</maxContacts>
+    <fdir1>0 1 0</fdir1>
    <material>Gazebo/${player_color}</material>
   </gazebo>
 
   <gazebo reference="wheel_right_front_link">
-    <mu1>0</mu1>
-    <mu2>0</mu2>
-    <!-- <kp>500000.0</kp>
-    <kd>10000.0</kd>
-    <minDepth>0.001</minDepth>
+    <!-- <mu1>0.7</mu1>
+    <mu2>0.7</mu2>
+    <kp>100000000.0</kp>
+    <kd>1.0</kd>
+    <minDepth>0.01</minDepth>
     <maxVel>0.1</maxVel>
-    <fdir1>1 0 0</fdir1> -->
+    <fdir1>1 0 0</fdir1>
+    <maxVel>10</maxVel> -->
+   <mu1>0.9</mu1>
+    <mu2>0.9</mu2>
+    <kp>1000000.0</kp>
+    <kd>10.0</kd>            
+    <minDepth>0.001</minDepth>
+    <maxContacts>1</maxContacts>
+    <fdir1>0 1 0</fdir1>
     <material>Gazebo/${player_color}</material>
   </gazebo>
 
@@ -87,7 +120,7 @@
 
   </gazebo>
 
-  <gazebo>
+  <!-- <gazebo>
     <plugin name="turtlebot3_waffle_pi_controller" filename="libgazebo_ros_diff_drive.so">
       <commandTopic>cmd_vel</commandTopic>
       <odometryTopic>odom</odometryTopic>
@@ -107,6 +140,45 @@
       <wheelAcceleration>1</wheelAcceleration>
       <wheelTorque>10</wheelTorque>
       <rosDebugLevel>na</rosDebugLevel>
+    </plugin>
+  </gazebo> -->
+
+  <gazebo>
+    <plugin name="SkidSteerDrivePlugin" filename="libgazebo_ros_skid_steer_drive.so">
+      <updateRate>100.0</updateRate>
+      <robotNamespace>robot</robotNamespace>
+      <leftFrontJoint>wheel_left_front_joint</leftFrontJoint>
+      <rightFrontJoint>wheel_right_front_joint</rightFrontJoint>
+      <leftRearJoint>wheel_left_joint</leftRearJoint>
+      <rightRearJoint>wheel_right_joint</rightRearJoint>
+      <wheelSeparation>0.245</wheelSeparation>
+      <wheelDiameter>0.125</wheelDiameter>
+      <robotBaseFrame>base_link</robotBaseFrame>
+      <torque>2</torque>
+      <topicName>cmd_vel</topicName>
+      <broadcastTF>false</broadcastTF>
+      <commandTopic>cmd_vel</commandTopic>
+      <odometryTopic>odom</odometryTopic>
+      <odometryFrame>odom</odometryFrame>
+      <covariance_x>0.0001</covariance_x>
+      <covariance_y>0.0001</covariance_y>
+      <covariance_yaw>0.0001</covariance_yaw>
+
+        <!-- <dds_domain_id>0</dds_domain_id>
+    <topic_name_twist>cmd_vel</topic_name_twist>
+    <topic_name_odometry>odom</topic_name_odometry>
+    <topic_name_joint>joint</topic_name_joint>
+    <right_front_joint>wheel_right_front_joint</right_front_joint>
+    <right_rear_joint>wheel_right_joint</right_rear_joint>
+    <left_front_joint>wheel_left_front_joint</left_front_joint>
+    <left_rear_joint>wheel_left_joint</left_rear_joint>
+    <wheel_separation>0.4</wheel_separation>
+    <wheel_diameter>0.0625</wheel_diameter>
+    <wheel_torque>5.0</wheel_torque>
+    <update_rate>2</update_rate>
+    <covariance_x>0.0001</covariance_x>
+    <covariance_y>0.0001</covariance_y>
+    <covariance_yaw>0.01</covariance_yaw> -->
     </plugin>
   </gazebo>
 
