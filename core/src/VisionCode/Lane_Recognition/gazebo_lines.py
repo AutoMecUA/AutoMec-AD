@@ -260,7 +260,7 @@ def main():
         if image_curve is not None:
             cv2.imshow("Polyfit regression result", image_curve)
 
-        print("Teste")
+        print("Teste1")
 
 
 
