@@ -24,6 +24,7 @@ def canny_alternate(image):
 
     return bin_img
 
+
 def get_coeffs(bin_image) -> list:
     """
     :param bin_image: pixels' value must either be 0 or 255 (in gray scale)
@@ -46,21 +47,15 @@ def get_coeffs(bin_image) -> list:
     # Robustness check
     assert len(y) == len(x), "Error: Vectors x and y are not of same length!"
 
-    #Here the codes seachs for the best corresondent degree
+    #Here the codes searchs for the best corresondent degree
     degree=0
     get_out=False
 
     while True:
         coeffs=np.polyfit(x=x, y=y, deg=degree)
-        #print(coeffs)
-        #print(coeffs[0]) o zero é sempre o de maior grau
         for i in range(0,len(coeffs)):
             if abs(coeffs[0])<1 :
-                get_out=True
-                #coeffs[0]=0
-                #print("corrected----------")
-                #print(coeffs)
-                #print(degree-1)
+                get_out = True
                 break
 
         if get_out==True:
@@ -130,6 +125,7 @@ def unify_line(bin_image, side: str = "", average: bool = True):
 
     return bin_image
 
+
 def quadratic_image(coeffs: list,
                     width: int, height: int):
 
@@ -157,6 +153,7 @@ def Image_GET(image):
     global see_image
     see_image=True
 
+
 def biggest_area(image):
     max_area = 0
     label = 0
@@ -170,6 +167,24 @@ def biggest_area(image):
     img2[output == label] = 255
 
     return img2
+
+
+def radius_2poly(a: float, b: float,
+                 c: float, x: float) -> float:
+    """
+    return: return radius of a given 2nd degree polynomial curve
+    """
+
+    y: float = a*x**2 + b*x + c
+
+    numerator: float = 1 + (2*a*y + b) ** 2
+
+    numerator = numerator ** (3/2)
+
+    result = numerator / abs(2*a)
+
+    return result
+
 
 def main():
     global cv_image
