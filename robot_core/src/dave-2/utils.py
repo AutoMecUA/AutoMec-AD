@@ -38,6 +38,7 @@ def balanceData(data, display=True):
     nBins = 31  # Has to be an odd number so we have zero at the center
     samplesPerBin = 500  # Change later with more values, ex 1000
     hist, bins = np.histogram(data['Steering'], nBins)
+    plt.title("Steering Angle Distribuiton")
     # print(bins)
     # center-  This creates a Bin with zero value for the center (wich is what we expect from most of the driving input)
     if display:
@@ -67,6 +68,7 @@ def balanceData(data, display=True):
         hist, _ = np.histogram(data['Steering'], nBins)
         plt.bar(center, hist, width=0.06)
         plt.plot((-1, 1), (samplesPerBin, samplesPerBin))
+        plt.title("Steering Angle Distribuiton (Trimmed)")
         plt.show()  # Ver Graficos
 
     return data
