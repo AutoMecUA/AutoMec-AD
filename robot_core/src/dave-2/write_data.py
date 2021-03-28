@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 # Imports
+import os.path
 import argparse
 import cv2
 from csv import writer
@@ -14,7 +15,7 @@ from datetime import datetime
 import time
 import pathlib
 import os
-
+import string
 
 # Global Variables
 global angular
@@ -25,8 +26,18 @@ global begin_img
 global img_rbg
 global d
 global row
+
+
+# simple version for working with CWD
+
+s = str(pathlib.Path(__file__).parent.absolute())
+path, dirs, files = next(os.walk(s+"/myData/IMG/"))
+file_count = len(files)
+print('Number of images in Already in Folder: ', file_count)
+
+
 # Function to append row on a csv file
-d = 0
+d = file_count
 row = []
 
 
@@ -136,7 +147,7 @@ def main():
                 "%d") + "_" + now.strftime("%m") + "_" + now.strftime("%y") + "__" + time_now
             csv_name += '20_20'
             csv_name += ".csv"
-            csv_name = "driving_log.csv" # Overwrite Name - Falar com daniel sobre isto 
+            csv_name = "driving_log.csv"  # Overwrite Name - Falar com daniel sobre isto
             # header comentado para não ter que o filtrar mais tarde
             append_list_as_row(csv_name, row)
             print("File Created")
