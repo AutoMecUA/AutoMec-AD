@@ -1,15 +1,20 @@
 from utils import *
 from sklearn.model_selection import train_test_split
 import os
-import os
+import pathlib
+
+from tensorflow.keras.models import load_model
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 
 # Todo - Adicionar conditionals para treinar o modelo se ele já existe
 
 # STEP 1 - Initialize Data
-path = 'myData'
+s = str(pathlib.Path(__file__).parent.absolute())
+path = s + '/myData/'
 data = importDataInfo(path)
+
 
 # Step 2 - Vizualize and Balance data
 balanceData(data, display=True)
@@ -33,12 +38,18 @@ print('Total Validation Images: ', len(xVal))
 # Step 7 - Batch Generator
 
 # Step 8 - Creating the Model
-model = createModel()
+print("\n" + "Create a new model from scratch? [Y/N]")
+if input().lower() == "y":
+    model = createModel()
+else:
+    model = load_model('model.h5')
+
+
 model.summary()
 
 # Step 9 -Training
-history = model.fit(batchGen(xTrain, yTrain, 100, 1), steps_per_epoch=200, epochs=3,
-                    validation_data=batchGen(xVal, yVal, 100, 0), validation_steps=200)
+history = model.fit(batchGen(xTrain, yTrain, 20, 1), steps_per_epoch=50, epochs=3,
+                    validation_data=batchGen(xVal, yVal, 20, 0), validation_steps=50)
 
 # Step 10 - Saving and plotting
 model.save('model.h5')

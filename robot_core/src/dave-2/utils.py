@@ -82,7 +82,7 @@ def loadData(path, data):
         indexedData = data.iloc[i]  # Grabbing 1 entry
         # print(indexedData)
         imagesPath.append(os.path.join(path, 'IMG', indexedData[0]))
-        steering.append(float(indexedData[3]))
+        steering.append(float(indexedData[1]))
     imagesPath = np.asarray(imagesPath)
     steering = np.asarray(steering)
 
