@@ -1,3 +1,17 @@
+# Model Theory
+
+This model is based on the arquitecture of NVIDIA's dave-2 CNN to replicate end to end driving model.
+
+It uses an IMG as in input and outputs an angle.
+In this specific case we only use 1 camera.
+
+![NVIDIA](https://developer.nvidia.com/blog/parallelforall/wp-content/uploads/2016/08/training-624x291.png)
+
+The model arquitecture in this repo is pretty close to the original, soon we will inplemet some Dropout layers as the testing goes on. 
+
+
+![Arquitetura](https://developer.nvidia.com/blog/parallelforall/wp-content/uploads/2016/08/cnn-architecture-624x890.png)
+
 # Collect Data
 To Collect Data First open gazebo and spawn the robot , run the following on two separate terminal windows
 
