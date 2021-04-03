@@ -12,6 +12,18 @@ The model arquitecture in this repo is pretty close to the original, soon we wil
 
 ![Arquitetura](https://developer.nvidia.com/blog/parallelforall/wp-content/uploads/2016/08/cnn-architecture-624x890.png)
 
+# Dependencies
+-tensorflow 
+-sklearn
+
+Use pip , or pip3 to install. 
+````bash
+pip install -U scikit-learn
+
+````
+````bash
+pip install --upgrade tensorflow
+````
 # Collect Data
 To Collect Data First open gazebo and spawn the robot , run the following on two separate terminal windows
 
