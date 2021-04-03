@@ -55,7 +55,7 @@ def message_RGB_ReceivedCallback(message):
 def signal_handler(sig, frame):
     global driving_log
     print('You pressed Ctrl+C!')
-    driving_log.to_csv('../data/driving_log.csv',mode='a',index=False,header=False)
+    driving_log.to_csv('../models_python/data/driving_log.csv',mode='a',index=False,header=False)
     sys.exit(0)
 
     
@@ -87,7 +87,8 @@ def main():
     bridge = CvBridge()
 
     # Create pandas dataframe
-    driving_log = pd.DataFrame(columns=['image','angle'])
+    driving_log = pd.DataFrame(columns=['Center','Steering'])
+    
   
    
     rate = rospy.Rate(10)
@@ -105,7 +106,7 @@ def main():
         image_name = str(curr_time.year) + '_' + str(curr_time.month) + '_' + str(curr_time.day)+ '__' + str(curr_time.hour)+ '_' + str(curr_time.minute)+ '_' + str(curr_time.second)+ '__' + str(curr_time.microsecond) +'.jpg'
         
         # add image and angle to the driving_log pandas
-        row  = pd.DataFrame([[image_name,angular]],columns=['image','angle'])
+        row  = pd.DataFrame([[image_name,angular]],columns=['Center','Steering'])
         driving_log=driving_log.append(row,ignore_index=True)
         
 
@@ -116,7 +117,7 @@ def main():
         dim = (width, height)
         img_rbg = cv2.resize(img_rbg, dim, interpolation = cv2.INTER_AREA)
         image_saved = Image_pil.fromarray(img_rbg)
-        image_saved.save('../data/IMG/' + image_name + '.jpg')
+        image_saved.save('../models_python/data/IMG/' + image_name)
         print('Image Saved')
 
         
