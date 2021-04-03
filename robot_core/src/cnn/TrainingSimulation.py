@@ -42,7 +42,9 @@ print("\n" + "Create a new model from scratch? [Y/N]")
 if input().lower() == "y":
     model = createModel()
 else:
-    model = load_model('models_files/model_daniel2.h5')
+    s = str(pathlib.Path(__file__).parent.absolute())
+    path = s + '/models_files/model_daniel2.h5'
+    model = load_model(path)
 
 
 model.summary()
