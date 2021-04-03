@@ -27,22 +27,31 @@ def color_threshold(image):
 
 def perspective_transform(img):
     imshape = img.shape
-    #print (imshape)
-    vertices = np.array([[(.55*imshape[1], 0.63*imshape[0]), (imshape[1],imshape[0]),
-                       (0,imshape[0]),(.45*imshape[1], 0.63*imshape[0])]], dtype=np.float32)
-    vertices2 = np.array([[(.70*imshape[1], 0), (imshape[1],imshape[0]),
-                       (0,imshape[0]),(.3*imshape[1], 0)]], dtype=np.float32)
-    #print (vertices)
-    src= np.float32(vertices2)
-    # print(src)
-    dst = np.float32([[0.75*img.shape[1],0],[0.75*img.shape[1],img.shape[0]],
-                      [0.25*img.shape[1],img.shape[0]],[0.25*img.shape[1],0]])
-    dst2=np.float32(np.array([[(0, 0), (imshape[1], 0),
-                          (0, imshape[0]), (imshape[1], imshape[0])]], dtype=np.float32))
-    #print (dst)
+
+    src = np.float32([[(.75 * imshape[1], 0), (imshape[1], imshape[0]),
+                       (0, imshape[0]), (.25 * imshape[1], 0)]])
+
+    dst = np.float32([[0.75 * img.shape[1], 0], [0.75 * img.shape[1], img.shape[0]],
+                      [0.25 * img.shape[1], img.shape[0]], [0.25 * img.shape[1], 0]])
+
     M = cv2.getPerspectiveTransform(src, dst)
 
-    Minv = cv2.getPerspectiveTransform(dst, src)
+    img_size = (imshape[1], imshape[0])
+    perspective_img = cv2.warpPerspective(img, M, img_size, flags = cv2.INTER_LINEAR)
+    return perspective_img
+
+def inv_perspective_transform(img):
+    imshape = img.shape
+
+    src= np.float32([[(.75*imshape[1], 0), (imshape[1],imshape[0]),
+                       (0,imshape[0]),(.25*imshape[1], 0)]])
+
+    dst = np.float32([[0.75*img.shape[1],0],[0.75*img.shape[1],img.shape[0]],
+                      [0.25*img.shape[1],img.shape[0]],[0.25*img.shape[1],0]])
+
+    M = cv2.getPerspectiveTransform(dst, src)
+
+
     img_size = (imshape[1], imshape[0])
     perspective_img = cv2.warpPerspective(img, M, img_size, flags = cv2.INTER_LINEAR)
     return perspective_img
@@ -238,8 +247,8 @@ def measure_curvature_real(left_fit_cr, right_fit_cr, img_shape):
     # so the postiion of the car is middle of the image, the we calculate the middle of lane using
     # two fitted polynomials
     car_pos = img_shape[1] / 2
-    left_lane_bottom_x = left_fit_cr[0] * img.shape[0] ** 2 + left_fit_cr[1] * img.shape[0] + left_fit_cr[2]
-    right_lane_bottom_x = right_fit_cr[0] * img.shape[0] ** 2 + right_fit_cr[1] * img.shape[0] + right_fit_cr[2]
+    left_lane_bottom_x = left_fit_cr[0] * img_shape[0] ** 2 + left_fit_cr[1] * img_shape[0] + left_fit_cr[2]
+    right_lane_bottom_x = right_fit_cr[0] * img_shape[0] ** 2 + right_fit_cr[1] * img_shape[0] + right_fit_cr[2]
     lane_center_position = ((right_lane_bottom_x - left_lane_bottom_x) / 2) + left_lane_bottom_x
     car_center_offset = np.abs(car_pos - lane_center_position) * xm_per_pix
 
@@ -267,7 +276,7 @@ def draw_lane(warped_img, undistorted_img, left_fit, right_fit):
     pts = np.hstack((pts_left, pts_right))
 
     # Draw the lane onto the warped blank image
-    cv2.fillPoly(color_warp, int_([pts]), (0, 255, 0))
+    cv2.fillPoly(color_warp, np.int_([pts]), (0, 255, 0))
 
     # Warp the blank back to original image space using inverse perspective matrix (Minv)
     newwarp = inv_perspective_transform(color_warp)
@@ -326,15 +335,18 @@ def main():
     cv2.imshow('perspective', perspective_img)
 
     leftx, lefty, rightx, righty = find_lane_pixels(perspective_img)
-    left_fit, right_fit = fit_poly(leftx, lefty, rightx, righty)
+    left_fit, right_fit = fit_poly(leftx, lefty, rightx, righty)          #TODO if values very small = 0
 
-    print(left_fit, right_fit)
+    #print(left_fit, right_fit)
+    measures = measure_curvature_real(left_fit, right_fit, img_shape=img.shape)
+    print(measures)
+    final_img = draw_lane(perspective_img, img, left_fit, right_fit)
 
-    #plt.imshow(Pipeline(perspective_img))
+    cv2.imshow('Final', final_img)
     #plt.show()
 
 
-    #cv2.waitKey(0)
+    cv2.waitKey(0)
 
 
 

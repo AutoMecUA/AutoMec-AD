@@ -74,7 +74,7 @@ def save_IMG():
     global img_rbg
     global angular
     global row
-    time.sleep(60/60)  # x/Heartz
+    time.sleep(10/60)  # x/Heartz
 
     # print('SAVING IMAGE ', d)
 
