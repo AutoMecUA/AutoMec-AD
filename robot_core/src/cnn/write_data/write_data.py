@@ -55,7 +55,7 @@ def message_RGB_ReceivedCallback(message):
 def signal_handler(sig, frame):
     global driving_log
     print('You pressed Ctrl+C!')
-    driving_log.to_csv('../models_python/data/driving_log.csv',mode='a',index=False,header=False)
+    driving_log.to_csv('../data/driving_log.csv',mode='a',index=False,header=False)
     sys.exit(0)
 
     
@@ -116,7 +116,7 @@ def main():
         dim = (width, height)
         img_rbg = cv2.resize(img_rbg, dim, interpolation = cv2.INTER_AREA)
         image_saved = Image_pil.fromarray(img_rbg)
-        image_saved.save('../models_python/data/IMG/' + image_name)
+        image_saved.save('../data/IMG/' + image_name)
         print('Image Saved')
 
         

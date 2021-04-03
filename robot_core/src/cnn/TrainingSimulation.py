@@ -42,7 +42,7 @@ print("\n" + "Create a new model from scratch? [Y/N]")
 if input().lower() == "y":
     model = createModel()
 else:
-    model = load_model('src/cnn/models_files/model_daniel2.h5')
+    model = load_model('models_files/model_daniel2.h5')
 
 
 model.summary()
@@ -52,7 +52,7 @@ history = model.fit(batchGen(xTrain, yTrain, 20, 1), steps_per_epoch=100, epochs
                     validation_data=batchGen(xVal, yVal, 20, 0), validation_steps=50)
 
 # Step 10 - Saving and plotting
-model.save('model_new.h5')
+model.save('models_files/model_test.h5')
 print('\n Model Saved')
 
 plt.plot(history.history['loss'])
