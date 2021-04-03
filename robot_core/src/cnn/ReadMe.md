@@ -45,14 +45,13 @@ rqt
 The images will be stored under /data/IMG and you will now notice a file named "driving_log.csv"  being created.
 
 # Training the model
-Once you are satisfied with the data you collected you have to **move** the "driving_log.csv" file to the folder /data/.
 
 After that run the script **"TrainingSimulation.py"**
 
 You will be asked if you want to create a new model. **Say No (N)**.
 If you wish to train a new model from zero (press y)
 
-This will create a model called "model.h5" if you have a good working model , change the name of this file name, ex "model_20_03_2021.h5" and feel free to commit it under the folder models_files.
+This will create a model called "model_teste.h5" if you have a good working model , change the name of this file name, ex "model_20_03_2021.h5" and feel free to commit it under the folder models_files.
 
 ## Intreperting the results
 
