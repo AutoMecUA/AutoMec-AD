@@ -28,8 +28,8 @@ def color_threshold(image):
 def perspective_transform(img):
     imshape = img.shape
 
-    src = np.float32([[(.85 * imshape[1], 0), (imshape[1], imshape[0]),
-                       (0, imshape[0]), (.15 * imshape[1], 0)]])
+    src = np.float32([[(.75 * imshape[1], 0), (imshape[1], imshape[0]),
+                       (0, imshape[0]), (.25 * imshape[1], 0)]])
 
     dst = np.float32([[0.75 * img.shape[1], 0], [0.75 * img.shape[1], img.shape[0]],
                       [0.25 * img.shape[1], img.shape[0]], [0.25 * img.shape[1], 0]])
@@ -327,7 +327,7 @@ def Pipeline(img):
     return final_img
 
 def main():
-    img = cv2.imread('/home/nel/catkin_ws/src/AutoMec-AD/core/src/VisionCode/Lane_Recognition/lane_test/straight.png', cv2.IMREAD_COLOR)
+    img = cv2.imread('/home/nel/catkin_ws/src/AutoMec-AD/core/src/VisionCode/Lane_Recognition/lane_test/left_curve.png', cv2.IMREAD_COLOR)
     bin_img = color_threshold(img)
     cv2.imshow('Binary', bin_img)
     perspective_img = perspective_transform(bin_img)
