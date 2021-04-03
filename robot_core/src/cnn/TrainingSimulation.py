@@ -17,11 +17,11 @@ data = importDataInfo(path)
 
 
 # Step 2 - Vizualize and Balance data
-#balanceData(data, display=True)
+balanceData(data, display=True)
 
 # Step 3 - Prepare for Processing
 imagesPath, steerings = loadData(path, data)
-# print(imagesPath[0], steering[0])
+print(imagesPath[0], steerings[0])
 
 # Step 4 - Split for Training and Validation
 xTrain, xVal, yTrain, yVal = train_test_split(
@@ -42,7 +42,7 @@ print("\n" + "Create a new model from scratch? [Y/N]")
 if input().lower() == "y":
     model = createModel()
 else:
-    model = load_model('model.h5')
+    model = load_model('src/cnn/models_files/model_daniel2.h5')
 
 
 model.summary()
@@ -52,7 +52,7 @@ history = model.fit(batchGen(xTrain, yTrain, 20, 1), steps_per_epoch=100, epochs
                     validation_data=batchGen(xVal, yVal, 20, 0), validation_steps=50)
 
 # Step 10 - Saving and plotting
-model.save('model_test.h5')
+model.save('model_new.h5')
 print('\n Model Saved')
 
 plt.plot(history.history['loss'])

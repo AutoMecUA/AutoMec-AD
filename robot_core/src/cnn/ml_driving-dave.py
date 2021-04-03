@@ -12,6 +12,9 @@ from sensor_msgs.msg._Image import Image
 from cv_bridge.core import CvBridge
 from datetime import datetime
 from tensorflow.keras.models import load_model
+import pathlib
+import os
+import string
 
 
 global img_rbg
@@ -21,7 +24,7 @@ global begin_img
 
 def preProcess(img):
     # Define Region of intrest- Perguntar ao Daniel se corto ou não , problema do angulo da camera
-   # img = img[60:135, :, :]
+    #img = img[60:135, :, :]
     img = cv2.cvtColor(img, cv2.COLOR_RGB2YUV)
     img = cv2.GaussianBlur(img,  (3, 3), 0)
     img = cv2.resize(img, (200, 66))
@@ -91,5 +94,7 @@ def main():
 
 
 if __name__ == '__main__':
-    model = load_model('../models_files/model_daniel2.h5')
+    s = str(pathlib.Path(__file__).parent.absolute())
+    path = s + '/models_files/model_daniel2.h5'
+    model = load_model(path)
     main()
