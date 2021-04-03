@@ -132,7 +132,7 @@ dmypy.json
 .vscode 
 
 # images
-.jpg
+*.jpg
 
 # csv
-.csv
+*.csv
