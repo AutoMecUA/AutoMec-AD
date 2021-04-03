@@ -50,7 +50,7 @@ else:
 model.summary()
 
 # Step 9 -Training
-history = model.fit(batchGen(xTrain, yTrain, 20, 1), steps_per_epoch=100, epochs=20,
+history = model.fit(batchGen(xTrain, yTrain, 20, 1), steps_per_epoch=100, epochs=1,
                     validation_data=batchGen(xVal, yVal, 20, 0), validation_steps=50)
 
 # Step 10 - Saving and plotting
