@@ -11,6 +11,7 @@ from geometry_msgs.msg._Twist import Twist
 from sensor_msgs.msg._Image import Image
 from cv_bridge.core import CvBridge
 from datetime import datetime
+from tensorflow.keras.models import load_model
 
 global img_rbg
 global bridge
@@ -34,15 +35,15 @@ def message_RGB_ReceivedCallback(message):
 
 def main():
 
+    model = load_model('model_daniel.h5')
+
     # Global variables
     global img_rbg
     global bridge
     global begin_img
     begin_img = False
      
-    from catboost import CatBoostRegressor
-    regressor = CatBoostRegressor()  
-    regressor.load_model('../models_files/catboost_file_turtle_20_03_21__21_53_46_2020')
+    
     twist = Twist()
 
 
@@ -71,7 +72,8 @@ def main():
 
         # Predict angle
 
-        angle = regressor.predict(img_rbg)
+        image = np.array(img_rbg)
+        angle = float(model.predict(image))
 
 
         # CAMERA PARAMETERS

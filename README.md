@@ -173,13 +173,18 @@ All files regarding robot description and stats
 
 # ML driving
 
-https://streamable.com/ol18mb
+CATBOOST:
+          https://streamable.com/ol18mb
 
-https://streamable.com/acich8
+          https://streamable.com/acich8
 
 
-With images delivered to the catboost model:
-https://streamable.com/kfi7j6
+          With images delivered to the catboost model:
+          https://streamable.com/kfi7j6
+
+CNN:
+          https://streamable.com/ysugtn
+
 
 
 ## License
