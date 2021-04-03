@@ -31,7 +31,7 @@ global row
 # simple version for working with CWD
 
 s = str(pathlib.Path(__file__).parent.absolute())
-path, dirs, files = next(os.walk(s+"/myData/IMG/"))
+path, dirs, files = next(os.walk(s+"/data/IMG/"))
 file_count = len(files)
 print('Number of images in Already in Folder: ', file_count)
 
@@ -81,7 +81,7 @@ def save_IMG():
     # Define Image Path
     s = str(pathlib.Path(__file__).parent.absolute())
     filename = "file_%d.jpg" % d
-    file_path = s+'/myData/IMG/' + filename
+    file_path = s+'/data/IMG/' + filename
 
     # Save Image
     cv2.imwrite(file_path, img_rbg)

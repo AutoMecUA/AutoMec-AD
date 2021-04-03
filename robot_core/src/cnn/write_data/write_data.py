@@ -103,8 +103,7 @@ def main():
 
 
         curr_time = datetime.datetime.now()
-        image_name = str(curr_time.year) + '_' + str(curr_time.month) + '_' + str(curr_time.day)+ '__' + str(curr_time.hour)+ '_' + str(curr_time.minute)+ '_' + str(curr_time.second)+ '__' + str(curr_time.microsecond) +'.jpg'
-        
+        image_name = str(curr_time.year) + '_' + str(curr_time.month) + '_' + str(curr_time.day)+ '__' + str(curr_time.hour)+ '_' + str(curr_time.minute)+ '_' + str(curr_time.second)+ '__' + str(curr_time.microsecond) + str('.jpg')        
         # add image and angle to the driving_log pandas
         row  = pd.DataFrame([[image_name,angular]],columns=['Center','Steering'])
         driving_log=driving_log.append(row,ignore_index=True)
