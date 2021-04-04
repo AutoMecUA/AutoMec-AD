@@ -43,6 +43,7 @@ Next move in to the catkin src folder if you havent already and clone the repo.
 cd catkin_ws
 cd src
 git clone https://github.com/DanielCoelho112/AutoMec-AD.git
+git checkout dev
 cd ..
 
 ```
@@ -81,6 +82,13 @@ nano ~/.bashrc
 
 And add the previous line to the end of your file. Same procedure if you use zsh terminal but with .zshrc
 To Save press Cntrl+O , Enter . Cntrl+X to exit
+
+# Ackerman dependencies
+    sudo apt install ros-noetic-ros-controllers
+    sudo apt-get install ros-noetic-ackermann-msgs
+
+# Launch woth ackerman
+    roslaunch ackermann_vehicle_gazebo ackermann_robot_with_arena_conversion.launch
 
 # Running the simulation enviroment
 
@@ -184,6 +192,19 @@ CATBOOST:
 
 CNN:
           https://streamable.com/ysugtn
+
+## Dependencies for CNN
+    sudo apt install python3-pip
+
+    pip3 install opencv-python
+
+    pip3 install pandas
+
+    pip3 install sklearn
+
+    pip3 install tensorflow
+
+    pip3 install imgaug     
 
 
 
