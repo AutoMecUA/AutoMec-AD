@@ -1,0 +1,15 @@
+<launch>
+
+  <arg name="epochs" default="20"/>
+  <arg name="steps_per_epoch" default="100"/>
+  <arg name="base_folder" default="/set1"/>
+  <arg name="modelname" default="model_default.h5"/>
+
+    <node name="training_node" pkg="robot_core" type="training_node.py">
+      <param name="epochs" value="$(arg epochs)"/>
+      <param name="steps_per_epoch" value="$(arg steps_per_epoch)"/>
+      <param name="base_folder" value="$(arg base_folder)"/>
+      <param name="modelname" value="$(arg modelname)"/>
+    </node>
+
+</launch>

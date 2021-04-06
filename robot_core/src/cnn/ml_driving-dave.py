@@ -55,10 +55,25 @@ def main():
     # Init Node
     rospy.init_node('ml_driving', anonymous=False)
 
-    # Subscribe topics
-    rospy.Subscriber('/robot/camera/rgb/image_raw',
+    image_raw_topic = rospy.get_param('~image_raw_topic', '/ackermann_vehicle/camera/rgb/image_raw') 
+    twist_cmd_topic = rospy.get_param('~twist_cmd_topic', '/cmd_vel') 
+    twist_linear_x = rospy.get_param('~twist_linear_x', 1.0)
+    modelname = rospy.get_param('~modelname', 'model_sergio4teste.h5')
+
+    s = str(pathlib.Path(__file__).parent.absolute())
+    path = s + '/models_files/' + modelname
+    print (path)
+    model = load_model(path)
+
+    # Subscribe and publish topics
+    #rospy.Subscriber('/ackermann_vehicle/camera/rgb/image_raw',
+    #                 Image, message_RGB_ReceivedCallback)
+    #pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
+    #
+    rospy.Subscriber(image_raw_topic,
                      Image, message_RGB_ReceivedCallback)
-    pub = rospy.Publisher('robot/cmd_vel', Twist, queue_size=10)
+    pub = rospy.Publisher(twist_cmd_topic, Twist, queue_size=10)
+
     # Create an object of the CvBridge class
     bridge = CvBridge()
 
@@ -81,7 +96,7 @@ def main():
         angle = steering
 
         # Send twist
-        twist.linear.x = 0.40
+        twist.linear.x = twist_linear_x
         twist.linear.y = 0
         twist.linear.z = 0
         twist.angular.x = 0
@@ -92,9 +107,5 @@ def main():
 
         rate.sleep()
 
-
 if __name__ == '__main__':
-    s = str(pathlib.Path(__file__).parent.absolute())
-    path = s + '/models_files/model_daniel2.h5'
-    model = load_model(path)
     main()
