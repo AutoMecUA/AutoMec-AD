@@ -130,3 +130,12 @@ dmypy.json
 
 # config for vscode, can be usefull if all use vscode
 .vscode 
+
+# images
+*.jpg
+
+# csv
+*.csv
+
+# Pycharm files
+.idea*

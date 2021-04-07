@@ -1,0 +1,13 @@
+<launch>
+
+  <arg name="image_raw_topic" default="/ackermann_vehicle/camera/rgb/image_raw"/>
+  <arg name="twist_cmd_topic" default="/cmd_vel"/>
+  <arg name="base_folder" default="/set1"/>
+
+    <node name="write_data" pkg="robot_core" type="write_data.py">
+      <param name="image_raw_topic" value="$(arg image_raw_topic)"/>
+      <param name="twist_cmd_topic" value="$(arg twist_cmd_topic)"/>
+      <param name="base_folder" value="$(arg base_folder)"/>
+    </node>
+
+</launch>

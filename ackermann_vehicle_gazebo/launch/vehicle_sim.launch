@@ -1,0 +1,4 @@
+<launch>
+<include file="$(find ackermann_vehicle_gazebo)/launch/ackermann_vehicle.launch" />
+<include file="$(find ackermann_vehicle_gazebo)/launch/twist_to_ackermann.launch" />
+</launch>
