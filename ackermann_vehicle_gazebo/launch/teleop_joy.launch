@@ -1,0 +1,23 @@
+<launch>
+
+  <node pkg="joy" type="joy_node" name="joy" ouput="screen">
+    <param name="autorepeat_rate" value="1"/>
+    <param name="deadzone" value="0"/>
+  </node>
+
+
+  <arg name="cmd_vel" default="input_joy/cmd_vel" />
+  <arg name="teleop_config" default="$(find joy_teleop)/config/joy_teleop_example.yaml" />
+
+  <rosparam file="$(arg teleop_config)" command="load" />
+  <node pkg="joy_teleop" type="joy_teleop.py" name="joy_teleop">
+    <remap from="cmd_vel" to="$(arg cmd_vel)" />
+  </node>
+
+  <group ns="torso_controller">
+    <node pkg="joy_teleop" type="incrementer_server.py" name="incrementer"/>
+  </group>
+
+
+</launch>
+

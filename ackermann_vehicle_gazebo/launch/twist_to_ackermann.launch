@@ -1,0 +1,9 @@
+<launch>
+    <node pkg="ackermann_vehicle_gazebo" type="twist_to_ackermann.py" name="twist_to_ackermann" output="screen">
+        <param name="twist_cmd_topic" value="/cmd_vel"/>
+        <param name="ackermann_cmd_topic" value="/ackermann_vehicle/ackermann_cmd"/>
+	<param name="wheelbase" value="0.335"/>
+	<param name="frame_id" value="odom"/>
+	<param name="message_type" value="ackermann_drive_stamped"/>
+    </node>
+</launch>

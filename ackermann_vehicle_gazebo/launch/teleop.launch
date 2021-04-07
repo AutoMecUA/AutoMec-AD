@@ -1,0 +1,5 @@
+<launch>
+  <node name="teleop" pkg="ackermann_vehicle_gazebo" type="teleop.py" output="screen">
+    <remap from="teleop/cmd_vel" to="cmd_vel"/>
+  </node>
+</launch>

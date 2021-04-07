@@ -1,6 +1,7 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 # Imports
+import os.path
 import argparse
 import cv2
 from csv import writer
@@ -11,6 +12,10 @@ from geometry_msgs.msg._Twist import Twist
 from sensor_msgs.msg._Image import Image
 from cv_bridge.core import CvBridge
 from datetime import datetime
+import time
+import pathlib
+import os
+import string
 
 # Global Variables
 global angular
@@ -19,8 +24,21 @@ global bridge
 global begin_cmd
 global begin_img
 global img_rbg
+global d
+global row
+
+
+# simple version for working with CWD
+
+s = str(pathlib.Path(__file__).parent.absolute())
+path, dirs, files = next(os.walk(s+"/data/IMG/"))
+file_count = len(files)
+print('Number of images in Already in Folder: ', file_count)
+
 
 # Function to append row on a csv file
+d = file_count
+row = []
 
 
 def append_list_as_row(file_name, list_of_elem):
@@ -49,6 +67,30 @@ def messageReceivedCallback(message):
 # Callback function to receive image
 
 
+def save_IMG():
+
+    # TODO: Daniel, Este código se for corrido duas vezes vai re-escrever as imagens já guardadas, não estou a conseguir pensar numa solução para guardar o index d
+    global d  # index
+    global img_rbg
+    global angular
+    global row
+    time.sleep(10/60)  # x/Heartz
+
+    # print('SAVING IMAGE ', d)
+
+    # Define Image Path
+    s = str(pathlib.Path(__file__).parent.absolute())
+    filename = "file_%d.jpg" % d
+    file_path = s+'/data/IMG/' + filename
+
+    # Save Image
+    cv2.imwrite(file_path, img_rbg)
+    # Add path and steering angle
+    row = [file_path, angular]
+
+    d += 1
+
+
 def message_RGB_ReceivedCallback(message):
 
     global img_rbg
@@ -56,7 +98,6 @@ def message_RGB_ReceivedCallback(message):
     global begin_img
 
     img_rbg = bridge.imgmsg_to_cv2(message, "bgr8")
-    print('Saving Image')
 
     begin_img = True
 
@@ -70,6 +111,7 @@ def main():
     global img_rbg
     global begin_cmd
     global begin_img
+    global d
 
     # Initial Value
     begin_cmd = False
@@ -86,59 +128,32 @@ def main():
 
     # Create an object of the CvBridge class
     bridge = CvBridge()
+    rate = rospy.Rate(10)  # Alterar este valor não faz nada , falar com daniel
 
-    rate = rospy.Rate(10)
     while True:
 
         if begin_cmd == False or begin_img == False:
             continue
 
-        # Gray scale the image
-        img_gray = cv2.cvtColor(img_rbg, cv2.COLOR_BGR2GRAY)
-
-        # Binarize the image
-        _, img_tresh = cv2.threshold(img_gray, 150, 1, cv2.THRESH_BINARY)
-
-        #----------------------------------------------------------- UNCOMMENT TO TEST THE TRESHOLD---------------------------------------------------
-        # Binarize the image for visualization 
-        # _, img_tresh2 = cv2.threshold(img_gray, 150, 255, cv2.THRESH_BINARY)
-        
-
-        # cv2.imshow('binarize',img_tresh2)
-        # cv2.waitKey(1)
-        # ----------------------------------------------------------------------------------------------------------------------------------------------
-        # Resizing image
-        width = 20
-        height = 20
-        dim = (width, height)
-        resized = cv2.resize(img_tresh, dim, interpolation=cv2.INTER_AREA)
-
-        #  Tranform image in a list
-        initial_array = copy.deepcopy(resized)
-        final_array = np.resize(
-            initial_array, (1, initial_array.shape[0]*initial_array.shape[1]))
-        final_list = final_array.tolist()[0]
-
-        # Append the speed and the angle of the cmd_topic
-
-        final_list.append(angular)
+        # Save Images
+        save_IMG()
 
         if first_time:
             # Create csv file
-            header = ['pixel' for i in range(0, len(final_list)-1)]
-            header.append("angular")
+            # header = ['Center', 'steering']
             now = datetime.now()  # current date and time
             time_now = now.strftime("%H_%M_%S")
             csv_name = now.strftime(
                 "%d") + "_" + now.strftime("%m") + "_" + now.strftime("%y") + "__" + time_now
             csv_name += '20_20'
-            csv_name += '0.59_0.6'   # height_angle
             csv_name += ".csv"
-            append_list_as_row(csv_name, header)
+            csv_name = "driving_log.csv"  # Overwrite Name - Falar com daniel sobre isto
+            # header comentado para não ter que o filtrar mais tarde
+            append_list_as_row(csv_name, row)
             print("File Created")
         else:
-            append_list_as_row(csv_name, final_list)
-            print("Row Added")
+            append_list_as_row(csv_name, row)
+            print("Row Added", 'n', d)
 
         first_time = False
 

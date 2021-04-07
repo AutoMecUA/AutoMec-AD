@@ -1,0 +1,15 @@
+<launch>
+
+  <arg name="image_raw_topic" default="/ackermann_vehicle/camera/rgb/image_raw"/>
+  <arg name="twist_cmd_topic" default="/cmd_vel"/>
+  <arg name="twist_linear_x" default="0.5"/>
+  <arg name="modelname" default="model_default.h5"/>
+
+    <node name="ml_driving-dave" pkg="robot_core" type="ml_driving-dave.py">
+      <param name="image_raw_topic" value="$(arg image_raw_topic)"/>
+      <param name="twist_cmd_topic" value="$(arg twist_cmd_topic)"/>
+      <param name="twist_linear_x" value="$(arg twist_linear_x)"/>
+      <param name="modelname" value="$(arg modelname)"/>
+    </node>
+
+</launch>
