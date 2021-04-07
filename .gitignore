@@ -136,3 +136,6 @@ dmypy.json
 
 # csv
 *.csv
+
+# Pycharm files
+.idea*
