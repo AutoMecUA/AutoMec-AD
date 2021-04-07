@@ -1,3 +1,4 @@
+import pathlib
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
@@ -327,7 +328,8 @@ def Pipeline(img):
     return final_img
 
 def main():
-    img = cv2.imread('/home/nel/catkin_ws/src/AutoMec-AD/core/src/VisionCode/Lane_Recognition/lane_test/left_curve.png', cv2.IMREAD_COLOR)
+    s = str(pathlib.Path(__file__).parent.absolute())
+    img = cv2.imread(s + '/lane_test/left_curve.png', cv2.IMREAD_COLOR)
     bin_img = color_threshold(img)
     cv2.imshow('Binary', bin_img)
     perspective_img = perspective_transform(bin_img)
