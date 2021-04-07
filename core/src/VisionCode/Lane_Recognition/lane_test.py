@@ -328,7 +328,7 @@ def main():
     leftx, lefty, rightx, righty = find_lane_pixels(perspective_img)
     left_fit, right_fit = fit_poly(leftx, lefty, rightx, righty)
 
-    print(left_fit, right_fit)
+    #print(left_fit, right_fit)
 
     #plt.imshow(Pipeline(perspective_img))
     #plt.show()
