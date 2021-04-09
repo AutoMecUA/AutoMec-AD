@@ -3,7 +3,7 @@ import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
-#from global_lane import *
+import math
 
 def color_threshold(image):
 
@@ -26,11 +26,34 @@ def color_threshold(image):
 
     return bin_img
 
-def perspective_transform(img):
-    imshape = img.shape
+def perspective_aux(height, angle, roadwidth):
+    # Calculate the values to more accuratly transform the image in teh function perspective_transform. Heavily inspired on Bruno Monteiro's MATLAB code
+    fovV = 43 * math.pi/180
+    fovH = 57 * math.pi/180
+    Xmin = math.tan(angle - fovV) * height
+    Xmax = math.tan(angle + fovV) * height
+    Dmin = math.sqrt(Xmin ** 2 + height ** 2)
+    Dmax = math.sqrt(Xmax ** 2 + height ** 2)
+    Lmin = 2 * (math.tan(fovH/2) * Dmin)
+    Lmax = 2 * (math.tan(fovH/2) * Dmax)
+    BotRatio = roadwidth / Lmin
+    TopRatio = roadwidth / Lmax
+    print(BotRatio, TopRatio)
 
-    src = np.float32([[(.75 * imshape[1], 0), (imshape[1], imshape[0]),
-                       (0, imshape[0]), (.25 * imshape[1], 0)]])
+    return BotRatio, TopRatio
+
+
+
+
+def perspective_transform(img, BR, TR):
+
+    imshape = img.shape
+    if BR <= 1 :
+        src = np.float32([[((0.5 + TR/2) * imshape[1], 0), ((0.5 + BR/2), imshape[0]),
+                           ((0.5 - BR/2), imshape[0]), ((0.5 - TR/2) * imshape[1], 0)]])
+    else:
+        src = np.float32([[((0.5 + TR / 2) * imshape[1], 0), (imshape[1], imshape[0]),
+                           (0, imshape[0]), ((0.5 - TR / 2) * imshape[1], 0)]])
 
     dst = np.float32([[0.75 * img.shape[1], 0], [0.75 * img.shape[1], img.shape[0]],
                       [0.25 * img.shape[1], img.shape[0]], [0.25 * img.shape[1], 0]])
@@ -161,7 +184,7 @@ def find_lane_pixels(binary_warped):
 
 def fit_poly(leftx, lefty, rightx, righty):
     """
-    Given x and y coordinates of lane pixels fir 2nd order polynomial through them
+    Given x and y coordinates of lane pixels for 2nd order polynomial through them
 
     here the function is of y and not x that is
 
@@ -296,7 +319,7 @@ def Pipeline(img):
 
     threshold_img, undistorted_img = img_threshold(img)
 
-    warped_img = perspective_transform(threshold_img)
+    warped_img = perspective_transform(threshold_img, BR, TR)
 
     #warped_img=img
 
@@ -328,23 +351,30 @@ def Pipeline(img):
     return final_img
 
 def main():
+    height = 0.59
+    angle = 0.4
+    roadwidth = 0.75
+    BR, TR = perspective_aux(height, angle, roadwidth)
+
     s = str(pathlib.Path(__file__).parent.absolute())
-    img = cv2.imread(s + '/lane_test/left_curve.png', cv2.IMREAD_COLOR)
+    img = cv2.imread(s + '/lane_test/straight.png', cv2.IMREAD_COLOR)
     bin_img = color_threshold(img)
     cv2.imshow('Binary', bin_img)
-    perspective_img = perspective_transform(bin_img)
+
+
+    perspective_img = perspective_transform(bin_img, BR, TR)
 
     cv2.imshow('perspective', perspective_img)
 
-    leftx, lefty, rightx, righty = find_lane_pixels(perspective_img)
-    left_fit, right_fit = fit_poly(leftx, lefty, rightx, righty)          #TODO if values very small = 0
+    #leftx, lefty, rightx, righty = find_lane_pixels(perspective_img)
+    #left_fit, right_fit = fit_poly(leftx, lefty, rightx, righty)          #TODO if values very small = 0
 
     #print(left_fit, right_fit)
-    measures = measure_curvature_real(left_fit, right_fit, img_shape=img.shape)
-    print(measures)
-    final_img = draw_lane(perspective_img, img, left_fit, right_fit)
+    #measures = measure_curvature_real(left_fit, right_fit, img_shape=img.shape)
+    #print(measures)
+    #final_img = draw_lane(perspective_img, img, left_fit, right_fit)
 
-    cv2.imshow('Final', final_img)
+    #cv2.imshow('Final', final_img)
     #plt.show()
 
 
