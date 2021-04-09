@@ -5,16 +5,21 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import math
 
-def color_threshold(image):
+import rospy
+from cv_bridge import CvBridge
+from geometry_msgs.msg import Twist
+from sensor_msgs.msg import Image
+
+def color_threshold (image):
 
     # For discarding colors
     # How much can pixels deviate from black/white color
-    deviation = 40  # re-adjustable
-    minim, maxim = deviation, 255 - deviation
-    # For each of the r, g and b scales
-    for i in range(3):
-        # If < maxim -> to_zero
-        _, image[:][:][i] = cv2.threshold(image[:][:][i], maxim, 255, cv2.THRESH_TOZERO)
+    #deviation = 40  # re-adjustable
+    # minim, maxim = deviation, 255 - deviation
+    # # For each of the r, g and b scales
+    # for i in range(3):
+    #     # If < maxim -> to_zero
+    #     _, image[:][:][i] = cv2.threshold(image[:][:][i], maxim, 255, cv2.THRESH_TOZERO)
 
     # RGB to Grayscale
     gray_image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
@@ -314,41 +319,50 @@ first_run = True
 gleft_fit = gright_fit = None
 
 
-def Pipeline(img):
-    global first_run, gleft_fit, gright_fit
+# def Pipeline(img):
+#     global first_run, gleft_fit, gright_fit
+#
+#     threshold_img, undistorted_img = img_threshold(img)
+#
+#     warped_img = perspective_transform(threshold_img, BR, TR)
+#
+#     #warped_img=img
+#
+#     if first_run:
+#         leftx, lefty, rightx, righty = find_lane_pixels(warped_img)
+#         left_fit, right_fit = fit_poly(leftx, lefty, rightx, righty)
+#         gleft_fit = left_fit
+#         gright_fit = right_fit
+#         first_run = False
+#     else:
+#         leftx, lefty, rightx, righty = search_around_poly(warped_img, gleft_fit, gright_fit)
+#         left_fit, right_fit = fit_poly(leftx, lefty, rightx, righty)
+#         gleft_fit = left_fit
+#         gright_fit = right_fit
+#
+#     # print(left_fitx, right_fitx)
+#     measures = measure_curvature_real(left_fit, right_fit, img_shape=warped_img.shape)
+#
+#     final_img = draw_lane(warped_img, undistorted_img, left_fit, right_fit)
+#
+#     # writing lane curvature and vehical offset on the image
+#     font = cv2.FONT_HERSHEY_SIMPLEX
+#     fontColor = (0, 0, 0)
+#     fontSize = 1
+#     cv2.putText(final_img, 'Lane Curvature: {:.0f} m'.format(np.mean([measures[0], measures[1]])),
+#                 (500, 620), font, fontSize, fontColor, 2)
+#     cv2.putText(final_img, 'Vehicle offset: {:.4f} m'.format(measures[2]), (500, 650), font, fontSize, fontColor, 2)
+#
+#     return final_img
 
-    threshold_img, undistorted_img = img_threshold(img)
 
-    warped_img = perspective_transform(threshold_img, BR, TR)
-
-    #warped_img=img
-
-    if first_run:
-        leftx, lefty, rightx, righty = find_lane_pixels(warped_img)
-        left_fit, right_fit = fit_poly(leftx, lefty, rightx, righty)
-        gleft_fit = left_fit
-        gright_fit = right_fit
-        first_run = False
-    else:
-        leftx, lefty, rightx, righty = search_around_poly(warped_img, gleft_fit, gright_fit)
-        left_fit, right_fit = fit_poly(leftx, lefty, rightx, righty)
-        gleft_fit = left_fit
-        gright_fit = right_fit
-
-    # print(left_fitx, right_fitx)
-    measures = measure_curvature_real(left_fit, right_fit, img_shape=warped_img.shape)
-
-    final_img = draw_lane(warped_img, undistorted_img, left_fit, right_fit)
-
-    # writing lane curvature and vehical offset on the image
-    font = cv2.FONT_HERSHEY_SIMPLEX
-    fontColor = (0, 0, 0)
-    fontSize = 1
-    cv2.putText(final_img, 'Lane Curvature: {:.0f} m'.format(np.mean([measures[0], measures[1]])),
-                (500, 620), font, fontSize, fontColor, 2)
-    cv2.putText(final_img, 'Vehicle offset: {:.4f} m'.format(measures[2]), (500, 650), font, fontSize, fontColor, 2)
-
-    return final_img
+def Image_GET(image):
+    global cv_image
+    bridge = CvBridge()
+    cv_image = bridge.imgmsg_to_cv2(image, desired_encoding='passthrough')
+    cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB)
+    global see_image
+    see_image=True
 
 def main():
     height = 0.59
@@ -358,27 +372,43 @@ def main():
 
     s = str(pathlib.Path(__file__).parent.absolute())
     img = cv2.imread(s + '/lane_test/straight.png', cv2.IMREAD_COLOR)
-    bin_img = color_threshold(img)
-    cv2.imshow('Binary', bin_img)
+
+    #Get gazebo files
+    global cv_image
+    rospy.init_node('Robot_Send', anonymous=True)
+    rospy.Subscriber('/robot/camera/rgb/image_raw', Image, Image_GET)
+
+    global see_image
+    see_image = False
+    while not rospy.is_shutdown():
+        if see_image == False:
+            continue
+        img=cv_image
+        bin_img = color_threshold(img)
+        cv2.imshow('Binary', bin_img)
 
 
-    perspective_img = perspective_transform(bin_img, BR, TR)
+        perspective_img = perspective_transform(bin_img, BR, TR)
 
-    cv2.imshow('perspective', perspective_img)
+        cv2.imshow('perspective', perspective_img)
 
-    #leftx, lefty, rightx, righty = find_lane_pixels(perspective_img)
-    #left_fit, right_fit = fit_poly(leftx, lefty, rightx, righty)          #TODO if values very small = 0
+        #leftx, lefty, rightx, righty = find_lane_pixels(perspective_img)
+        #left_fit, right_fit = fit_poly(leftx, lefty, rightx, righty)          #TODO if values very small = 0
 
-    #print(left_fit, right_fit)
-    #measures = measure_curvature_real(left_fit, right_fit, img_shape=img.shape)
-    #print(measures)
-    #final_img = draw_lane(perspective_img, img, left_fit, right_fit)
+        #print(left_fit, right_fit)
+        #measures = measure_curvature_real(left_fit, right_fit, img_shape=img.shape)
+        #print(measures)
+        #final_img = draw_lane(perspective_img, img, left_fit, right_fit)
 
-    #cv2.imshow('Final', final_img)
-    #plt.show()
+        #cv2.imshow('Final', final_img)
+        #plt.show()
 
 
-    cv2.waitKey(0)
+        #cv2.waitKey(0)
+
+        cv2.waitKey(1)
+        rospy.Rate(1).sleep()
+
 
 
 
