@@ -32,7 +32,7 @@ def color_threshold (image):
     return bin_img
 
 def perspective_aux(height, angle, roadwidth):
-    # Calculate the values to more accuratly transform the image in teh function perspective_transform. Heavily inspired on Bruno Monteiro's MATLAB code
+    # Calculate the values to more accurately transform the image in teh function perspective_transform. Heavily inspired on Bruno Monteiro's MATLAB code
     fovV = 43 * math.pi/180
     fovH = 57 * math.pi/180
     Xmin = math.tan(angle - fovV) * height
@@ -43,47 +43,51 @@ def perspective_aux(height, angle, roadwidth):
     Lmax = 2 * (math.tan(fovH/2) * Dmax)
     BotRatio = roadwidth / Lmin
     TopRatio = roadwidth / Lmax
-    print(BotRatio, TopRatio)
 
-    return BotRatio, TopRatio
+    XminO = Xmin
+
+    # If the bottom ratio is larger then one, the full width of the lane is hidden. With several interactions
+    # we can find the first pixels where the full width is shown.
+    while BotRatio > 1:
+        inc = 0.01
+        counter = 1
+        fovV = fovV - inc
+        Xmin = math.tan(angle - fovV) * height
+        Dmin = math.sqrt(Xmin ** 2 + height ** 2)
+        Lmin = 2 * (math.tan(fovH / 2) * Dmin)
+        BotRatio = roadwidth / Lmin
+        counter = counter + 1
+    SideRatio = (Xmax-Xmin)/(Xmax-XminO)
+    print(BotRatio, TopRatio, SideRatio, counter)
+    return BotRatio, TopRatio, SideRatio
 
 
 
 
-def perspective_transform(img, BR, TR):
 
+def perspective_transform(img, BR, TR, SR):
+    # Transform the image into a top-down perspective using the previously mentioned ratios
     imshape = img.shape
-    if BR <= 1 :
-        src = np.float32([[((0.5 + TR/2) * imshape[1], 0), ((0.5 + BR/2), imshape[0]),
-                           ((0.5 - BR/2), imshape[0]), ((0.5 - TR/2) * imshape[1], 0)]])
+    if SR != 1:
+        src = np.float32([[((0.5 + TR/2) * imshape[1], 0), ((0.5 + BR/2) * imshape[1], SR*imshape[0]),
+                           ((0.5 - BR/2) * imshape[1], SR*imshape[0]), ((0.5 - TR/2) * imshape[1], 0)]])
     else:
-        src = np.float32([[((0.5 + TR / 2) * imshape[1], 0), (imshape[1], imshape[0]),
-                           (0, imshape[0]), ((0.5 - TR / 2) * imshape[1], 0)]])
+        src = np.float32([[((0.5 + TR / 2) * imshape[1], 0), ((0.5 + BR / 2) * imshape[1], imshape[0]),
+                           ((0.5 - BR / 2) * imshape[1], imshape[0]), ((0.5 - TR / 2) * imshape[1], 0)]])
 
     dst = np.float32([[0.75 * img.shape[1], 0], [0.75 * img.shape[1], img.shape[0]],
                       [0.25 * img.shape[1], img.shape[0]], [0.25 * img.shape[1], 0]])
 
     M = cv2.getPerspectiveTransform(src, dst)
 
-    img_size = (imshape[1], imshape[0])
-    perspective_img = cv2.warpPerspective(img, M, img_size, flags = cv2.INTER_LINEAR)
-    return perspective_img
-
-def inv_perspective_transform(img):
-    imshape = img.shape
-
-    src= np.float32([[(.75*imshape[1], 0), (imshape[1],imshape[0]),
-                       (0,imshape[0]),(.25*imshape[1], 0)]])
-
-    dst = np.float32([[0.75*img.shape[1],0],[0.75*img.shape[1],img.shape[0]],
-                      [0.25*img.shape[1],img.shape[0]],[0.25*img.shape[1],0]])
-
-    M = cv2.getPerspectiveTransform(dst, src)
-
+    # Generate the contrary transformation, to easily re-warp the image
+    Minv = cv2.getPerspectiveTransform(dst, src)
 
     img_size = (imshape[1], imshape[0])
     perspective_img = cv2.warpPerspective(img, M, img_size, flags = cv2.INTER_LINEAR)
-    return perspective_img
+    inv_perspective_img = cv2.warpPerspective(img, Minv, img_size, flags=cv2.INTER_LINEAR)
+    return perspective_img, inv_perspective_img
+
 
 def get_hist(img):
     hist = np.sum(img[img.shape[0]//2:,:], axis=0)
@@ -284,7 +288,7 @@ def measure_curvature_real(left_fit_cr, right_fit_cr, img_shape):
     return (left_curverad, right_curverad, car_center_offset)
 
 
-def draw_lane(warped_img, undistorted_img, left_fit, right_fit):
+def draw_lane(warped_img, undistorted_img, left_fit, right_fit, BR, TR, SR):
     """
     Given warped image and original undistorted original image this function
     draws final lane on the undistorted image
@@ -308,7 +312,7 @@ def draw_lane(warped_img, undistorted_img, left_fit, right_fit):
     cv2.fillPoly(color_warp, np.int_([pts]), (0, 255, 0))
 
     # Warp the blank back to original image space using inverse perspective matrix (Minv)
-    newwarp = inv_perspective_transform(color_warp)
+    _ , newwarp = perspective_transform(color_warp, BR, TR, SR)
     # Combine the result with the original image
     result = cv2.addWeighted(undistorted_img, 1, newwarp, 0.3, 0)
 
@@ -364,14 +368,15 @@ def Image_GET(image):
     global see_image
     see_image=True
 
-def main():
+def video():
+    # Set global parameters
     height = 0.59
     angle = 0.4
     roadwidth = 0.75
-    BR, TR = perspective_aux(height, angle, roadwidth)
+    # Calculate the ratio
+    BR, TR, SR = perspective_aux(height, angle, roadwidth)
 
     s = str(pathlib.Path(__file__).parent.absolute())
-    img = cv2.imread(s + '/lane_test/straight.png', cv2.IMREAD_COLOR)
 
     #Get gazebo files
     global cv_image
@@ -388,19 +393,19 @@ def main():
         cv2.imshow('Binary', bin_img)
 
 
-        perspective_img = perspective_transform(bin_img, BR, TR)
+        perspective_img, _ = perspective_transform(bin_img, BR, TR, SR)
 
         cv2.imshow('perspective', perspective_img)
 
-        #leftx, lefty, rightx, righty = find_lane_pixels(perspective_img)
-        #left_fit, right_fit = fit_poly(leftx, lefty, rightx, righty)          #TODO if values very small = 0
+        leftx, lefty, rightx, righty = find_lane_pixels(perspective_img)
+        left_fit, right_fit = fit_poly(leftx, lefty, rightx, righty)          #TODO if values very small = 0
 
         #print(left_fit, right_fit)
-        #measures = measure_curvature_real(left_fit, right_fit, img_shape=img.shape)
-        #print(measures)
-        #final_img = draw_lane(perspective_img, img, left_fit, right_fit)
+        measures = measure_curvature_real(left_fit, right_fit, img_shape=img.shape)
+        print(measures)
+        final_img = draw_lane(perspective_img, img, left_fit, right_fit, BR, TR, SR)
 
-        #cv2.imshow('Final', final_img)
+        cv2.imshow('Final', final_img)
         #plt.show()
 
 
@@ -409,6 +414,42 @@ def main():
         cv2.waitKey(1)
         rospy.Rate(1).sleep()
 
+def image():
+    # Set global parameters
+    height = 0.59
+    angle = 0.4
+    roadwidth = 0.75
+    # Calculate the ratio
+    BR, TR, SR = perspective_aux(height, angle, roadwidth)
+
+    s = str(pathlib.Path(__file__).parent.absolute())
+    img = cv2.imread(s + '/lane_test/left_curve.png', cv2.IMREAD_COLOR)
+
+
+
+    bin_img = color_threshold(img)
+    cv2.imshow('Binary', bin_img)
+
+
+    perspective_img, _ = perspective_transform(bin_img, BR, TR, SR)
+
+    cv2.imshow('perspective', perspective_img)
+
+    leftx, lefty, rightx, righty = find_lane_pixels(perspective_img)
+    left_fit, right_fit = fit_poly(leftx, lefty, rightx, righty)          #TODO if values very small = 0
+
+
+    measures = measure_curvature_real(left_fit, right_fit, img_shape=img.shape)
+    print(measures)
+    final_img = draw_lane(perspective_img, img, left_fit, right_fit, BR, TR, SR)
+
+    cv2.imshow('Final', final_img)
+    #plt.show()
+
+
+    #cv2.waitKey(0)
+
+    cv2.waitKey(0)
 
 
 
@@ -416,4 +457,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    video()
