@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import pathlib
 import numpy as np
 import cv2
@@ -26,8 +27,14 @@ def color_threshold (image):
 
     th = 100  # reasonably working (best value?)
 
+    #height, width = image.shape[:2]
     # Binary image
     _, bin_img = cv2.threshold(gray_image, th, 255, cv2.THRESH_BINARY)
+    #start_row = int(0)
+    #end_row = int(width)
+    #start_col = int(0.2*height)
+    #end_col = int(height)
+    #bin_img = bin_img[start_row:end_row,start_col:end_col]
 
     return bin_img
 
@@ -401,9 +408,9 @@ def video():
         left_fit, right_fit = fit_poly(leftx, lefty, rightx, righty)          #TODO if values very small = 0
 
         #print(left_fit, right_fit)
-        measures = measure_curvature_real(left_fit, right_fit, img_shape=img.shape)
+        measures = measure_curvature_real(left_fit, right_fit, img_shape=bin_img.shape)
         print(measures)
-        final_img = draw_lane(perspective_img, img, left_fit, right_fit, BR, TR, SR)
+        final_img = draw_lane(perspective_img, bin_img, left_fit, right_fit, BR, TR, SR)
 
         cv2.imshow('Final', final_img)
         #plt.show()
@@ -457,4 +464,4 @@ def image():
 
 
 if __name__ == '__main__':
-    video()
+    image()
