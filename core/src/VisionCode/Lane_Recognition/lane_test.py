@@ -11,6 +11,17 @@ from cv_bridge import CvBridge
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import Image
 
+def cut_sky(img):
+    height, width = img.shape[:2]
+    start_row = int(0.2*height)
+    end_row = int(height)
+    start_col = int(0)
+    end_col = int(width)
+    nimg = img[start_row:end_row,start_col:end_col]
+    return nimg
+
+
+
 def color_threshold (image):
 
     # For discarding colors
@@ -39,7 +50,7 @@ def color_threshold (image):
     return bin_img
 
 def perspective_aux(height, angle, roadwidth):
-    # Calculate the values to more accurately transform the image in teh function perspective_transform. Heavily inspired on Bruno Monteiro's MATLAB code
+    # Calculate the values to more accurately transform the image in the function perspective_transform. Heavily inspired on Bruno Monteiro's MATLAB code
     fovV = 43 * math.pi/180
     fovH = 57 * math.pi/180
     Xmin = math.tan(angle - fovV) * height
@@ -396,7 +407,8 @@ def video():
         if see_image == False:
             continue
         img=cv_image
-        bin_img = color_threshold(img)
+        cut_img = cut_sky(img)
+        bin_img = color_threshold(cut_img)
         cv2.imshow('Binary', bin_img)
 
 
@@ -408,9 +420,9 @@ def video():
         left_fit, right_fit = fit_poly(leftx, lefty, rightx, righty)          #TODO if values very small = 0
 
         #print(left_fit, right_fit)
-        measures = measure_curvature_real(left_fit, right_fit, img_shape=bin_img.shape)
+        measures = measure_curvature_real(left_fit, right_fit, img_shape=cut_img.shape)
         print(measures)
-        final_img = draw_lane(perspective_img, bin_img, left_fit, right_fit, BR, TR, SR)
+        final_img = draw_lane(perspective_img, cut_img, left_fit, right_fit, BR, TR, SR)
 
         cv2.imshow('Final', final_img)
         #plt.show()
@@ -430,11 +442,11 @@ def image():
     BR, TR, SR = perspective_aux(height, angle, roadwidth)
 
     s = str(pathlib.Path(__file__).parent.absolute())
-    img = cv2.imread(s + '/lane_test/left_curve.png', cv2.IMREAD_COLOR)
+    img = cv2.imread(s + '/lane_test/right_curve.png', cv2.IMREAD_COLOR)
 
+    cut_img = cut_sky(img)
 
-
-    bin_img = color_threshold(img)
+    bin_img = color_threshold(cut_img)
     cv2.imshow('Binary', bin_img)
 
 
@@ -446,9 +458,9 @@ def image():
     left_fit, right_fit = fit_poly(leftx, lefty, rightx, righty)          #TODO if values very small = 0
 
 
-    measures = measure_curvature_real(left_fit, right_fit, img_shape=img.shape)
+    measures = measure_curvature_real(left_fit, right_fit, img_shape=cut_img.shape)
     print(measures)
-    final_img = draw_lane(perspective_img, img, left_fit, right_fit, BR, TR, SR)
+    final_img = draw_lane(perspective_img, cut_img, left_fit, right_fit, BR, TR, SR)
 
     cv2.imshow('Final', final_img)
     #plt.show()
