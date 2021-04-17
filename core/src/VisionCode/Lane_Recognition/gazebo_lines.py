@@ -250,7 +250,7 @@ def main():
         elif len(coeffs) == 1:
             print("Reta Horizontal: " + str(coeffs[0]))
             vel_msg.angular.z=0
-            vel_msg.linear.x = 0.05
+            vel_msg.linear.x = 0.053
         else:
             print("Grau Superior:" + str(len(coeffs)))
 
