@@ -207,6 +207,44 @@ CNN:
     pip3 install imgaug     
 
 
+## Get sample data for ml training
+
+roslaunch ackermann_vehicle_gazebo ackermann_robot_with_arena_conversion_mltrain.launch folder:=/cleantrack1
+
+É obrigatório o argumento folder:=/nome
+
+O folder tem de ser criado dentro da pasta "data"
+
+Lança tudo.
+
+- O mundo gazebo
+- O carro
+- O conversor twist para ackermann
+- O node de captura de dados
+- O node de rqt para conduzir o carro para as voltas de treino
+
+## Training ml model with sample data
+
+roslaunch robot_core training.launch folder:=/cleantrack1 model:=cleantrack1.h5
+
+São obrigatórios os argumentos:
+
+- folder:=/nome (não esquecer a barra no inicio)
+- model:=nome.h5 (Não esquecer a extensão .h5)
+
+## Driving with ml model
+
+Just drive, no signals.
+
+roslaunch ackermann_vehicle_gazebo ackermann_robot_with_arena_conversion_mlsolo.launch model:=cleantrack1.h5
+
+## Drive with two signals
+
+roslaunch ackermann_vehicle_gazebo ackermann_robot_with_arena_conversion_mlsignal.launch model:=cleantrack1.h5
+
+Não esquecer a extensão .h5
+
+
 
 ## License
 https://streamable.com/t5thi0
