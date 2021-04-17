@@ -57,7 +57,7 @@ def main():
 
     image_raw_topic = rospy.get_param('~image_raw_topic', '/ackermann_vehicle/camera/rgb/image_raw') 
     twist_cmd_topic = rospy.get_param('~twist_cmd_topic', '/cmd_vel') 
-    twist_linear_x = rospy.get_param('~twist_linear_x', 1.0)
+    twist_linear_x = rospy.get_param('~twist_linear_x', 0.5)
     modelname = rospy.get_param('~modelname', 'model_sergio4teste.h5')
 
     s = str(pathlib.Path(__file__).parent.absolute())

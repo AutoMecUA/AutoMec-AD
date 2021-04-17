@@ -49,7 +49,7 @@ limitations under the License.
 
   <group ns="$(arg namespace)">
     <!-- robot_description is used by nodes that publish to joint_states. -->
-    <param name="robot_description" command="$(find xacro)/xacro $(find ackermann_vehicle_description)/urdf/robot01.urdf.xacro"/>
+    <param name="robot_description" command="$(find xacro)/xacro $(find ackermann_vehicle_description)/urdf/robot02.urdf.xacro"/>
 
     <!-- Read joint positions from joint_states, then publish the vehicle's
          state to tf. -->
@@ -59,8 +59,8 @@ limitations under the License.
 
     <!-- Create the world. -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
-        <arg name="world_name" default="$(find th_description)/worlds/th_arena.world"/>
-        <!--<arg name="world_name" value="$(find pari_fnr)/worlds/fnr.world"/>-->        
+        <arg name="world_name" default="$(find simspace)/worlds/arena1.world"/>
+        <!--<arg name="world_name" default="$(find th_description)/worlds/th_arena.world"/>--> 
         <arg name="paused" value="false"/>
         <arg name="use_sim_time" value="true"/>
         <arg name="gui" value="true"/>
@@ -86,5 +86,6 @@ limitations under the License.
       <param name="cmd_timeout" value="$(arg cmd_timeout)"/>
       <rosparam file="$(find ackermann_vehicle_gazebo)/config/em_3905_ackermann_ctrlr_params.yaml" command="load"/>
     </node>
+
   </group>
 </launch>

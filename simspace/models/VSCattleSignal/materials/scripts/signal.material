@@ -1,0 +1,13 @@
+material Signal/Cattle
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture cattle.png
+      }
+    }
+  }
+}

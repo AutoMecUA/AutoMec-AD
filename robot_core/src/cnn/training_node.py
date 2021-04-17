@@ -22,6 +22,21 @@ def main():
     modelname = rospy.get_param('~modelname', 'model_sergio4teste.h5')
     epochs = rospy.get_param('~epochs', 10)
     steps_per_epoch = rospy.get_param('~steps_per_epoch', 100)
+    batch_xtrain = rospy.get_param('~batch_xtrain', 20)
+    batch_ytrain = rospy.get_param('~batch_ytrain', 1)
+    batch_xval = rospy.get_param('~batch_xval', 20)
+    batch_yval = rospy.get_param('~batch_yval', 0)
+    validation_steps = rospy.get_param('~validation_steps', 50)
+
+    print('base_folder: ', base_folder)
+    print('modelname: ', modelname)
+    print('epochs: ', epochs)
+    print('steps_per_epoch: ', steps_per_epoch)
+    print('batch_xtrain: ', batch_xtrain)
+    print('batch_ytrain: ', batch_ytrain)
+    print('batch_xval: ', batch_xval)
+    print('batch_yval: ', batch_yval)
+    print('validation_steps: ', validation_steps)
 
     # Todo - Adicionar conditionals para treinar o modelo se ele já existe
 
@@ -70,8 +85,8 @@ def main():
     model.summary()
 
     # Step 9 -Training
-    history = model.fit(batchGen(xTrain, yTrain, 20, 1), steps_per_epoch=100, epochs=10,
-                        validation_data=batchGen(xVal, yVal, 20, 0), validation_steps=50)
+    history = model.fit(batchGen(xTrain, yTrain, batch_xtrain, batch_ytrain), steps_per_epoch=steps_per_epoch, epochs=epochs,
+                        validation_data=batchGen(xVal, yVal, batch_xval, batch_yval), validation_steps=validation_steps)
 
     # Step 10 - Saving and plotting
     #model.save('models_files/' + modelname)
