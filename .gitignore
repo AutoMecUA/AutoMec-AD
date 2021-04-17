@@ -129,7 +129,8 @@ dmypy.json
 .pyre/
 
 # config for vscode, can be usefull if all use vscode
-.vscode 
+.vscode
+
 
 # images
 *.jpg
