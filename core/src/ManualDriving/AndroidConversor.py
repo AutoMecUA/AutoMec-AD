@@ -8,7 +8,7 @@ from geometry_msgs.msg import Twist
 # Global Variables
 global PubDir
 global PubVel
-global ma1, ma2, ba1, ba2, mv1, bv1
+global ma1, ma2, ba1, ba2, mv1, bv1, mv2, bv2
 global Backward, Forward, BreakMode
 
 
@@ -77,7 +77,12 @@ def messageReceivedCallback(message):
             
 
 
-    VelOut = mv1 * linear + bv1
+    if linear <0:
+        VelOut = mv1 * linear + bv1
+    else:
+        
+        VelOut = mv2 * linear + bv2
+
 
 
 
@@ -91,7 +96,7 @@ def messageReceivedCallback(message):
 
 
     if BreakMode:
-        rospy.sleep(1)
+        rospy.sleep(0.5)
         BreakMode=False
     else:
         pass
@@ -106,7 +111,7 @@ def main():
 
     global PubDir
     global PubVel
-    global ma1, ma2, ba1, ba2, mv1, bv1
+    global ma1, ma2, ba1, ba2, mv1, bv1, mv2, bv2
     global BreakMode, Forward, Backward
     global PubDir, PubVel
 
@@ -123,18 +128,33 @@ def main():
     #Angle
 
     #2 lines
-    ma1 = (90 - 170) / (0 + 1)
-    ba1 = 170 - ma1 * -1
 
-    ma2 = (0 - 90) / (1 - 0)
-    ba2 = 90 - ma2 * 0
+    ang_max = 170
+    ang_center = 90
+    ang_min = 0
+
+    ma1 = (ang_center - ang_max) / (0 + 1)
+    ba1 = ang_max - ma1 * -1
+
+    ma2 = (ang_min - ang_center) / (1 - 0)
+    ba2 = ang_center - ma2 * 0
 
     #Velocity
 
-    #1 line
+    #2 line
 
-    mv1 = (90 - 0) / (0 + 1)
-    bv1 = 0 - mv1 * -1
+
+
+    vel_max = 125
+    vel_center = 90
+    vel_min = 0
+
+    mv1 = (vel_min - vel_center) / (-1)
+    bv1 = vel_center 
+
+
+    mv2 = (vel_max - vel_center)
+    bv2 = vel_center
     
     rospy.spin()
 
