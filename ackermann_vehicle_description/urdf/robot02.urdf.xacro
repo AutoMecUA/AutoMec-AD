@@ -48,6 +48,7 @@ limitations under the License.
   <xacro:property name="chassis_height" value="0.01"/>
   <xacro:property name="chassis_mass" value="2.788"/>
 
+
   <!-- battery_dist is the distance between the inner edges of the
        batteries. battery_comp_depth is the battery compartment depth.
        battery_length is measured along the x axis, battery_width
@@ -66,18 +67,24 @@ limitations under the License.
        inset from the outer edge of the tire. It is set so that each wheel
        is a "zero offset" wheel. hex_hub_depth = tire_width / 2 -
        axle_length. -->
-  <xacro:property name="hub_dia" value="0.09652"/>
-  <xacro:property name="tire_dia" value="0.14605"/>
-  <xacro:property name="tire_width" value="0.0889"/>
-  <xacro:property name="hex_hub_depth" value="0.01445"/>
+  <!-- <xacro:property name="hub_dia" value="0.09652"/> -->
+  <xacro:property name="hub_dia" value="0.0826"/>
+  <!-- <xacro:property name="tire_dia" value="0.14605"/> -->
+  <xacro:property name="tire_dia" value="0.125"/>
+  <!-- <xacro:property name="tire_width" value="0.0889"/> -->
+  <xacro:property name="tire_width" value="0.045"/>
+  <!-- <xacro:property name="hex_hub_depth" value="0.01445"/> -->
+  <xacro:property name="hex_hub_depth" value="-0.0075"/>
   <xacro:property name="wheel_mass" value="0.29"/>
 
   <!-- hex_hub_dist is the distance between left and right hex hubs when
        the shock absorbers are fully extended. axle_length is the distance
        from a U joint to the corresponding hex hub. wheel_travel is the
        vertical wheel travel. -->
-  <xacro:property name="wheelbase" value="0.335"/>
-  <xacro:property name="hex_hub_dist" value="0.365"/>
+  <!-- <xacro:property name="wheelbase" value="0.335"/> -->
+  <xacro:property name="wheelbase" value="0.245"/>
+  <!-- <xacro:property name="hex_hub_dist" value="0.365"/> -->
+  <xacro:property name="hex_hub_dist" value="0.27"/>
   <xacro:property name="axle_length" value="0.03"/>
   <xacro:property name="wheel_travel" value="0.084"/>
   <xacro:property name="shock_z_offset" value="0.0655"/>
@@ -278,12 +285,14 @@ limitations under the License.
 
     <link name="${lr_prefix}_${fr_prefix}_wheel">
       <visual>
-        <origin xyz="0
+        <!-- <origin xyz="0
                      ${lr_reflect * (axle_length - (tire_width / 
                      2 - hex_hub_depth))}
-                     0"/>
+                     0" /> -->
+        <origin xyz="-0.0825 0.0625 0" rpy="1.57 0 0"/>             
         <geometry>
-          <cylinder radius="${tire_dia / 2}" length="${tire_width}"/>
+          <!--<cylinder radius="${tire_dia / 2}" length="${tire_width}"/>-->
+          <mesh filename="$(find robot_description)/meshes/RodaPecaCanto.STL" scale="0.001 0.001 0.001"/>
         </geometry>
         <material name="tire_mat"/>
       </visual>
@@ -368,9 +377,11 @@ limitations under the License.
   <!-- Chassis -->
   <link name="chassis">
     <visual>
-      <origin xyz="0 0 ${-chassis_height / 2}"/>
+      <!-- <origin xyz="0 0 ${-chassis_height / 2}"/> -->
+      <origin xyz="-0.3 -0.195  -0.045"/> <!--x z y-->
       <geometry>
-        <box size="${chassis_length} ${chassis_width} ${chassis_height}"/>
+        <!-- <box size="${chassis_length} ${chassis_width} ${chassis_height}"/> -->
+        <mesh filename="$(find robot_description)/meshes/CarroSemRodasZ.STL" scale="0.001 0.001 0.001 "/>
       </geometry>
       <material name="chassis_mat"/>
     </visual>
