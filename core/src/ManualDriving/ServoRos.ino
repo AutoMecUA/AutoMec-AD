@@ -15,6 +15,7 @@
 // !!!!!!!!!!!!!!!!!   IMPORTANTE   !!!!!!!!!!!
 // rosrun rosserial_python serial_node.py /dev/ttyACM1
 // rosrun rosserial_python serial_node.py /dev/ttyACM1
+// rosrun rosserial_python serial_node.py _port:=/dev/ttyACM0 _baud:=9600
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 #if defined(ARDUINO) && ARDUINO >= 100
