@@ -64,12 +64,14 @@ for name in dict_images.keys():
     # Updating the dictionary with the Key and Value of the Zero Image
     #dict_images[name]['images'][images_key] = images_value
 
+    # Define the fraction to transform
+    frac = 1/9
+
     # Locate points of the signal which you want to transform
     pts1 = np.float32([[0, 0], [width, 0], [0, height], [width, height]])
-    pts2 = np.float32([[0, 0], [width, 0], [width*1/6, height], [width*5/6, height]])
-    pts3 = np.float32([[0, 0], [width, height*1/6], [width*1/6, height], [width*5/6, height*5/6]])
-    pts4 = np.float32([[0, height*1/6], [width, 0], [width*1/6, height*5/6], [width*5/6, height]])
-
+    pts2 = np.float32([[width * frac, 0], [width * (1-frac), 0], [0, height], [width, height]])
+    pts3 = np.float32([[width * frac, 0], [width * (1-frac), height * frac], [0, height], [width, height * (1-frac)]])
+    pts4 = np.float32([[width * frac, height * frac], [width * (1-frac), 0], [0, height * (1-frac)], [width, height]])
     # Transform the original images into a tilted one
     matrix1 = cv2.getPerspectiveTransform(pts1, pts2)
     matrix2 = cv2.getPerspectiveTransform(pts1, pts3)
