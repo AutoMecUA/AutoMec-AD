@@ -76,7 +76,11 @@ def main():
     # Images to import and Images Info
     dict_images = {
         'pForward': {'title': 'Follow Straight Ahead', 'type': 'Panel', 'color': 'green', 'images': {}},
-        'pStop': {'title': 'Stop', 'type': 'Panel', 'color': 'red', 'images': {}}
+        'pStop': {'title': 'Stop', 'type': 'Panel', 'color': 'red', 'images': {}},
+        'pLeft': {'title': 'Left', 'type': 'Panel', 'color': 'green', 'images': {}},
+        'pRight': {'title': 'Right', 'type': 'Panel', 'color': 'green', 'images': {}},
+        'pParking': {'title': 'Parking', 'type': 'Panel', 'color': 'yellow', 'images': {}},
+        'pChess': {'title': 'Chess', 'type': 'Panel', 'color': 'red', 'images': {}}
     }
 
     # Colors dictionary
