@@ -38,6 +38,7 @@ limitations under the License.
 <launch>
   <arg name="namespace" default="ackermann_vehicle"/>
   <arg name="cmd_timeout" default="0.5"/>
+  <arg name="urdf" default="robot02"/>
 
   <!-- Vehicle pose -->
   <arg name="x" default="-1.0"/>
@@ -49,7 +50,7 @@ limitations under the License.
 
   <group ns="$(arg namespace)">
     <!-- robot_description is used by nodes that publish to joint_states. -->
-    <param name="robot_description" command="$(find xacro)/xacro $(find ackermann_vehicle_description)/urdf/robot02.urdf.xacro"/>
+    <param name="robot_description" command="$(find xacro)/xacro $(find ackermann_vehicle_description)/urdf/$(arg urdf).urdf.xacro"/>
 
     <!-- Read joint positions from joint_states, then publish the vehicle's
          state to tf. -->

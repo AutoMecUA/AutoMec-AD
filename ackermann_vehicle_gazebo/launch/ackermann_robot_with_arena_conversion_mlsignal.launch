@@ -1,6 +1,7 @@
 <launch>
 
     <!-- Parameters for ml driving.launch -->
+    <arg name="urdf" default="robot02"/>
     <arg name="drive_image_raw_topic" default="/ackermann_vehicle/camera/rgb/image_raw"/>
     <arg name="drive_twist_cmd_topic" default="/angle_cmd"/>
     <arg name="drive_twist_linear_x" default="0.5"/>
@@ -12,7 +13,9 @@
     <arg name="signal_twist_linear_x" default="0.5"/>
 
     <group if="$(eval arg('model') != '')">
-        <include file="$(find ackermann_vehicle_gazebo)/launch/ackermann_robot_with_arena.launch" />
+        <include file="$(find ackermann_vehicle_gazebo)/launch/ackermann_robot_with_arena.launch" >
+            <arg name="urdf" value="$(arg urdf)"/>
+        </include>
         <include file="$(find ackermann_vehicle_gazebo)/launch/linang_to_ackermann.launch" />
         <include file="$(find robot_core)/launch/driving.launch">
             <arg name="image_raw_topic" value="$(arg drive_image_raw_topic)"/>

@@ -1,4 +1,7 @@
 <launch>
-<include file="$(find ackermann_vehicle_gazebo)/launch/ackermann_robot_with_arena.launch" />
-<include file="$(find ackermann_vehicle_gazebo)/launch/twist_to_ackermann.launch" />
+    <arg name="urdf" default="robot02"/>
+    <include file="$(find ackermann_vehicle_gazebo)/launch/ackermann_robot_with_arena.launch" >
+        <arg name="urdf" value="$(arg urdf)"/>
+    </include>
+    <include file="$(find ackermann_vehicle_gazebo)/launch/twist_to_ackermann.launch" />
 </launch>
