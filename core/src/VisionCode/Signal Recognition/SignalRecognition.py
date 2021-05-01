@@ -62,10 +62,10 @@ for name in dict_images.keys():
     images_value = cv2.resize(images_value, dim)
 
     # Updating the dictionary with the Key and Value of the Zero Image
-    #dict_images[name]['images'][images_key] = images_value
+    dict_images[name]['images'][images_key] = images_value
 
     # Define the fraction to transform
-    frac = 1/9
+    frac = 1/8
 
     # Locate points of the signal which you want to transform
     pts1 = np.float32([[0, 0], [width, 0], [0, height], [width, height]])
@@ -85,16 +85,16 @@ for name in dict_images.keys():
     dict_images[name]['images'][tilt2_key] = tilt2
     dict_images[name]['images'][tilt3_key] = tilt3
 
-    Counter_Nr_Images += 3
+    Counter_Nr_Images += 4
 
     # Piramidization of the Zero and Tilt Image, creating smaller versions of it
     for n in range(N_red):
         # Defining the keys
-        #images_key = str(2 * n - 1)
+        images_key = str(2 * n - 1)
         tilt1_keypyr = tilt1_key + "." + str(2*n + 1)
         tilt2_keypyr = tilt2_key + "." + str(2*n + 1)
         tilt3_keypyr = tilt3_key + "." + str(2*n + 1)
-        #images_keyh = str(2 * n)
+        images_keyh = str(2 * n)
         tilt1_keypyrh = tilt1_key + "." + str(2*n + 2)
         tilt2_keypyrh = tilt2_key + "." + str(2*n + 2)
         tilt3_keypyrh = tilt3_key + "." + str(2*n + 2)
@@ -103,27 +103,27 @@ for name in dict_images.keys():
         width = int(images_value.shape[1] * 3 / 4)
         height = int(images_value.shape[0] * 3 / 4)
         dim = (width, height)
-        #images_valueh = cv2.resize(images_value, dim)
+        images_valueh = cv2.resize(images_value, dim)
         tilt1h = cv2.resize(tilt1, dim)
         tilt2h = cv2.resize(tilt2, dim)
         tilt3h = cv2.resize(tilt3, dim)
 
         # Pyramidization
-        #images_value = cv2.pyrDown(images_value)
+        images_value = cv2.pyrDown(images_value)
         tilt1 = cv2.pyrDown(tilt1)
         tilt2 = cv2.pyrDown(tilt2)
         tilt3 = cv2.pyrDown(tilt3)
 
         # Updating the dictionary with the Key and Value
-        #dict_images[name]['images'][images_key] = images_value
+        dict_images[name]['images'][images_key] = images_value
         dict_images[name]['images'][tilt1_keypyr] = tilt1
         dict_images[name]['images'][tilt2_keypyr] = tilt2
         dict_images[name]['images'][tilt3_keypyr] = tilt3
-        #dict_images[name]['images'][images_keyh] = images_valueh
+        dict_images[name]['images'][images_keyh] = images_valueh
         dict_images[name]['images'][tilt1_keypyrh] = tilt1h
         dict_images[name]['images'][tilt2_keypyrh] = tilt2h
         dict_images[name]['images'][tilt3_keypyrh] = tilt3h
-        Counter_Nr_Images += 6
+        Counter_Nr_Images += 8
 
 # Number of Images Created
 print("Number of images: " + str(Counter_Nr_Images))

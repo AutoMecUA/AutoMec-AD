@@ -138,7 +138,7 @@
         <visual name='visual1'>
           <geometry>
             <box>
-              <size>0.4758 0.2673 0.01</size>
+              <size>0.4758 0.35685 0.01</size>
             </box>
           </geometry>
           <material>
@@ -184,7 +184,7 @@
         <visual name='visual2'>
           <geometry>
             <box>
-              <size>0.4758 0.2673 0.01</size>
+              <size>0.4758 0.35685 0.01</size>
             </box>
           </geometry>
           <material>
