@@ -33,7 +33,7 @@ def cmd_vel_callback(data):
   global vangular
   vlinear = data.linear.x
   vangular = data.angular.z
-  print(data)
+  #print(data)
 
 if __name__ == '__main__': 
   try:

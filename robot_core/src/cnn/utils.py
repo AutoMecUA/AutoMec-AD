@@ -22,7 +22,7 @@ def getName(filePath):
 
 def importDataInfo(path):
     columns = ['Center',
-               'Steering']
+               'Steering', 'Velocity']
     data = pd.read_csv(os.path.join(path, 'driving_log.csv'), names=columns)
     # REMOVE FILE PATH AND GET ONLY FILE NAME
     # print(getName(data['center'][0]))
