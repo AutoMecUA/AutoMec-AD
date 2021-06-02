@@ -1,0 +1,17 @@
+<launch>
+
+  <arg name="image_raw_topic" default="/real_camera"/>
+  <arg name="twist_cmd_topic" default="/android_input"/>
+  <arg name="twist_linear_x" default="1"/>
+  <arg name="modelname" default=""/>
+
+  <group if="$(eval arg('modelname') != '')">
+    <node name="ml_driving" pkg="cnn" type="ml_driving.py" output="screen">
+      <param name="image_raw_topic" value="$(arg image_raw_topic)"/>
+      <param name="twist_cmd_topic" value="$(arg twist_cmd_topic)"/>
+      <param name="twist_linear_x" value="$(arg twist_linear_x)"/>
+      <param name="modelname" value="$(arg modelname)"/>
+    </node>
+  </group>
+  
+</launch>

@@ -94,7 +94,7 @@ def main():
     base_folder = rospy.get_param('~base_folder', '/set1') 
 
     s = str(pathlib.Path(__file__).parent.absolute())
-    data_path = s + '/../data' + base_folder
+    data_path = s + '/data' + base_folder
     print (data_path)
 
     # Subscribe topics
