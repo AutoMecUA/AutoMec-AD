@@ -476,7 +476,7 @@ limitations under the License.
 
 
   <joint name="camera2_joint" type="fixed">
-    <origin xyz="0.073 -0.011 0.01" rpy="0 -0.6 0"/>
+    <origin xyz="0.073 -0.011 0.14" rpy="0 0 0"/>
     <parent link="base_link"/>
     <child link="camera2_link"/>
   </joint>
