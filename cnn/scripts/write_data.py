@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 # Imports
+import os
 import signal
 import sys
 import cv2
@@ -27,7 +28,6 @@ global begin_cmd
 global begin_img
 global img_rbg
 global driving_log
-
 global data_path
 
 
@@ -95,6 +95,13 @@ def main():
 
     s = str(pathlib.Path(__file__).parent.absolute())
     data_path = s + '/data' + base_folder
+
+    # If the path does not exist, create it
+    if not os.path.exists(data_path):
+        os.makedirs(data_path)
+        data_path2 = data_path + '/IMG'
+        os.makedirs(data_path2)
+
     print (data_path)
 
     # Subscribe topics
