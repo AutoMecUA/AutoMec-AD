@@ -97,7 +97,7 @@ def main():
 
     # Init Node
     rospy.init_node('ml_driving', anonymous=False)
-    
+
     image_raw_topic = rospy.get_param('~image_raw_topic', '/ackermann_vehicle/camera2/rgb/image_raw') 
     twist_cmd_topic = rospy.get_param('~twist_cmd_topic', '/vel_cmd') 
     float_cmd_topic = rospy.get_param('~float_cmd_topic', '/flt_cmd') 
@@ -211,7 +211,7 @@ def main():
     rospy.Subscriber(image_raw_topic,
                      Image, message_RGB_ReceivedCallback)
     pub = rospy.Publisher(twist_cmd_topic, Twist, queue_size=10)
-    pubflt = rospy.Publisher(flt:cmd_topic, Float32, queue_size=10)
+    pubflt = rospy.Publisher(float_cmd_topic, Float32, queue_size=10)
 
     rate = rospy.Rate(10)
 
@@ -304,7 +304,7 @@ def main():
         twist.angular.z = 0
 
         pub.publish(twist)
-        pub.publish(flt)
+        pubflt.publish(flt)
 
         cv2.imshow("Frame", img_rbg)
         key = cv2.waitKey(1)
