@@ -96,8 +96,8 @@ def main():
     twist = Twist()
 
     # Init Node
-    rospy.init_node('ml_driving', anonymou<arg name="twist_cmd_topic" default="/vel_cmd"/>s=False)
-
+    rospy.init_node('ml_driving', anonymous=False)
+    
     image_raw_topic = rospy.get_param('~image_raw_topic', '/ackermann_vehicle/camera2/rgb/image_raw') 
     twist_cmd_topic = rospy.get_param('~twist_cmd_topic', '/vel_cmd') 
     float_cmd_topic = rospy.get_param('~float_cmd_topic', '/flt_cmd') 
