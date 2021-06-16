@@ -15,6 +15,7 @@ from tensorflow.keras.models import load_model
 import pathlib
 import os
 import string
+from std_msgs.msg import Float32
 
 
 global img_rbg
@@ -41,10 +42,16 @@ def message_RGB_ReceivedCallback(message):
 
     begin_img = True
 
+def signal_Callback(message):
+    global vel
+
+    vel = message.data
+
 
 def main():
 
     # Global variables
+    global vel
     global img_rbg
     global bridge
     global begin_img
@@ -58,7 +65,8 @@ def main():
     image_raw_topic = rospy.get_param('~image_raw_topic', '/ackermann_vehicle/camera/rgb/image_raw') 
     twist_cmd_topic = rospy.get_param('~twist_cmd_topic', '/cmd_vel') 
     twist_linear_x = rospy.get_param('~twist_linear_x', 0.5)
-    modelname = rospy.get_param('~modelname', 'model_sergio4teste.h5')
+    float_cmd_topic = rospy.get_param('~float_cmd_topic', '/flt_cmd') 
+    modelname = rospy.get_param('~modelname', 'model_default.h5')
 
     s = str(pathlib.Path(__file__).parent.absolute())
     path = s + '/models_files/' + modelname
@@ -72,6 +80,8 @@ def main():
     #
     rospy.Subscriber(image_raw_topic,
                      Image, message_RGB_ReceivedCallback)
+    rospy.Subscriber(float_cmd_topic,
+                     Float32, signal_Callback)
     pub = rospy.Publisher(twist_cmd_topic, Twist, queue_size=10)
 
     # Create an object of the CvBridge class
@@ -96,7 +106,7 @@ def main():
         angle = steering
 
         # Send twist
-        twist.linear.x = twist_linear_x
+        twist.linear.x = vel
         twist.linear.y = 0
         twist.linear.z = 0
         twist.angular.x = 0
