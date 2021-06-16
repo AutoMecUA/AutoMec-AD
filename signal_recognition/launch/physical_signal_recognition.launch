@@ -1,5 +1,6 @@
 <launch>
   <arg name="image_raw_topic" default="/real_camera"/>
+  <arg name="float_cmd_topic" default="/flt_cmd"/>
   <arg name="twist_cmd_topic" default="/vel_cmd"/>
   <arg name="twist_linear_x" default="1"/>
 
