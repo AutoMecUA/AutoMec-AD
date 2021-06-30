@@ -13,6 +13,125 @@ global Backward, Forward, BreakMode
 
 
 # Calback Function
+def messageReceivedCallbackAngle(message):
+
+    global PubDir
+    global PubVel
+    global Backward, Forward, BreakMode
+
+    angular = float(message.angular.z)
+
+
+
+    #--------------------------------------------------------------------------
+    #-----------------------------Angular--------------------------------------
+    #--------------------------------------------------------------------------
+
+
+    if angular < 0:
+
+        AngleOut = ma1 * angular + ba1 
+    
+    else:
+
+        AngleOut = ma2 * angular + ba2 
+
+
+   
+    #Publicar mensagens
+    
+
+    PubDir.publish(int(AngleOut))
+    
+
+
+    if BreakMode:
+        rospy.sleep(0.5)
+        BreakMode=False
+    else:
+        pass
+        
+
+    #print("Velocidade Linear " + str(message.linear.x))
+    #print("Angulo Z " + str(message.angular.z))
+
+# Calback Function
+def messageReceivedCallbackDirection(message):
+
+    global PubDir
+    global PubVel
+    global Backward, Forward, BreakMode
+
+    linear = float(message.linear.x)
+
+    #--------------------------------------------------------------------------
+    #-----------------------------Velocity-------------------------------------
+    #--------------------------------------------------------------------------
+
+
+    
+    #Code to when going backward (coming from forward), pause 2 seconds, and then go
+
+    if linear > 0:
+        Backward = False
+        BreakMode = False
+    else:
+        if Backward == False:
+            linear = 0
+            Backward = True
+            BreakMode = True
+        else:
+            BreakMode = False
+        
+
+        
+    #Code to when going forward (coming from backward), pause 2 seconds, and then go
+
+
+
+    if not BreakMode:
+        if linear < 0:
+            Forward = False
+            BreakMode = False
+        else:
+            if Forward == False:
+                linear = 0
+                Forward = True
+                BreakMode = True
+            else:
+                BreakMode = False
+            
+
+
+    if linear <0:
+        VelOut = mv1 * linear + bv1
+    else:
+        
+        VelOut = mv2 * linear + bv2
+
+
+
+
+    
+    #Publicar mensagens
+    
+
+    PubVel.publish(int(VelOut))
+    
+
+
+    if BreakMode:
+        rospy.sleep(0.5)
+        BreakMode=False
+    else:
+        pass
+        
+
+    #print("Velocidade Linear " + str(message.linear.x))
+    #print("Angulo Z " + str(message.angular.z))
+
+    #Calback Function
+
 def messageReceivedCallback(message):
 
     global PubDir
@@ -104,7 +223,6 @@ def messageReceivedCallback(message):
 
     #print("Velocidade Linear " + str(message.linear.x))
     #print("Angulo Z " + str(message.angular.z))
-
     
 # Program's Core
 def main():
@@ -123,7 +241,9 @@ def main():
     rospy.init_node('AndroidConversor', anonymous=False)
     PubDir = rospy.Publisher('pub_dir', Int16, queue_size=10)
     PubVel = rospy.Publisher('pub_vel', Int16, queue_size=10)
-    rospy.Subscriber('android_input', Twist, messageReceivedCallback)
+    #rospy.Subscriber('android_input', Twist, messageReceivedCallback)
+    rospy.Subscriber('android_input2', Twist, messageReceivedCallbackDirection)
+    rospy.Subscriber('android_input3', Twist, messageReceivedCallbackAngle)
 
     #Angle
 
