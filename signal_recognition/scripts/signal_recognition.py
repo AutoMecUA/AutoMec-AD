@@ -67,7 +67,7 @@ def main():
     # Detection Parameters
 
     scale_cap = 0.4
-    detection_threshold = 0.8
+    detection_threshold = 0.85
 
     # Initial velocity
     vel = 0
