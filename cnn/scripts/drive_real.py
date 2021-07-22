@@ -15,7 +15,6 @@ from tensorflow.keras.models import load_model
 import pathlib
 import os
 import string
-from std_msgs.msg import Float32
 
 
 global img_rbg
@@ -26,9 +25,10 @@ global begin_img
 def preProcess(img):
     # Define Region of intrest- Perguntar ao Daniel se corto ou não , problema do angulo da camera
     #img = img[60:135, :, :]
-    img = cv2.cvtColor(img, cv2.COLOR_RGB2YUV)
-    img = cv2.GaussianBlur(img,  (3, 3), 0)
-    img = cv2.resize(img, (200, 66))
+
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    img = cv2.resize(img, (320, 160))
+    img = np.expand_dims(img, axis=2)
     img = img/255
     return img
 
@@ -42,16 +42,10 @@ def message_RGB_ReceivedCallback(message):
 
     begin_img = True
 
-def signal_Callback(message):
-    global vel
-
-    vel = message.data
-
 
 def main():
 
     # Global variables
-    global vel
     global img_rbg
     global bridge
     global begin_img
@@ -62,14 +56,14 @@ def main():
     # Init Node
     rospy.init_node('ml_driving', anonymous=False)
 
-    image_raw_topic = rospy.get_param('~image_raw_topic', '/ackermann_vehicle/camera/rgb/image_raw') 
-    twist_cmd_topic = rospy.get_param('~twist_cmd_topic', '/robot/cmd_vel') 
-    twist_linear_x = rospy.get_param('~twist_linear_x', 0.5)
-    float_cmd_topic = rospy.get_param('~float_cmd_topic', '/flt_cmd') 
-    modelname = rospy.get_param('~modelname', 'model_default.h5')
+    #image_raw_topic = rospy.get_param('~image_raw_topic', '/ackermann_vehicle/camera/rgb/image_raw') 
+    image_raw_topic = 'real_camera'
+    twist_cmd_topic = rospy.get_param('~twist_cmd_topic', 'android_input_dir') 
+    twist_linear_x = rospy.get_param('~twist_linear_x', 1)
+    #modelname = rospy.get_param('~modelname', 'model_sergio4teste.h5')
 
     s = str(pathlib.Path(__file__).parent.absolute())
-    path = s + '/models_files/' + modelname
+    path = 'models_files/cnn2-model_14_07.h5'
     print (path)
     model = load_model(path)
 
@@ -80,14 +74,13 @@ def main():
     #
     rospy.Subscriber(image_raw_topic,
                      Image, message_RGB_ReceivedCallback)
-    rospy.Subscriber(float_cmd_topic,
-                     Float32, signal_Callback)
     pub = rospy.Publisher(twist_cmd_topic, Twist, queue_size=10)
     pub_velocity = rospy.Publisher('android_input_vel', Twist, queue_size=10)
+
     # Create an object of the CvBridge class
     bridge = CvBridge()
 
-    rate = rospy.Rate(10)
+    rate = rospy.Rate(20)
 
     while not rospy.is_shutdown():
 
@@ -106,7 +99,6 @@ def main():
         angle = steering
 
         # Send twist
-        #twist.linear.x = vel
         twist.linear.x = twist_linear_x
         twist.linear.y = 0
         twist.linear.z = 0
@@ -115,8 +107,6 @@ def main():
         twist.angular.z = angle
 
         pub.publish(twist)
-    
-
         pub_velocity.publish(twist)
 
 

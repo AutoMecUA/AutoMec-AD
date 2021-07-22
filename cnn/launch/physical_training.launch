@@ -1,9 +1,9 @@
 <launch>
 
-  <arg name="epochs" default="20"/>
-  <arg name="steps_per_epoch" default="50"/>
+  <arg name="epochs" default="60"/>
+  <arg name="steps_per_epoch" default="100"/>
   
-  <arg name="folder" default="/set1"/>
+  <arg name="folder" default="/dataset5"/>
   <arg name="model" default="model_default.h5"/>
 
   <!--

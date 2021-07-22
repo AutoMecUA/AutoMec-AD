@@ -18,13 +18,13 @@ def main():
     # Init Node
     rospy.init_node('ml_training', anonymous=False)
 
-    base_folder = rospy.get_param('~base_folder', '/set1') 
+    base_folder = rospy.get_param('~base_folder', '/dataset5') 
     modelname = rospy.get_param('~modelname', 'model_sergio4teste.h5')
-    epochs = rospy.get_param('~epochs', 10)
+    epochs = rospy.get_param('~epochs', 20)
     steps_per_epoch = rospy.get_param('~steps_per_epoch', 100)
     batch_xtrain = rospy.get_param('~batch_xtrain', 20)
     batch_ytrain = rospy.get_param('~batch_ytrain', 1)
-    batch_xval = rospy.get_param('~batch_xval', 20)
+    batch_xval = rospy.get_param('~batch_xval', 25)
     batch_yval = rospy.get_param('~batch_yval', 0)
     validation_steps = rospy.get_param('~validation_steps', 50)
 
