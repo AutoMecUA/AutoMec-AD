@@ -117,7 +117,8 @@ def main():
     # Create pandas dataframe
     driving_log = pd.DataFrame(columns=['Center', 'Steering', 'Velocity'])
    
-    rate = rospy.Rate(10)
+    # TODO change rate to ros param
+    rate = rospy.Rate(30)
 
     signal.signal(signal.SIGINT, signal_handler)
 
