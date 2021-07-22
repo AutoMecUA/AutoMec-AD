@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Imports
 import rospy
@@ -242,8 +242,8 @@ def main():
     PubDir = rospy.Publisher('pub_dir', Int16, queue_size=10)
     PubVel = rospy.Publisher('pub_vel', Int16, queue_size=10)
     #rospy.Subscriber('android_input', Twist, messageReceivedCallback)
-    rospy.Subscriber('android_input2', Twist, messageReceivedCallbackDirection)
-    rospy.Subscriber('android_input3', Twist, messageReceivedCallbackAngle)
+    rospy.Subscriber('android_input_vel', Twist, messageReceivedCallbackDirection)
+    rospy.Subscriber('android_input_dir', Twist, messageReceivedCallbackAngle)
 
     #Angle
 
@@ -265,7 +265,7 @@ def main():
 
 
 
-    vel_max = 125
+    vel_max = 110
     vel_center = 90
     vel_min = 0
 

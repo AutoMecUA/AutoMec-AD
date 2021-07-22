@@ -58,7 +58,7 @@ def main():
 
     #image_raw_topic = rospy.get_param('~image_raw_topic', '/ackermann_vehicle/camera/rgb/image_raw') 
     image_raw_topic = 'real_camera'
-    twist_cmd_topic = rospy.get_param('~twist_cmd_topic', 'android_input3') 
+    twist_cmd_topic = rospy.get_param('~twist_cmd_topic', 'android_input_dir') 
     twist_linear_x = rospy.get_param('~twist_linear_x', 1)
     #modelname = rospy.get_param('~modelname', 'model_sergio4teste.h5')
 
@@ -75,7 +75,7 @@ def main():
     rospy.Subscriber(image_raw_topic,
                      Image, message_RGB_ReceivedCallback)
     pub = rospy.Publisher(twist_cmd_topic, Twist, queue_size=10)
-    pub_velocity = rospy.Publisher('android_input2', Twist, queue_size=10)
+    pub_velocity = rospy.Publisher('android_input_vel', Twist, queue_size=10)
 
     # Create an object of the CvBridge class
     bridge = CvBridge()

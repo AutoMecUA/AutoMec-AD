@@ -1,7 +1,7 @@
 <launch>
 
   <arg name="image_raw_topic" default="/real_camera"/>
-  <arg name="twist_cmd_topic" default="/android_input3"/>
+  <arg name="twist_cmd_topic" default="/android_input_dir"/>
   <arg name="twist_linear_x" default="1"/>
   <arg name="float_cmd_topic" default="/flt_cmd"/>
   <arg name="modelname" default="model_default.h5"/>

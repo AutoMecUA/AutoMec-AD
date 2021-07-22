@@ -1,11 +1,12 @@
+#!/usr/bin/env python3
+
 import numpy as np
 import cv2
 from sensor_msgs.msg._Image import Image
 from cv_bridge.core import CvBridge
 import rospy
 
-cap = cv2.VideoCapture(0)
-
+cap = cv2.VideoCapture(2)
 rospy.init_node('camera2ros_topic', anonymous=False)
 Pub = rospy.Publisher('real_camera', Image, queue_size=10)
 rate = rospy.Rate(10)

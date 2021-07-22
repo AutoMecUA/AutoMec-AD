@@ -63,7 +63,7 @@ def main():
     rospy.init_node('ml_driving', anonymous=False)
 
     image_raw_topic = rospy.get_param('~image_raw_topic', '/ackermann_vehicle/camera/rgb/image_raw') 
-    twist_cmd_topic = rospy.get_param('~twist_cmd_topic', '/cmd_vel') 
+    twist_cmd_topic = rospy.get_param('~twist_cmd_topic', '/robot/cmd_vel') 
     twist_linear_x = rospy.get_param('~twist_linear_x', 0.5)
     float_cmd_topic = rospy.get_param('~float_cmd_topic', '/flt_cmd') 
     modelname = rospy.get_param('~modelname', 'model_default.h5')
@@ -83,7 +83,7 @@ def main():
     rospy.Subscriber(float_cmd_topic,
                      Float32, signal_Callback)
     pub = rospy.Publisher(twist_cmd_topic, Twist, queue_size=10)
-
+    pub_velocity = rospy.Publisher('android_input_vel', Twist, queue_size=10)
     # Create an object of the CvBridge class
     bridge = CvBridge()
 
@@ -106,7 +106,8 @@ def main():
         angle = steering
 
         # Send twist
-        twist.linear.x = vel
+        #twist.linear.x = vel
+        twist.linear.x = twist_linear_x
         twist.linear.y = 0
         twist.linear.z = 0
         twist.angular.x = 0
@@ -114,6 +115,10 @@ def main():
         twist.angular.z = angle
 
         pub.publish(twist)
+    
+
+        pub_velocity.publish(twist)
+
 
         rate.sleep()
 
