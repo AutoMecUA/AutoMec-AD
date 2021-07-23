@@ -11,7 +11,7 @@
 
   <group if="$(eval arg('folder') != '')">
   -->
-    <node name="training_node" pkg="cnn" type="training_node.py" output="screen">
+    <node name="training_node" pkg="cnn_old" type="training_node.py" output="screen">
       <param name="epochs" value="$(arg epochs)"/>
       <param name="steps_per_epoch" value="$(arg steps_per_epoch)"/>
       <param name="base_folder" value="$(arg folder)"/>
