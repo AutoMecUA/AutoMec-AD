@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 # Imports
+import os
 import signal
 import sys
 import cv2
@@ -27,7 +28,6 @@ global begin_cmd
 global begin_img
 global img_rbg
 global driving_log
-
 global data_path
 
 
@@ -94,7 +94,14 @@ def main():
     base_folder = rospy.get_param('~base_folder', '/set1') 
 
     s = str(pathlib.Path(__file__).parent.absolute())
-    data_path = s + '/../data' + base_folder
+    data_path = s + '/data' + base_folder
+
+    # If the path does not exist, create it
+    if not os.path.exists(data_path):
+        os.makedirs(data_path)
+        data_path2 = data_path + '/IMG'
+        os.makedirs(data_path2)
+
     print (data_path)
 
     # Subscribe topics
@@ -110,7 +117,8 @@ def main():
     # Create pandas dataframe
     driving_log = pd.DataFrame(columns=['Center', 'Steering', 'Velocity'])
    
-    rate = rospy.Rate(10)
+    # TODO change rate to ros param
+    rate = rospy.Rate(30)
 
     signal.signal(signal.SIGINT, signal_handler)
 
@@ -122,6 +130,7 @@ def main():
 
         curr_time = datetime.datetime.now()
         image_name = str(curr_time.year) + '_' + str(curr_time.month) + '_' + str(curr_time.day)+ '__' + str(curr_time.hour)+ '_' + str(curr_time.minute)+ '_' + str(curr_time.second)+ '__' + str(curr_time.microsecond) + str('.jpg')        
+        # TODO clean angular and linear = 0
         # add image, angle and velocity to the driving_log pandas
         row  = pd.DataFrame([[image_name, angular, linear]],columns=['Center', 'Steering', 'Velocity'])
         driving_log=driving_log.append(row,ignore_index=True)

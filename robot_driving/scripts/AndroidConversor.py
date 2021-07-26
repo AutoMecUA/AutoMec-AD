@@ -12,15 +12,14 @@ global ma1, ma2, ba1, ba2, mv1, bv1, mv2, bv2
 global Backward, Forward, BreakMode
 
 
-# Calback Function
-def messageReceivedCallback(message):
+# Direction Callback Function
+def messageReceivedCallbackDir(message):
 
     global PubDir
     global PubVel
     global Backward, Forward, BreakMode
 
     angular = float(message.angular.z)
-    linear = float(message.linear.x)
 
 
 
@@ -37,6 +36,31 @@ def messageReceivedCallback(message):
 
         AngleOut = ma2 * angular + ba2 
 
+
+   
+    #Publicar mensagens
+    
+
+    PubDir.publish(int(AngleOut))
+    
+
+
+    if BreakMode:
+        rospy.sleep(0.5)
+        BreakMode=False
+    else:
+        pass
+        
+
+
+# Velocity Callback Function
+def messageReceivedCallbackVel(message):
+
+    global PubDir
+    global PubVel
+    global Backward, Forward, BreakMode
+
+    linear = float(message.linear.x)
 
     #--------------------------------------------------------------------------
     #-----------------------------Velocity-------------------------------------
@@ -90,7 +114,6 @@ def messageReceivedCallback(message):
     #Publicar mensagens
     
 
-    PubDir.publish(int(AngleOut))
     PubVel.publish(int(VelOut))
     
 
@@ -102,10 +125,8 @@ def messageReceivedCallback(message):
         pass
         
 
-    #print("Velocidade Linear " + str(message.linear.x))
-    #print("Angulo Z " + str(message.angular.z))
 
-    
+
 # Program's Core
 def main():
 
@@ -119,11 +140,24 @@ def main():
     Forward = False
     Backward = False
 
+    
+
 
     rospy.init_node('AndroidConversor', anonymous=False)
-    PubDir = rospy.Publisher('pub_dir', Int16, queue_size=10)
-    PubVel = rospy.Publisher('pub_vel', Int16, queue_size=10)
-    rospy.Subscriber('android_input', Twist, messageReceivedCallback)
+
+    twist_dir_topic = rospy.get_param('~twist_dir_topic', '/android_input_dir') 
+    twist_vel_topic = rospy.get_param('~twist_vel_topic', '/android_input_vel') 
+    int_dir_topic = rospy.get_param('~int_dir_topic', '/pub_dir') 
+    int_vel_topic = rospy.get_param('~int_vel_topic', '/pub_vel')
+    int_vel_max = rospy.get_param('~int_vel_max', 125)
+
+
+
+
+    PubDir = rospy.Publisher(int_dir_topic, Int16, queue_size=10)
+    PubVel = rospy.Publisher(int_vel_topic, Int16, queue_size=10)
+    rospy.Subscriber(twist_dir_topic, Twist, messageReceivedCallbackDir)
+    rospy.Subscriber(twist_vel_topic, Twist, messageReceivedCallbackVel)
 
     #Angle
 
@@ -145,7 +179,7 @@ def main():
 
 
 
-    vel_max = 125
+    vel_max = int_vel_max
     vel_center = 90
     vel_min = 0
 
