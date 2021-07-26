@@ -1,0 +1,13 @@
+material Signal/Depression
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture depression.png
+      }
+    }
+  }
+}

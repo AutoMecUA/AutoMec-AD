@@ -1,0 +1,7 @@
+<launch>
+    <arg name="urdf" default="robot03"/>
+    <include file="$(find simulation_bringup)/launch/traxxas_arena.launch" >
+        <arg name="urdf" value="$(arg urdf)"/>
+    </include>
+    <include file="$(find simulation_bringup)/launch/twist_to_ackermann.launch" />
+</launch>

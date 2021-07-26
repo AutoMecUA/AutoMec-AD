@@ -1,0 +1,17 @@
+<launch>
+
+    <arg name="urdf" default="robot02"/>
+    <arg name="folder" default=""/>
+
+    <group if="$(eval arg('folder') != '')">
+        <include file="$(find ackermann_vehicle_gazebo)/launch/ackermann_robot_with_arena.launch" >
+            <arg name="urdf" value="$(arg urdf)"/>
+        </include>
+        <include file="$(find ackermann_vehicle_gazebo)/launch/twist_to_ackermann.launch" />
+        <include file="$(find robot_core)/launch/write.launch">
+            <arg name="base_folder" value="$(arg folder)"/>
+        </include>
+        <node name="rqt_gui" pkg="rqt_gui" type="rqt_gui"/>
+    </group>
+    
+</launch>

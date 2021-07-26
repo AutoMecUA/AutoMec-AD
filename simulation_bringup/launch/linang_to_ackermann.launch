@@ -1,0 +1,31 @@
+<launch>
+    
+    <arg name="vel_topic" default="/vel_cmd"/>
+    <arg name="angle_topic" default="/angle_cmd"/>
+    <arg name="ackermann_cmd_topic" default="/ackermann_vehicle/ackermann_cmd"/>
+    <arg name="wheelbase" default="0.335"/>
+    <arg name="frame_id" default="simspace"/>
+    <arg name="message_type" default="ackermann_drive_stamped"/>
+    <arg name="servo_limit" default="30"/>
+    <arg name="esc_limit" default="120"/>
+    <arg name="max_vlinear" default="2"/>
+    <arg name="rate" default="20"/>
+    <arg name="cmd_vel" default="/cmd_vel"/>
+    <arg name="train" default="0"/>
+
+    <node pkg="ackermann_vehicle_gazebo" type="linang_to_ackermann.py" name="linang_to_ackermann" output="screen">
+        <param name="vel_topic" value="$(arg vel_topic)"/>
+        <param name="angle_topic" value="$(arg angle_topic)"/>
+        <param name="ackermann_cmd_topic" value="$(arg ackermann_cmd_topic)"/>
+        <param name="wheelbase" value="$(arg wheelbase)"/>
+        <param name="frame_id" value="$(arg frame_id)"/>
+        <param name="message_type" value="$(arg message_type)"/>
+        <param name="servo_limit" value="$(arg servo_limit)"/>
+        <param name="esc_limit" value="$(arg esc_limit)"/>
+        <param name="max_vlinear" value="$(arg max_vlinear)"/>
+        <param name="rate" value="$(arg rate)"/>
+        <param name="cmd_vel" value="$(arg cmd_vel)"/>
+        <param name="train" value="$(arg train)"/>
+    </node>
+    
+</launch>

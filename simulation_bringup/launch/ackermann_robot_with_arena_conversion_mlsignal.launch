@@ -28,8 +28,7 @@
             <arg name="twist_cmd_topic" value="$(arg signal_twist_cmd_topic)"/>
             <arg name="twist_linear_x" value="$(arg signal_twist_linear_x)"/>
         </include>
-        <!--
-	<include file="$(find ackermann_vehicle_gazebo)/launch/signal.launch" />-->
+        <include file="$(find ackermann_vehicle_gazebo)/launch/signal.launch" />
     </group>
 
 </launch>

@@ -1,0 +1,13 @@
+material Signal/Hospital
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture hospital.png
+      }
+    }
+  }
+}

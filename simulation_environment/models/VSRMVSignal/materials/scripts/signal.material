@@ -1,0 +1,13 @@
+material Signal/RMV
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture RMV.png
+      }
+    }
+  }
+}

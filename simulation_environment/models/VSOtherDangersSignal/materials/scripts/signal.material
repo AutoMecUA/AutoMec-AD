@@ -1,0 +1,13 @@
+material Signal/OtherDangers
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture other_dangers.png
+      }
+    }
+  }
+}
