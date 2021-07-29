@@ -1,0 +1,17 @@
+<launch>
+  <arg name="twist_dir_topic" default="/android_input_dir"/>
+  <arg name="int_dir_topic" default="/pub_dir"/>
+  <arg name="int_vel_topic" default="/pub_vel"/>
+  <arg name="int_vel_max" default="125"/>
+  <arg name="bool_vel_topic" default="/android_input_vel"/>
+
+
+    <node name="robot_driving" pkg="robot_driving" type="AndroidConversor.py" output="screen">
+      <param name="twist_dir_topic" value="$(arg twist_dir_topic)"/>
+      <param name="int_dir_topic" value="$(arg int_dir_topic)"/>
+      <param name="int_vel_topic" value="$(arg int_vel_topic)"/>
+      <param name="int_vel_max" value="$(arg int_vel_max)"/>
+      <param name="bool_vel_topic" value="$(arg bool_vel_topic)"/>
+    </node>
+
+</launch>
