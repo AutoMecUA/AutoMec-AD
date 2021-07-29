@@ -2,7 +2,7 @@
 
 # Imports
 import rospy
-from std_msgs.msg import Int16
+from std_msgs.msg import Int16, Bool
 from geometry_msgs.msg import Twist
 
 # Global Variables
@@ -54,7 +54,7 @@ def messageReceivedCallbackDir(message):
 
 
 # Velocity Callback Function
-def messageReceivedCallbackVel(message):
+def messageReceivedCallbackVelOld(message):
 
     global PubDir
     global PubVel
@@ -123,6 +123,25 @@ def messageReceivedCallbackVel(message):
         BreakMode=False
     else:
         pass
+
+
+# Velocity Callback Function
+def messageReceivedCallbackVel(message):
+
+    bool = message.data
+
+    #--------------------------------------------------------------------------
+    #-----------------------------Velocity-------------------------------------
+    #--------------------------------------------------------------------------
+
+    if bool:
+        vel = vel_max
+    else:
+        vel = vel_center
+
+    PubVel.publish(vel)
+    rospy.sleep(0.5)
+
         
 
 
@@ -134,7 +153,7 @@ def main():
     global PubVel
     global ma1, ma2, ba1, ba2, mv1, bv1, mv2, bv2
     global BreakMode, Forward, Backward
-    global PubDir, PubVel
+    global vel_max, vel_center
 
     BreakMode = False
     Forward = False
@@ -146,7 +165,8 @@ def main():
     rospy.init_node('AndroidConversor', anonymous=False)
 
     twist_dir_topic = rospy.get_param('~twist_dir_topic', '/android_input_dir') 
-    twist_vel_topic = rospy.get_param('~twist_vel_topic', '/android_input_vel') 
+    #twist_vel_topic = rospy.get_param('~twist_vel_topic', '/android_input_vel')
+    bool_vel_topic = rospy.get_param('~bool_vel_topic', '/android_input_vel') 
     int_dir_topic = rospy.get_param('~int_dir_topic', '/pub_dir') 
     int_vel_topic = rospy.get_param('~int_vel_topic', '/pub_vel')
     int_vel_max = rospy.get_param('~int_vel_max', 125)
@@ -157,15 +177,16 @@ def main():
     PubDir = rospy.Publisher(int_dir_topic, Int16, queue_size=10)
     PubVel = rospy.Publisher(int_vel_topic, Int16, queue_size=10)
     rospy.Subscriber(twist_dir_topic, Twist, messageReceivedCallbackDir)
-    rospy.Subscriber(twist_vel_topic, Twist, messageReceivedCallbackVel)
+    #rospy.Subscriber(twist_vel_topic, Twist, messageReceivedCallbackVelOld)
+    rospy.Subscriber(bool_vel_topic, Bool, messageReceivedCallbackVel)
 
     #Angle
 
     #2 lines
 
-    ang_max = 170
+    ang_max = 90+90/4
     ang_center = 90
-    ang_min = 0
+    ang_min = 90-90/4
 
     ma1 = (ang_center - ang_max) / (0 + 1)
     ba1 = ang_max - ma1 * -1
@@ -189,6 +210,7 @@ def main():
 
     mv2 = (vel_max - vel_center)
     bv2 = vel_center
+    
     
     rospy.spin()
 
