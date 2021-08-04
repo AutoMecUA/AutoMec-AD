@@ -63,7 +63,7 @@ def main():
     image_raw_topic = rospy.get_param('~image_raw_topic', '/ackermann_vehicle/camera/rgb/image_raw') 
     twist_cmd_topic = rospy.get_param('~twist_cmd_topic', '/cmd_vel') 
     vel_cmd_topic = rospy.get_param('~vel_cmd_topic', '') 
-    twist_linear_x = rospy.get_param('~twist_linear_x', 0.5)
+    twist_linear_x = rospy.get_param('~twist_linear_x', 1)
     float_cmd_topic = rospy.get_param('~float_cmd_topic', '') 
     modelname = rospy.get_param('~modelname', 'model1.h5')
 
@@ -92,7 +92,8 @@ def main():
     # Create an object of the CvBridge class
     bridge = CvBridge()
 
-    rate = rospy.Rate(10)
+    #Frames per second 
+    rate = rospy.Rate(30)
 
     while not rospy.is_shutdown():
 
