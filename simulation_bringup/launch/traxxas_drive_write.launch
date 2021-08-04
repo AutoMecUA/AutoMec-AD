@@ -1,0 +1,21 @@
+<launch>
+
+    <arg name="urdf" default="robot03"/>
+    <arg name="world" default="arena1"/>
+    <arg name="folder" default="set1"/>
+
+    <include file="$(find simulation_bringup)/launch/modules/arena.launch" >
+        <arg name="world" value="$(arg world)"/>
+    </include>
+
+    <include file="$(find simulation_bringup)/launch/modules/traxxas_robot.launch" >
+        <arg name="urdf" value="$(arg urdf)"/>
+    </include>
+
+    <include file="$(find simulation_bringup)/launch/modules/write_cnn.launch" >
+        <arg name="folder" value="$(arg folder)"/>
+    </include>
+
+    <include file="$(find simulation_bringup)/launch/modules/twist_to_ackermann.launch" />
+
+</launch>

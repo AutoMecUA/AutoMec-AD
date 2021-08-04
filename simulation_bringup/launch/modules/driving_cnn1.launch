@@ -1,0 +1,18 @@
+<launch>
+
+  <arg name="image_raw_topic" default="/ackermann_vehicle/camera/rgb/image_raw" />
+  <arg name="twist_cmd_topic" default="/cmd_vel" />
+  <arg name="vel_cmd_topic" default="" />
+  <arg name="twist_linear_x" default="1" />
+  <arg name="float_cmd_topic" default="" />
+  <arg name="model" default="" />
+  
+  <include file="$(find cnn)/launch/driving1.launch">
+    <arg name="image_raw_topic" value="$(arg image_raw_topic)" />
+    <arg name="twist_cmd_topic" value="$(arg twist_cmd_topic)" />
+    <arg name="twist_linear_x" value="$(arg twist_linear_x)" />
+    <arg name="float_cmd_topic" value="$(arg float_cmd_topic)" />
+    <arg name="model" value="$(arg model)" />
+  </include>
+  
+</launch>

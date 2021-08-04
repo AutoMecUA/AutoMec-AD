@@ -1,0 +1,16 @@
+<launch>
+
+  <arg name="folder" default="set1"/>
+  <arg name="model" default="model1.h5"/>
+
+  <arg name="epochs" default="20"/>
+  <arg name="steps_per_epoch" default="50"/>
+  
+  <include file="$(find cnn)/launch/training1.launch">
+    <arg name="epochs" value="$(arg epochs)"/>
+    <arg name="steps_per_epoch" value="$(arg steps_per_epoch)"/>
+    <arg name="folder" value="$(arg folder)"/>
+    <arg name="model" value="$(arg model)"/>
+  </include>
+  
+</launch>

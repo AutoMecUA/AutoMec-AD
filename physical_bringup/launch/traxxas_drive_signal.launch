@@ -1,0 +1,43 @@
+<launch>
+
+    <arg name="model" default="" />
+    <arg name="float_cmd_topic" default="flt_cmd" />
+    <arg name="twist_linear_x" default="1" />
+
+    <arg name="twist_dir_topic" default="/android_input_dir"/>
+    <arg name="int_dir_topic" default="/pub_dir"/>
+    <arg name="int_vel_topic" default="/pub_vel"/>
+    <arg name="int_vel_max" default="125"/>
+    <arg name="bool_vel_topic" default="/android_input_vel"/>
+
+    <arg name="camera_topic" default="/real_camera"/>
+    <arg name="int_camera_id" default="2"/>   
+
+    <group if="$(eval arg('model') != '')">
+
+        <include file="$(find physical_bringup)/launch/modules/driving_cnn1.launch" >
+            <arg name="model" value="$(arg model)"/>
+            <arg name="float_cmd_topic" value="$(arg float_cmd_topic)"/>
+            <arg name="twist_linear_x" value="$(arg twist_linear_x)"/>
+        </include>
+
+        <include file="$(find physical_bringup)/launch/android_conversor.launch">
+            <arg name="twist_dir_topic" value="$(arg twist_dir_topic)"/>
+            <arg name="int_dir_topic" value="$(arg int_dir_topic)"/>
+            <arg name="int_vel_topic" value="$(arg int_vel_topic)"/>
+            <arg name="int_vel_max" value="$(arg int_vel_max)"/>
+            <arg name="bool_vel_topic" value="$(arg bool_vel_topic)"/>
+        </include>
+
+        <include file="$(find physical_bringup)/launch/modules/lane_camera.launch">
+            <arg name="camera_topic" value="$(arg camera_topic)"/>
+            <arg name="int_camera_id" value="$(arg int_camera_id)"/>
+        </include>
+
+        <include file="$(find simulation_bringup)/launch/modules/signal_panel_recognition.launch">
+            <arg name="twist_linear_x" value="$(arg twist_linear_x)"/>
+        </include>
+
+    </group>
+
+</launch>

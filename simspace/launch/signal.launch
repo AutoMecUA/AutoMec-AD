@@ -1,6 +1,0 @@
-<launch>
-  <arg name="source_package" default="simspace"/>
-  <node pkg="simspace" type="gazebo_signalling_panel_controller" name="semaphore_node" output="screen">
-    <param name="source_package" value="$(arg source_package)"/>
-  </node>
-</launch>

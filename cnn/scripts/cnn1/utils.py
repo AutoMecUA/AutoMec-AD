@@ -36,7 +36,7 @@ def balanceData(data, display=True):
     # To sum up, since the car runs with 0 Angle most of the time we chunk those data sets off
 
     nBins = 31  # Has to be an odd number so we have zero at the center
-    samplesPerBin = 500  # Change later with more values, ex 1000
+    samplesPerBin = 25000  # Change later with more values, ex 1000
     hist, bins = np.histogram(data['Steering'], nBins)
     plt.title("Steering Angle Distribuiton")
     # print(bins)
