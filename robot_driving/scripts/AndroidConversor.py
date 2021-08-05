@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Imports
 import rospy
@@ -63,7 +63,7 @@ def main():
     bool_vel_topic = rospy.get_param('~bool_vel_topic', '/android_input_vel') 
     int_dir_topic = rospy.get_param('~int_dir_topic', '/pub_dir') 
     int_vel_topic = rospy.get_param('~int_vel_topic', '/pub_vel')
-    int_vel_max = rospy.get_param('~int_vel_max', 125)
+    int_vel_max = rospy.get_param('~int_vel_max', 108)
 
 
 

@@ -125,7 +125,7 @@ def preProcessing(img):
     # img = img[60:135, :, :]
     img = cv2.cvtColor(img, cv2.COLOR_RGB2YUV)  # For better jornalization
     img = cv2.GaussianBlur(img, (3, 3), 0)
-    img = cv2.resize(img, (200, 66))  # That's what NIVIDA uses
+    img = cv2.resize(img, (320, 160))  # That's what NIVIDA uses
     img = img/255
 
     return img
@@ -162,7 +162,7 @@ def batchGen(imagesPath, steeringList, batchSize, trainFlag):
 def createModel():
     model = Sequential()
     model.add(Convolution2D(24, (5, 5), (2, 2),
-                            input_shape=(66, 200, 3), activation='elu'))
+                            input_shape=(160, 320, 3), activation='elu'))
     model.add(Convolution2D(36, (5, 5), (2, 2), activation='elu'))
     model.add(Convolution2D(48, (5, 5), (2, 2), activation='elu'))
     model.add(Convolution2D(64, (3, 3), activation='elu'))

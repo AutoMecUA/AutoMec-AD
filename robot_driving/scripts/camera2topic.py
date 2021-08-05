@@ -17,7 +17,7 @@ cap = cv2.VideoCapture(int(int_camera_id))
 
 # Define publisher and rate
 Pub = rospy.Publisher(camera_topic, Image, queue_size=10)
-rate = rospy.Rate(10)
+rate = rospy.Rate(30)
 
 while not rospy.is_shutdown():
     # Capture frame-by-frame

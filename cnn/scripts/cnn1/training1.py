@@ -51,9 +51,9 @@ def main():
     imagesPath, steerings = loadData(path_data, data)
     #print(imagesPath[0], steerings[0])
 
-    # Step 4 - Split for Training and Validation
+    # Step 4 - Split for Training and Validation, 70/30 by default
     xTrain, xVal, yTrain, yVal = train_test_split(
-        imagesPath, steerings, test_size=0.001, random_state=5)
+        imagesPath, steerings, test_size=0.3, random_state=5)
     print('Total Training Images: ', len(xTrain))
     print('Total Validation Images: ', len(xVal))
 
