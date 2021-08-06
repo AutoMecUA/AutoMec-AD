@@ -3,7 +3,7 @@
 <launch>
   <arg name="namespace" default="ackermann_vehicle"/>
   <arg name="cmd_timeout" default="0.5"/>
-  <arg name="urdf" default="robot03"/>
+  <arg name="urdf" default="robot04"/>
 
   <!-- Vehicle pose -->
   <arg name="x" default="-1.0"/>
