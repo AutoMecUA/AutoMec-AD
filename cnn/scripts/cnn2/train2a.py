@@ -25,6 +25,7 @@ def main():
     base_folder = rospy.get_param('~base_folder', 'set1') 
     modelname = rospy.get_param('~modelname', 'model1.h5')
     nb_epoch = rospy.get_param('~epochs', 20)
+    batch_size = rospy.get_param('~batch_size', 32)
     #steps_per_epoch = rospy.get_param('~steps_per_epoch', 100)
     #batch_xtrain = rospy.get_param('~batch_xtrain', 20)
     #batch_ytrain = rospy.get_param('~batch_ytrain', 1)
@@ -162,7 +163,7 @@ def main():
     model.add(Convolution2D(64, 3, 3, activation='elu'))
 
     model.add(Dropout(0.8))
-    model.add(Flatten())
+    #model.add(Flatten())
     model.add(Dense(100,activation='elu'))
     model.add(Dense(50,activation='elu'))
     model.add(Dense(10,activation='elu'))
@@ -171,6 +172,10 @@ def main():
     model.summary()
 
     model.compile(Adam(lr=0.0001),loss='mse')
-    model.fit(X_train, y_train,epochs=nb_epoch, validation_data = (X_test, y_test))
+    model.fit(X_train, y_train,epochs=nb_epoch, batch_size=batch_size, validation_data = (X_test, y_test))
 
     model.save('cnn2a-' + modelname)
+
+
+if __name__ == '__main__':
+    main()

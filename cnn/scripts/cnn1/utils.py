@@ -125,7 +125,7 @@ def preProcessing(img):
     # img = img[60:135, :, :]
     img = cv2.cvtColor(img, cv2.COLOR_RGB2YUV)  # For better jornalization
     img = cv2.GaussianBlur(img, (3, 3), 0)
-    img = cv2.resize(img, (320, 160))  # That's what NIVIDA uses
+    img = cv2.resize(img, (320, 160))  # NIVIDA uses 200x66
     img = img/255
 
     return img

@@ -30,24 +30,18 @@
        inset from the outer edge of the tire. It is set so that each wheel
        is a "zero offset" wheel. hex_hub_depth = tire_width / 2 -
        axle_length. -->
-  <!-- <xacro:property name="hub_dia" value="0.09652"/> -->
-  <xacro:property name="hub_dia" value="0.0826"/>
-  <!-- <xacro:property name="tire_dia" value="0.14605"/> -->
-  <xacro:property name="tire_dia" value="0.125"/>
-  <!-- <xacro:property name="tire_width" value="0.0889"/> -->
-  <xacro:property name="tire_width" value="0.045"/>
-  <!-- <xacro:property name="hex_hub_depth" value="0.01445"/> -->
-  <xacro:property name="hex_hub_depth" value="-0.0075"/>
+  <xacro:property name="hub_dia" value="0.09652"/>
+  <xacro:property name="tire_dia" value="0.14605"/>
+  <xacro:property name="tire_width" value="0.0889"/>
+  <xacro:property name="hex_hub_depth" value="0.01445"/>
   <xacro:property name="wheel_mass" value="0.29"/>
 
   <!-- hex_hub_dist is the distance between left and right hex hubs when
        the shock absorbers are fully extended. axle_length is the distance
        from a U joint to the corresponding hex hub. wheel_travel is the
        vertical wheel travel. -->
-  <!-- <xacro:property name="wheelbase" value="0.335"/> -->
-  <xacro:property name="wheelbase" value="0.245"/>
-  <!-- <xacro:property name="hex_hub_dist" value="0.365"/> -->
-  <xacro:property name="hex_hub_dist" value="0.27"/>
+  <xacro:property name="wheelbase" value="0.335"/>
+  <xacro:property name="hex_hub_dist" value="0.365"/>
   <xacro:property name="axle_length" value="0.03"/>
   <xacro:property name="wheel_travel" value="0.084"/>
   <xacro:property name="shock_z_offset" value="0.0655"/>
@@ -61,7 +55,6 @@
 
   <!-- The specifications for a Titan(R) 550 motor could not be found, so the
        stall torque of a Mabuchi Motor(R) RS-550VC-7525 motor was used instead.
-
        num_spur_gear_teeth = 68
        num_pinion_gear_teeth = 19
        final_gear_ratio = (num_spur_gear_teeth / num_pinion_gear_teeth) *
@@ -69,7 +62,6 @@
        stall_torque = 0.549 N m
        axle_eff_limit = ((2 * stall_torque) * final_gear_ratio) / 4 =
          5.12766 N m
-
        max_speed = 40 mph (30+ mph) = 17.8816 m/s
        axle_vel_limit = (2 * pi) * (max_speed / (pi * tire_dia)) =
          244.8696 rad/s -->
@@ -101,7 +93,7 @@
     <color rgba="0 1 0 1"/>
   </material>
 
-  <xacro:include filename="$(find traxxas_description)/urdf/robot03.gazebo.macro.xacro"/>
+  <xacro:include filename="$(find traxxas_description)/urdf/robot04.gazebo.macro.xacro"/>
 
   <!-- Null inertial element. This is needed to make the model work with
        Gazebo. -->
@@ -248,14 +240,12 @@
 
     <link name="${lr_prefix}_${fr_prefix}_wheel">
       <visual>
-        <!-- <origin xyz="0
+        <origin xyz="0
                      ${lr_reflect * (axle_length - (tire_width / 
                      2 - hex_hub_depth))}
-                     0" /> -->
-        <origin xyz="-0.0825 0.0625 0" rpy="1.57 0 0"/>             
+                     0"/>
         <geometry>
-          <!--<cylinder radius="${tire_dia / 2}" length="${tire_width}"/>-->
-          <mesh filename="$(find traxxas_description)/meshes/RodaPecaCanto.STL" scale="0.001 0.001 0.001"/>
+          <cylinder radius="${tire_dia / 2}" length="${tire_width}"/>
         </geometry>
         <material name="tire_mat"/>
       </visual>
@@ -340,11 +330,9 @@
   <!-- Chassis -->
   <link name="chassis">
     <visual>
-      <!-- <origin xyz="0 0 ${-chassis_height / 2}"/> -->
-      <origin xyz="-0.3 -0.195  -0.045"/> <!--x z y-->
+      <origin xyz="0 0 ${-chassis_height / 2}"/>
       <geometry>
-        <!-- <box size="${chassis_length} ${chassis_width} ${chassis_height}"/> -->
-        <mesh filename="$(find traxxas_description)/meshes/CarroSemRodasZ.STL" scale="0.001 0.001 0.001 "/>
+        <box size="${chassis_length} ${chassis_width} ${chassis_height}"/>
       </geometry>
       <material name="chassis_mat"/>
     </visual>
@@ -401,8 +389,9 @@
     </visual>
   </link>
 
+  <!--lane camara center -->
   <joint name="camera_joint" type="fixed">
-    <origin xyz="0.073 -0.011 0.084" rpy="0 0.6 0"/>
+    <origin xyz="0.073 0.0 0.084" rpy="0 0.6 0"/>
     <parent link="base_link"/>
     <child link="camera_link"/>
   </joint>
@@ -415,7 +404,7 @@
       <material name="camera_mat"/>
     </visual>
     <collision>
-      <origin xyz="0.005 0.011 0.013" rpy="0 0 0"/>
+      <origin xyz="0.005 0.0 0.013" rpy="0 0 0"/>
       <geometry>
         <box size="0.015 0.030 0.027"/>
       </geometry>
@@ -423,7 +412,7 @@
   </link>
 
   <joint name="camera_rgb_joint" type="fixed">
-    <origin xyz="0.003 0.011 0.45" rpy="0 0 0"/> 
+    <origin xyz="0.003 0.0 0.45" rpy="0 0 0"/>  
       <parent link="camera_link"/>
     <child link="camera_rgb_frame"/>
   </joint>
@@ -436,13 +425,50 @@
   </joint>
   <link name="camera_rgb_optical_frame"/>
 
+  <!--signal camara -->
   <joint name="camera2_joint" type="fixed">
-    <origin xyz="0.073 -0.011 0.01" rpy="0 -0.6 0"/>
+    <origin xyz="0.073 0.0 0.14" rpy="0 0 0"/>
     <parent link="base_link"/>
     <child link="camera2_link"/>
   </joint>
 
   <link name="camera2_link">
+    <visual>
+      <geometry>
+        <box size="0.015 0.030 0.027"/>
+      </geometry>
+      <material name="camera_mat"/>
+    </visual>
+    <collision>
+      <origin xyz="0.005 0.0 0.013" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.015 0.030 0.027"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="camera2_rgb_joint" type="fixed">
+    <origin xyz="0.003 0.0 0.45" rpy="0 0 0"/>
+    <parent link="camera2_link"/>
+    <child link="camera2_rgb_frame"/>
+  </joint>
+  <link name="camera2_rgb_frame"/>
+
+  <joint name="camera2_rgb_optical_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="-1.57 0 -1.57"/>
+    <parent link="camera2_rgb_frame"/>
+    <child link="camera2_rgb_optical_frame"/>
+  </joint>
+  <link name="camera2_rgb_optical_frame"/>
+
+  <!--lane camara left -->
+  <joint name="cameral_joint" type="fixed">
+    <origin xyz="0.073 0.15 0.084" rpy="0 0.6 0"/>
+    <parent link="base_link"/>
+    <child link="cameral_link"/>
+  </joint>
+
+  <link name="cameral_link">
     <visual>
       <geometry>
         <box size="0.015 0.030 0.027"/>
@@ -457,21 +483,57 @@
     </collision>
   </link>
 
-  <joint name="camera2_rgb_joint" type="fixed">
-    <origin xyz="0.003 0.011 0.45" rpy="0 0 0"/>
-    <parent link="camera2_link"/>
-    <child link="camera2_rgb_frame"/>
+  <joint name="cameral_rgb_joint" type="fixed">
+    <origin xyz="0.003 0.011 0.45" rpy="0 0 0"/> 
+      <parent link="cameral_link"/>
+    <child link="cameral_rgb_frame"/>
   </joint>
-  <link name="camera2_rgb_frame"/>
+  <link name="cameral_rgb_frame"/>
 
-  <joint name="camera2_rgb_optical_joint" type="fixed">
+  <joint name="cameral_rgb_optical_joint" type="fixed">
     <origin xyz="0 0 0" rpy="-1.57 0 -1.57"/>
-    <parent link="camera2_rgb_frame"/>
-    <child link="camera2_rgb_optical_frame"/>
+    <parent link="cameral_rgb_frame"/>
+    <child link="cameral_rgb_optical_frame"/>
   </joint>
-  <link name="camera2_rgb_optical_frame"/>
+  <link name="cameral_rgb_optical_frame"/>
 
+  <!--lane camara right -->
+  <joint name="camerar_joint" type="fixed">
+    <origin xyz="0.073 -0.15 0.084" rpy="0 0.6 0"/>
+    <parent link="base_link"/>
+    <child link="camerar_link"/>
+  </joint>
 
+  <link name="camerar_link">
+    <visual>
+      <geometry>
+        <box size="0.015 0.030 0.027"/>
+      </geometry>
+      <material name="camera_mat"/>
+    </visual>
+    <collision>
+      <origin xyz="0.005 0.011 0.013" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.015 0.030 0.027"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="camerar_rgb_joint" type="fixed">
+    <origin xyz="0.003 0.011 0.45" rpy="0 0 0"/> 
+      <parent link="camerar_link"/>
+    <child link="camerar_rgb_frame"/>
+  </joint>
+  <link name="camerar_rgb_frame"/>
+
+  <joint name="camerar_rgb_optical_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="-1.57 0 -1.57"/>
+    <parent link="camerar_rgb_frame"/>
+    <child link="camerar_rgb_optical_frame"/>
+  </joint>
+  <link name="camerar_rgb_optical_frame"/>
+
+  <!--gazebo control -->
   <gazebo>
     <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
       <!-- As of 10/7/13, setting controlPeriod to a value greater than
