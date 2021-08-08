@@ -1,11 +1,7 @@
 <launch>
 
-<<<<<<< HEAD
     <arg name="folder" default="set1"/>
     <arg name="urdf" default="robot04"/>
-=======
-    <arg name="urdf" default="robot02"/>
->>>>>>> 5db68ea9aaa99646da3c75f78faf0c4f2edf71d8
     <arg name="world" default="arena1"/>
     <arg name="vel" default="0.5"/>
 
