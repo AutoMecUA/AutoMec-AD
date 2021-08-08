@@ -1,0 +1,17 @@
+<launch>
+
+  <arg name="twist_in" default="/cmd_velin"/>
+  <arg name="twist_out" default="/cmd_vel"/>
+  <arg name="angular_factor" default="1"/>
+  <arg name="linear_default" default="0.5"/>
+  <arg name="linear_threshold" default="0.05"/>
+
+  <include file="$(find traxxas_description)/launch/cmd_vel.launch">
+    <arg name="twist_in" value="$(arg twist_in)"/>
+    <arg name="twist_out" value="$(arg twist_out)"/>
+    <arg name="angular_factor" value="$(arg angular_factor)"/>
+    <arg name="linear_default" value="$(arg linear_default)"/>
+    <arg name="linear_threshold" value="$(arg linear_threshold)"/>
+  </include>
+
+</launch>

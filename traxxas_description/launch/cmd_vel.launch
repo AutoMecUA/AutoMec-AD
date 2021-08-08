@@ -1,0 +1,17 @@
+<launch>
+
+  <arg name="twist_in" default="/cmd_velin"/>
+  <arg name="twist_out" default="/cmd_vel"/>
+  <arg name="angular_factor" default="1"/>
+  <arg name="linear_default" default="0.5"/>
+  <arg name="linear_threshold" default="0.05"/>
+
+  <node name="cmd_vel" pkg="traxxas_description" type="cmd_vel.py" output="screen">
+    <param name="twist_in" value="$(arg twist_in)"/>
+    <param name="twist_out" value="$(arg twist_out)"/>
+    <param name="angular_factor" value="$(arg angular_factor)"/>
+    <param name="linear_default" value="$(arg linear_default)"/>
+    <param name="linear_threshold" value="$(arg linear_threshold)"/>
+  </node>
+
+</launch>

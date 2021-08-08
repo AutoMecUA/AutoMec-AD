@@ -38,7 +38,7 @@ def main():
 
     # STEP 1 - Initialize Data
     s = str(pathlib.Path(__file__).parent.absolute())
-    path_data = s + '/data/' + base_folder
+    path_data = s + '/../../data/' + base_folder
     data = importDataInfo(path_data + '/')
 
     #print('\ndata load from ' + base_folder)
