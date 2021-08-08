@@ -27,7 +27,7 @@ def preProcess(img):
     #img = img[60:135, :, :]
 
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    img = cv2.resize(img, (320, 160))
+    img = cv2.resize(img, (200, 100))
     img = np.expand_dims(img, axis=2)
     img = img/255
     return img
@@ -57,13 +57,13 @@ def main():
     rospy.init_node('ml_driving', anonymous=False)
 
     #image_raw_topic = rospy.get_param('~image_raw_topic', '/ackermann_vehicle/camera/rgb/image_raw') 
-    image_raw_topic = 'robot/camera/rgb/image_raw'
-    twist_cmd_topic = rospy.get_param('~twist_cmd_topic', 'robot/cmd_vel') 
-    twist_linear_x = rospy.get_param('~twist_linear_x', 0.7)
+    image_raw_topic = '/ackermann_vehicle/camera/rgb/image_raw'
+    twist_cmd_topic = rospy.get_param('~twist_cmd_topic', 'cmd_vel') 
+    twist_linear_x = rospy.get_param('~twist_linear_x', 0.8)
     #modelname = rospy.get_param('~modelname', 'model_sergio4teste.h5')
 
     s = str(pathlib.Path(__file__).parent.absolute())
-    path = 'cnn2-model2.h5'
+    path = '../../models/cnn2-model_08-08.h5'
     print (path)
     model = load_model(path)
 
