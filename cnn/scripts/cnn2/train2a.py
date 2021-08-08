@@ -23,8 +23,8 @@ def main():
     rospy.init_node('ml_training', anonymous=False)
 
     base_folder = rospy.get_param('~base_folder', 'set1') 
-    modelname = rospy.get_param('~modelname', 'model1.h5')
-    nb_epoch = rospy.get_param('~epochs', 20)
+    modelname = rospy.get_param('~modelname', 'model-0808.h5')
+    nb_epoch = rospy.get_param('~epochs', 30)
     batch_size = rospy.get_param('~batch_size', 32)
     #steps_per_epoch = rospy.get_param('~steps_per_epoch', 100)
     #batch_xtrain = rospy.get_param('~batch_xtrain', 20)
@@ -50,7 +50,7 @@ def main():
     #print('\ndata load from ' + base_folder)
     rospy.loginfo('Train with data load from:\n %s', base_folder)
 
-    image_path = base_folder + '/IMG/'
+    image_path = path_data + '/IMG/'
 
     total_left_angles = 0
     total_right_angles = 0
@@ -66,8 +66,10 @@ def main():
             if (k%2)==0:
                 continue
             if k==1: continue
+
+            print(line)
             center_image = cv2.imread(image_path + line[0],0)
-            center_image = cv2.resize(center_image, (320, 160))
+            center_image = cv2.resize(center_image, (200, 100))
             center_image_temp = np.expand_dims(center_image, axis=2)
 
             images.append(center_image_temp)
@@ -156,14 +158,14 @@ def main():
     #nb_epoch = 20
 
     model = Sequential()
-    model.add(Convolution2D(24, (5,5),(2, 2), input_shape = (160,320,1), activation='elu'))
+    model.add(Convolution2D(24, (5,5),(2, 2), input_shape = (100,200,1), activation='elu'))
     model.add(Convolution2D(36,(5,5),(2, 2), activation='elu'))
     model.add(Convolution2D(48, (5,5),(2, 2), activation='elu'))
     model.add(Convolution2D(64, 3, 3, activation='elu'))
     model.add(Convolution2D(64, 3, 3, activation='elu'))
 
-    model.add(Dropout(0.8))
-    #model.add(Flatten())
+    #model.add(Dropout(0.8))
+    model.add(Flatten())
     model.add(Dense(100,activation='elu'))
     model.add(Dense(50,activation='elu'))
     model.add(Dense(10,activation='elu'))
@@ -172,7 +174,7 @@ def main():
     model.summary()
 
     model.compile(Adam(lr=0.0001),loss='mse')
-    model.fit(X_train, y_train,epochs=nb_epoch, batch_size=batch_size, validation_data = (X_test, y_test))
+    model.fit(X_train, y_train,epochs=nb_epoch, batch_size=batch_size)
 
     model.save('cnn2a-' + modelname)
 
