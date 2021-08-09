@@ -9,13 +9,14 @@ import numpy as np
 import rospy
 from geometry_msgs.msg._Twist import Twist
 from sensor_msgs.msg._Image import Image
+from std_msgs.msg import Bool
 from cv_bridge.core import CvBridge
 from datetime import datetime
 from tensorflow.keras.models import load_model
 import pathlib
 import os
 import string
-
+from std_msgs.msg import Float32
 
 global img_rbg
 global bridge
@@ -27,7 +28,7 @@ def preProcess(img):
     #img = img[60:135, :, :]
 
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    img = cv2.resize(img, (200, 100))
+    img = cv2.resize(img, (320, 160))
     img = np.expand_dims(img, axis=2)
     img = img/255
     return img
@@ -43,9 +44,16 @@ def message_RGB_ReceivedCallback(message):
     begin_img = True
 
 
+def signal_Callback(message):
+    global vel
+
+    vel = message.data
+
+
 def main():
 
     # Global variables
+    global vel
     global img_rbg
     global bridge
     global begin_img
@@ -54,32 +62,42 @@ def main():
     twist = Twist()
 
     # Init Node
-    rospy.init_node('ml_driving', anonymous=False)
+    rospy.init_node('driving', anonymous=False)
 
-    #image_raw_topic = rospy.get_param('~image_raw_topic', '/ackermann_vehicle/camera/rgb/image_raw') 
-    image_raw_topic = '/ackermann_vehicle/camera/rgb/image_raw'
-    twist_cmd_topic = rospy.get_param('~twist_cmd_topic', 'cmd_vel') 
-    twist_linear_x = rospy.get_param('~twist_linear_x', 0.8)
-    #modelname = rospy.get_param('~modelname', 'model_sergio4teste.h5')
+    image_raw_topic = rospy.get_param('~image_raw_topic', '/ackermann_vehicle/camera/rgb/image_raw') 
+    twist_cmd_topic = rospy.get_param('~twist_cmd_topic', '/cmd_vel') 
+    vel_cmd_topic = rospy.get_param('~vel_cmd_topic', '') 
+    twist_linear_x = rospy.get_param('~twist_linear_x', 1)
+    float_cmd_topic = rospy.get_param('~float_cmd_topic', '') 
+    modelname = rospy.get_param('~modelname', 'model1.h5')
 
     s = str(pathlib.Path(__file__).parent.absolute())
-    path = '../../models/cnn2-model_08-08.h5'
-    print (path)
+    path = s + '/../../models/cnn2a_' + modelname
+
+    rospy.loginfo('Using model: %s', path)
     model = load_model(path)
 
     # Subscribe and publish topics
-    #rospy.Subscriber('/ackermann_vehicle/camera/rgb/image_raw',
-    #                 Image, message_RGB_ReceivedCallback)
-    #pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
-    #
-    rospy.Subscriber(image_raw_topic,
-                     Image, message_RGB_ReceivedCallback)
+    rospy.Subscriber(image_raw_topic, Image, message_RGB_ReceivedCallback)
+    
+    # does we need to check float_cmd_topic ?
+    if float_cmd_topic != '':
+        vel = 0
+        rospy.Subscriber(float_cmd_topic, Float32, signal_Callback)
+    else:
+        vel = twist_linear_x
+
     pub = rospy.Publisher(twist_cmd_topic, Twist, queue_size=10)
 
+    # does we need to publish vel_cmd_topic ?
+    if vel_cmd_topic != '':
+        pub_velocity = rospy.Publisher(vel_cmd_topic, Bool, queue_size=10)
+    
     # Create an object of the CvBridge class
     bridge = CvBridge()
 
-    rate = rospy.Rate(50)
+    #Frames per second 
+    rate = rospy.Rate(30)
 
     while not rospy.is_shutdown():
 
@@ -98,7 +116,8 @@ def main():
         angle = steering
 
         # Send twist
-        twist.linear.x = twist_linear_x
+        twist.linear.x = vel
+        #twist.linear.x = 1
         twist.linear.y = 0
         twist.linear.z = 0
         twist.angular.x = 0
@@ -106,6 +125,9 @@ def main():
         twist.angular.z = angle
 
         pub.publish(twist)
+
+        if vel_cmd_topic != '':
+            pub_velocity.publish(True)
 
         rate.sleep()
 
