@@ -80,8 +80,8 @@ def main():
     if float_cmd_topic != '':
         vel = 0
         rospy.Subscriber(float_cmd_topic, Float32, signal_Callback)
-    else:
-        vel = twist_linear_x
+    
+    vel = twist_linear_x
 
     pub = rospy.Publisher(twist_cmd_topic, Twist, queue_size=10)
 
