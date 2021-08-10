@@ -53,7 +53,7 @@ def message_RGB_ReceivedCallback(message):
     img_rbg = bridge.imgmsg_to_cv2(message, "bgr8")
 
     begin_img = True
-   
+
 def signal_handler(sig, frame):
     global driving_log
     global data_path
@@ -89,6 +89,7 @@ def main():
     rate_hz = rospy.get_param('~rate', 30)
     image_width = rospy.get_param('~width', 320)
     image_height = rospy.get_param('~height', 160)
+
 
     s = str(pathlib.Path(__file__).parent.absolute())
     data_path = s + '/../data/' + base_folder
@@ -145,7 +146,6 @@ def main():
         image_saved.save( data_path + '/IMG/' + image_name)
         counter += 1
         rospy.loginfo('Image Saved: %s', counter)
-        
         rate.sleep()
 
 if __name__ == '__main__':

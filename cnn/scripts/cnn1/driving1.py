@@ -80,14 +80,15 @@ def main():
     if float_cmd_topic != '':
         vel = 0
         rospy.Subscriber(float_cmd_topic, Float32, signal_Callback)
-    else:
-        vel = twist_linear_x
+    
+    vel = twist_linear_x
 
     pub = rospy.Publisher(twist_cmd_topic, Twist, queue_size=10)
 
     # does we need to publish vel_cmd_topic ?
     if vel_cmd_topic != '':
         pub_velocity = rospy.Publisher(vel_cmd_topic, Bool, queue_size=10)
+        print('Boolean is on')
     
     # Create an object of the CvBridge class
     bridge = CvBridge()

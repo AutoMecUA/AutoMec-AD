@@ -78,9 +78,9 @@ def main():
 
     #2 lines
 
-    ang_max = 90+90/4
+    ang_max = 90+30
     ang_center = 90
-    ang_min = 90-90/4
+    ang_min = 90-30
 
     ma1 = (ang_center - ang_max) / (0 + 1)
     ba1 = ang_max - ma1 * -1
