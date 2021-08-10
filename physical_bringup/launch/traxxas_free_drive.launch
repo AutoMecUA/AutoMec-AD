@@ -3,7 +3,7 @@
 <arg name="int_dir_topic" default="/pub_dir"/>
 <arg name="int_vel_topic" default="/pub_vel"/>
 <arg name="int_vel_max" default="108"/>
-<arg name="bool_vel_topic" default="/android_input_vel"/>
+<arg name="vel_cmd_topic" default="/android_input_vel"/>
 
 <arg name="camera_topic" default="/real_camera"/>
 <arg name="int_camera_id" default="2"/>
@@ -13,7 +13,7 @@
     <arg name="int_dir_topic" value="$(arg int_dir_topic)"/>
     <arg name="int_vel_topic" value="$(arg int_vel_topic)"/>
     <arg name="int_vel_max" value="$(arg int_vel_max)"/>
-    <arg name="bool_vel_topic" value="$(arg bool_vel_topic)"/>
+    <arg name="vel_cmd_topic" value="$(arg vel_cmd_topic)"/>
 </include>
 
 <include file="$(find physical_bringup)/launch/modules/lane_camera.launch">

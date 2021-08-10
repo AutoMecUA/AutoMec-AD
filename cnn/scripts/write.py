@@ -53,7 +53,7 @@ def message_RGB_ReceivedCallback(message):
     img_rbg = bridge.imgmsg_to_cv2(message, "bgr8")
 
     begin_img = True
-   
+
 def signal_handler(sig, frame):
     global driving_log
     global data_path
@@ -129,8 +129,8 @@ def main():
         if begin_cmd == False or begin_img == False:
             continue
 
-        #if linear == 0:
-        #    continue
+        if linear == 0:
+            continue
 
         curr_time = datetime.datetime.now()
         image_name = str(curr_time.year) + '_' + str(curr_time.month) + '_' + str(curr_time.day)+ '__' + str(curr_time.hour)+ '_' + str(curr_time.minute)+ '_' + str(curr_time.second)+ '__' + str(curr_time.microsecond) + str('.jpg')        
@@ -146,7 +146,6 @@ def main():
         image_saved.save( data_path + '/IMG/' + image_name)
         counter += 1
         rospy.loginfo('Image Saved: %s', counter)
-        print('Image saved')
         rate.sleep()
 
 if __name__ == '__main__':
