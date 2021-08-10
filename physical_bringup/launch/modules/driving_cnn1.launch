@@ -12,6 +12,7 @@
     <arg name="twist_cmd_topic" value="$(arg twist_cmd_topic)" />
     <arg name="twist_linear_x" value="$(arg twist_linear_x)" />
     <arg name="float_cmd_topic" value="$(arg float_cmd_topic)" />
+    <arg name="vel_cmd_topic" value="$(arg vel_cmd_topic)"/>
     <arg name="model" value="$(arg model)" />
   </include>
   

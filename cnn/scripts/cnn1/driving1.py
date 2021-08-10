@@ -88,6 +88,7 @@ def main():
     # does we need to publish vel_cmd_topic ?
     if vel_cmd_topic != '':
         pub_velocity = rospy.Publisher(vel_cmd_topic, Bool, queue_size=10)
+        print('Boolean is on')
     
     # Create an object of the CvBridge class
     bridge = CvBridge()
