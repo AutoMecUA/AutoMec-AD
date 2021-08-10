@@ -1,7 +1,7 @@
 <launch>
 
     <arg name="model" default="" />
-    <arg name="float_cmd_topic" default="flt_cmd" />
+    <arg name="float_cmd_topic" default="" />
     <arg name="twist_linear_x" default="1" />
 
     <arg name="twist_dir_topic" default="/android_input_dir"/>

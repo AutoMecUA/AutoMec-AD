@@ -1,7 +1,10 @@
 import pandas as pd
 import numpy as np
 import os
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')
+from matplotlib import pyplot as plt
 from sklearn.utils import shuffle
 import matplotlib.image as mpimg
 from imgaug import augmenters as iaa

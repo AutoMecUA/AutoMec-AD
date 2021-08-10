@@ -24,7 +24,7 @@ def createModel():
     model.add(Convolution2D(64, 3, 3, activation='elu'))
     model.add(Convolution2D(64, 3, 3, activation='elu'))
 
-    model.add(Dropout(0.8))
+    #model.add(Dropout(0.8))
     model.add(Flatten())
     model.add(Dense(100,activation='elu'))
     model.add(Dense(50,activation='elu'))
@@ -39,7 +39,7 @@ def main():
     rospy.init_node('ml_training', anonymous=False)
 
     base_folder = rospy.get_param('~base_folder', 'set1') 
-    modelname = rospy.get_param('~modelname', 'model1.h5')
+    modelname = rospy.get_param('~modelname', 'model_default')
     nb_epoch = rospy.get_param('~epochs', 20)
     batch_size = rospy.get_param('~batch_size', 32)
 
@@ -67,7 +67,7 @@ def main():
         k = 0
         for line in reader:
             k += 1
-            if (k%2)==0:
+            if (k%3)!=0:
                 continue
             if k==1: continue
 
@@ -76,14 +76,15 @@ def main():
             center_image_temp = np.expand_dims(center_image, axis=2)
 
             images.append(center_image_temp)
-            angles.append(float(line[1]))
+
+            angles.append(round(float(line[1]),3))
             
             # Change image and store the same angle, with some distortion, both in image and in angle (to increase robustness)
             # flipped
             center_image_temp = np.expand_dims(cv2.flip(center_image, 1), axis=2)
             
-            images.append(center_image_temp)
-            angles.append(-float(line[1]))
+            # images.append(center_image_temp)
+            # angles.append(-float(line[1]))
             # no more distortions
             
             # do some stats
@@ -110,14 +111,24 @@ def main():
     print('Right to Straight Ratio : ', right_to_straight_ratio)
 
 
-    images = np.asarray(images)
-    images = images.astype('float32')
+    images = np.array(images,dtype=np.float16)
+
     images /= 255
-    angles = np.asarray(angles)
+      
+    angles = np.array(angles, dtype=np.float16)
 
 
-    X_train, X_test, y_train, y_test = train_test_split(images, angles, test_size=0.00001)
+    #X_train, X_test, y_train, y_test = train_test_split(images, angles, test_size=0.00001)
 
+
+    X_train = images
+    y_train = angles
+
+    X_test= []
+    y_test = []
+
+
+    print('5')
     train_samples_size = len(X_train)
     validation_samples_size = len(X_test)
 
@@ -125,6 +136,7 @@ def main():
     total_right_angles = 0
     total_straight_angles = 0
 
+    print('6')
     for train_sample in y_train:
         if(float(train_sample) < -0.15):
             total_left_angles += 1
@@ -132,6 +144,7 @@ def main():
             total_right_angles += 1
         else:
             total_straight_angles += 1
+
 
     left_to_straight_ratio = 0
     right_to_straight_ratio = 0
@@ -160,6 +173,7 @@ def main():
     else:
         print('\n Model load from ' + modelname)
         model = load_model(path)
+
 
 
     model.summary()
