@@ -15,6 +15,8 @@
 
     <group if="$(eval arg('model') != '')">
 
+        <include file="$(find physical_bringup)/launch/modules/rosserial.launch" /> 
+
         <include file="$(find physical_bringup)/launch/modules/driving_cnn1.launch" >
             <arg name="model" value="$(arg model)"/>
             <arg name="float_cmd_topic" value="$(arg float_cmd_topic)"/>

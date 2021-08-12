@@ -8,6 +8,8 @@
 <arg name="camera_topic" default="/real_camera"/>
 <arg name="int_camera_id" default="2"/>
 
+<include file="$(find physical_bringup)/launch/modules/rosserial.launch" />
+
 <include file="$(find physical_bringup)/launch/modules/android_conversor.launch">
     <arg name="twist_dir_topic" value="$(arg twist_dir_topic)"/>
     <arg name="int_dir_topic" value="$(arg int_dir_topic)"/>
