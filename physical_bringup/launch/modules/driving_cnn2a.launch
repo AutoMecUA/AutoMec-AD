@@ -7,7 +7,7 @@
   <arg name="float_cmd_topic" default="flt_cmd" />
   <arg name="model" default="" />
   
-  <include file="$(find cnn)/launch/driving1.launch">
+  <include file="$(find cnn)/launch/driving2a.launch">
     <arg name="image_raw_topic" value="$(arg image_raw_topic)" />
     <arg name="twist_cmd_topic" value="$(arg twist_cmd_topic)" />
     <arg name="twist_linear_x" value="$(arg twist_linear_x)" />

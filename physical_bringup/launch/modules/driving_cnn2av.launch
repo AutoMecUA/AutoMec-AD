@@ -1,16 +1,14 @@
 <launch>
 
   <arg name="image_raw_topic" default="/real_camera" />
-  <arg name="twist_cmd_topic" default="/android_input_dir" />
-  <arg name="vel_cmd_topic" default="android_input_vel" />
-  <arg name="twist_linear_x" default="1" />
+  <arg name="dir_cmd_topic" default="/android_input_dir" />
+  <arg name="vel_cmd_topic" default="/android_input_vel" />
   <arg name="float_cmd_topic" default="flt_cmd" />
   <arg name="model" default="" />
   
-  <include file="$(find cnn)/launch/driving1.launch">
+  <include file="$(find cnn)/launch/driving2av.launch">
     <arg name="image_raw_topic" value="$(arg image_raw_topic)" />
-    <arg name="twist_cmd_topic" value="$(arg twist_cmd_topic)" />
-    <arg name="twist_linear_x" value="$(arg twist_linear_x)" />
+    <arg name="dir_cmd_topic" value="$(arg dir_cmd_topic)" />
     <arg name="float_cmd_topic" value="$(arg float_cmd_topic)" />
     <arg name="vel_cmd_topic" value="$(arg vel_cmd_topic)"/>
     <arg name="model" value="$(arg model)" />

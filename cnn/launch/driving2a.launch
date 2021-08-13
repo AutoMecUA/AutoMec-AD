@@ -5,6 +5,8 @@
   <arg name="twist_linear_x" default="1" />
   <arg name="float_cmd_topic" default="" /> <!-- /flt_cmd -->
   <arg name="model" default=""/>
+  <arg name="vel_cmd_topic" default="android_input_vel" />
+
 
   <group if="$(eval arg('model') != '')">
     <node name="driving" pkg="cnn" type="drive2a.py" output="screen" required="true" >
@@ -13,6 +15,7 @@
       <param name="twist_linear_x" value="$(arg twist_linear_x)" />
       <param name="float_cmd_topic" value="$(arg float_cmd_topic)" />
       <param name="modelname" value="$(arg model)" />
+      <param name="vel_cmd_topic" value="$(arg vel_cmd_topic)" />
     </node>
   </group>
   

@@ -66,6 +66,8 @@ def main():
 
     image_raw_topic = rospy.get_param('~image_raw_topic', '/ackermann_vehicle/camera/rgb/image_raw') 
     twist_cmd_topic = rospy.get_param('~twist_cmd_topic', '/cmd_vel') 
+    dir_cmd_topic = rospy.get_param('~dir_cmd_topic', '/cmd_vel') 
+    vel_cmd_topic = rospy.get_param('~vel_cmd_topic', '/cmd_vel') 
     float_cmd_topic = rospy.get_param('~float_cmd_topic', '') 
     modelname = rospy.get_param('~modelname', 'model1.h5')
 
@@ -74,6 +76,11 @@ def main():
 
     rospy.loginfo('Using model: %s', path)
     model = load_model(path)
+
+    print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+    print(dir_cmd_topic)
+    print(vel_cmd_topic)
+    print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
 
     # Subscribe and publish topics
     rospy.Subscriber(image_raw_topic, Image, message_RGB_ReceivedCallback)
@@ -85,7 +92,11 @@ def main():
     else:
         vel = 1
 
-    pub = rospy.Publisher(twist_cmd_topic, Twist, queue_size=10)
+    if twist_cmd_topic == "":
+        pub_dir = rospy.Publisher(dir_cmd_topic, Twist, queue_size=10)
+        pub_vel = rospy.Publisher(vel_cmd_topic, Twist, queue_size=10)
+    else:
+        pub_twist = rospy.Publisher(twist_cmd_topic, Twist, queue_size=10)
 
     # Create an object of the CvBridge class
     bridge = CvBridge()
@@ -121,7 +132,11 @@ def main():
         twist.angular.x = 0
         twist.angular.y = 0
 
-        pub.publish(twist)
+        if twist_cmd_topic == "":
+            pub_dir.publish(twist)
+            pub_vel.publish(twist)
+        else:
+            pub_twist.publish(twist)
 
         rate.sleep()
 
