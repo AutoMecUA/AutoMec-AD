@@ -3,7 +3,7 @@
 import csv
 import cv2
 import numpy as np
-
+from colorama import Fore
 from tensorflow.keras.models import load_model
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Flatten, Dense, Lambda, Cropping2D, Dropout
@@ -12,6 +12,7 @@ from tensorflow.keras.optimizers import Adam
 
 from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
+
 
 import rospy
 import pathlib
@@ -38,10 +39,11 @@ def main():
     # Init Node
     rospy.init_node('ml_training', anonymous=False)
 
-    base_folder = rospy.get_param('~base_folder', 'set1') 
+    base_folder = rospy.get_param('~base_folder', 'set14') 
     modelname = rospy.get_param('~modelname', 'model_default.h5')
     nb_epoch = rospy.get_param('~epochs', 20)
     batch_size = rospy.get_param('~batch_size', 32)
+    n_tf = rospy.get_param('~n_tf', 2)
 
     rospy.loginfo('base_folder: %s', base_folder)
     rospy.loginfo('modelname: %s', modelname)
@@ -65,13 +67,15 @@ def main():
 
     
 
-    n_times_tf = 10
+    n_times_tf = int(n_tf)
+
+    if n_times_tf < 2:
+        print(Fore.RED + " n_tf must be greater than 1 \n If you want to train just once, please use cnn2a" + Fore.RESET)
+
 
     intervals = [xx for xx in range(0,number_of_rows,int(number_of_rows/n_times_tf))]
 
-
-
-
+ 
     for cycle in range(len(intervals)-1):
         limits = [intervals[cycle],intervals[cycle+1]]
         images = []

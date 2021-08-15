@@ -4,6 +4,7 @@
   <arg name="batch_size" default="32"/>
   <arg name="folder" default="set1"/>
   <arg name="model" default="model1.h5"/>
+  <arg name="reduce_dataset" default="1"/>
 
   <!--
   <arg name="folder" default=""/>
@@ -15,6 +16,7 @@
       <param name="base_folder" value="$(arg folder)"/>
       <param name="modelname" value="$(arg model)"/>
       <param name="batch_size" value="$(arg batch_size)"/>
+      <param name="reduce_dataset" value="$(arg reduce_dataset)"/>
     </node>
   <!--</group>-->
   

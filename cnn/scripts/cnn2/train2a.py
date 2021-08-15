@@ -42,6 +42,7 @@ def main():
     modelname = rospy.get_param('~modelname', 'model_default')
     nb_epoch = rospy.get_param('~epochs', 20)
     batch_size = rospy.get_param('~batch_size', 32)
+    reduce_dataset = rospy.get_param('~reduce_dataset', 1)
 
     rospy.loginfo('base_folder: %s', base_folder)
     rospy.loginfo('modelname: %s', modelname)
@@ -67,7 +68,7 @@ def main():
         k = 0
         for line in reader:
             k += 1
-            if (k%3)!=0:
+            if (k%int(reduce_dataset))!=0:
                 continue
             if k==1: continue
 
@@ -127,8 +128,6 @@ def main():
     X_test= []
     y_test = []
 
-
-    print('5')
     train_samples_size = len(X_train)
     validation_samples_size = len(X_test)
 
@@ -136,7 +135,6 @@ def main():
     total_right_angles = 0
     total_straight_angles = 0
 
-    print('6')
     for train_sample in y_train:
         if(float(train_sample) < -0.15):
             total_left_angles += 1
