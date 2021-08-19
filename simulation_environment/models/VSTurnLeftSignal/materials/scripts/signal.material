@@ -1,0 +1,13 @@
+material Signal/TurnLeft
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture turn_left.png
+      }
+    }
+  }
+}

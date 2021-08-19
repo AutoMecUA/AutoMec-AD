@@ -1,0 +1,14 @@
+material FNR2022/Image
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture track.png
+        filtering trilinear
+      }
+    }
+  }
+}

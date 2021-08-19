@@ -1,4 +1,0 @@
--- Quando a Kinetic vê o sinal Stop, daqui a quanto tempo tem de efetuar a paragem?
-
-
-Solução1: Analisando a imagem RGB detetamos a presença ou não do sinal, em caso afirmativo, calculamos o centroide da imagem, e vamos á imagem Depth ver o valor do pixel nesse centroide, quando estiver acima de um determinado treshold, enviar sinal para parar!

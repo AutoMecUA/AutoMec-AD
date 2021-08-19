@@ -1,0 +1,19 @@
+<launch>
+
+  <arg name="image_raw_topic" default="/ackermann_vehicle/camera/rgb/image_raw"/>
+  <arg name="twist_cmd_topic" default="/cmd_vel"/>
+  <arg name="folder" default="set1"/>
+  <arg name="rate" default="30"/>
+  <arg name="width" default="320"/>
+  <arg name="height" default="160"/>
+
+  <include file="$(find cnn)/launch/write.launch">
+    <arg name="image_raw_topic" value="$(arg image_raw_topic)"/>
+    <arg name="twist_cmd_topic" value="$(arg twist_cmd_topic)"/>
+    <arg name="folder" value="$(arg folder)"/>
+    <arg name="rate" value="$(arg rate)"/>
+    <arg name="width" value="$(arg width)"/>
+    <arg name="height" value="$(arg height)"/>
+  </include>
+
+</launch>

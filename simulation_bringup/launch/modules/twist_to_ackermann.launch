@@ -1,0 +1,17 @@
+<launch>
+
+  <arg name="twist_cmd_topic" default="/cmd_vel"/>
+  <arg name="ackermann_cmd_topic" default="/ackermann_vehicle/ackermann_cmd"/>
+  <arg name="wheelbase" default="0.335"/>
+  <arg name="frame_id" default="odom"/>
+  <arg name="message_type" default="ackermann_drive_stamped"/>
+
+  <include file="$(find traxxas_description)/launch/twist_to_ackermann.launch" >
+    <arg name="twist_cmd_topic" value="$(arg twist_cmd_topic)"/>
+    <arg name="ackermann_cmd_topic" value="$(arg ackermann_cmd_topic)"/>
+    <arg name="wheelbase" value="$(arg wheelbase)"/>
+    <arg name="frame_id" value="$(arg frame_id)"/>
+    <arg name="message_type" value="$(arg message_type)"/>
+  </include>
+
+</launch>

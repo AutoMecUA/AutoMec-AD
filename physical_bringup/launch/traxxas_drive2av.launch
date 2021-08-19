@@ -1,0 +1,41 @@
+<launch>
+
+    <arg name="model" default="" />
+    <arg name="float_cmd_topic" default="" />
+
+    <arg name="dir_cmd_topic" default="/android_input_dir"/>
+    <arg name="int_dir_topic" default="/pub_dir"/>
+    <arg name="int_vel_topic" default="/pub_vel"/>
+    <arg name="int_vel_max" default="108"/>
+    <arg name="vel_cmd_topic" default="/android_input_vel"/>
+
+    <arg name="camera_topic" default="/real_camera"/>
+    <arg name="int_camera_id" default="2"/>   
+
+    <group if="$(eval arg('model') != '')">
+    
+        <include file="$(find physical_bringup)/launch/modules/rosserial.launch" />
+
+        <include file="$(find physical_bringup)/launch/modules/driving_cnn2av.launch" >
+            <arg name="model" value="$(arg model)"/>
+            <arg name="float_cmd_topic" value="$(arg float_cmd_topic)"/>
+            <arg name="vel_cmd_topic" value="$(arg vel_cmd_topic)"/>
+            <arg name="dir_cmd_topic" value="$(arg dir_cmd_topic)"/>
+        </include>
+
+        <include file="$(find physical_bringup)/launch/modules/android_conversor.launch">
+            <arg name="twist_dir_topic" value="$(arg dir_cmd_topic)"/>
+            <arg name="int_dir_topic" value="$(arg int_dir_topic)"/>
+            <arg name="int_vel_topic" value="$(arg int_vel_topic)"/>
+            <arg name="int_vel_max" value="$(arg int_vel_max)"/>
+            <arg name="vel_cmd_topic" value="$(arg vel_cmd_topic)"/>
+        </include>
+
+        <include file="$(find physical_bringup)/launch/modules/lane_camera.launch">
+            <arg name="camera_topic" value="$(arg camera_topic)"/>
+            <arg name="int_camera_id" value="$(arg int_camera_id)"/>
+        </include>
+
+    </group>
+
+</launch>

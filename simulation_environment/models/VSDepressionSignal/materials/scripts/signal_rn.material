@@ -1,0 +1,13 @@
+material Signal/RoadNarrow
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture road_narrow.png
+      }
+    }
+  }
+}

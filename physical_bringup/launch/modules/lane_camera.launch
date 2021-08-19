@@ -1,0 +1,10 @@
+<launch>
+  <arg name="camera_topic" default="/real_camera"/>
+  <arg name="int_camera_id" default="2"/>
+
+  <include file="$(find robot_driving)/launch/physical_camera.launch">
+      <arg name="camera_topic" value="$(arg camera_topic)"/>
+      <arg name="int_camera_id" value="$(arg int_camera_id)"/>
+  </include>
+
+</launch>

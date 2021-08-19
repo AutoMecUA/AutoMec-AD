@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<sdf version ='1.4'>
+  <model name ='obstacle'>
+    <pose>1 0 0 0 0 0</pose>
+    <link name ='main_link'>
+      <pose>0 0 .5 0 0 0</pose>
+      <collision name ='collision'>
+        <geometry>
+          <box>
+            <size>0.6 0.6 0.3</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name ='visual'>
+        <geometry>
+          <box>
+            <size>0.6 0.6 0.3</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <name>Gazebo/Green</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+  </model>
+</sdf>
