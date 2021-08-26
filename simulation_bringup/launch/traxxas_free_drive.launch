@@ -1,5 +1,5 @@
 <launch>
-    <arg name="urdf" default="robot02"/>
+    <arg name="urdf" default="robot04"/>
     <arg name="world" default="arena1"/>
     <arg name="vel" default="0.5"/>
 
