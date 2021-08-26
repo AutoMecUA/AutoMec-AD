@@ -1,7 +1,7 @@
 controller_manager_msgs==0.19.4
 roslib==1.15.7
 sensor_msgs==1.13.1
-tensorflow==2.5.0
+tensorflow==2.6.0
 cv_bridge==1.15.0
 rospy==1.15.11
 pandas==0.25.3
