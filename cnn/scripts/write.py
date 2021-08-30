@@ -126,7 +126,11 @@ def main():
         os._exit(os.EX_OK)
 
     # Subscribe topics
+    # If we have a bool topic, we are recording the linear variable as the boolean.
+    # If not, we are recording the linear velocity from the twist
     if bool_cmd_topic != "":
+        # Define angular as 0 to prevent errors when we give velocity first instead of angle
+        angular = 0
         rospy.Subscriber(twist_cmd_topic, Twist, messageRealReceivedCallback)
         rospy.Subscriber(bool_cmd_topic, Bool, boolReceivedCallback)
     else:
