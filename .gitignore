@@ -21,6 +21,7 @@ sdist/
 var/
 wheels/
 pip-wheel-metadata/
+automecv
 share/python-wheels/
 *.egg-info/
 .installed.cfg

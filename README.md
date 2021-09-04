@@ -5,14 +5,18 @@ This project goal is to develop a fully autonomous car to compete in the Nationa
 ![alt text](https://i.imgur.com/7FCETQ1.png)
 
 # Dependencies
-Make sure you have these installed before booting 
+After having Python3 and Ubuntu installed, create a virtual envirment on the automecfolder
+You can learn how to here: 
+https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/
 
-  - Python3
-  - Ubuntu 20.04
-  - Ros Noetic
-  - numpy==1.20.1
-  - opencv-python==4.5.1.48
-  - matplotlib==3.3.4
+
+After that to install all the depencies automatically:
+```bash
+python3 -m pip install -r requirements.txt
+```
+If you are having trouble with this aproach you can add them manually using pip install. Check the requirements.txt 
+
+
 
 # How to run
 The code used in this repository is meant to drive a real world car you can do so by folliwing the instructions on [Manual Driving](https://github.com/DanielCoelho112/AutoMec-AD/tree/readme/core/src/ManualDriving#manual-driving), however using ROS we can simulate an enviroment where we can test our robot (car). To do so, continue following the Setting up ROS Enviroment section.
