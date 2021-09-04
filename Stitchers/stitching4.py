@@ -4,9 +4,9 @@ import matplotlib.pyplot as plt
 from random import randrange
 
 # https://towardsdatascience.com/image-stitching-using-opencv-817779c86a83
-img_ = cv2.imread('Right.jpg')
+img_ = cv2.imread('Right.png')
 img1 = cv2.cvtColor(img_,cv2.COLOR_BGR2GRAY)
-img = cv2.imread('Left.jpg')
+img = cv2.imread('Left.png')
 img2 = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 
 sift = cv2.xfeatures2d.SIFT_create()

@@ -2,15 +2,15 @@ import cv2
 import numpy as np
 #import matplotlib.pyplot as plt
 
-dim=(1024,768)
+dim=(680,480)
 
-left = cv2.imread('Left.jpg',cv2.IMREAD_COLOR)
-right = cv2.imread('Right.jpg',cv2.IMREAD_COLOR)
+left = cv2.imread('Left.png',cv2.IMREAD_COLOR)
+right = cv2.imread('Right.png',cv2.IMREAD_COLOR)
 
 
 # Nota. funciona melhor com o resize ( dimensão aleatoria, mudar depois)
-left = cv2.resize(left,dim,interpolation = cv2.INTER_AREA)
-right = cv2.resize(right,dim,interpolation = cv2.INTER_AREA)
+#left = cv2.resize(left,dim,interpolation = cv2.INTER_AREA)
+#right = cv2.resize(right,dim,interpolation = cv2.INTER_AREA)
 
 
 img = cv2.imread('dumb.jpg')

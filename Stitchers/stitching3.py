@@ -9,7 +9,7 @@ cv2.ocl.setUseOpenCL(False)
 
 # select the image id (valid values 1,2,3, or 4)
 feature_extractor = 'orb' # one of 'sift', 'surf', 'brisk', 'orb'
-feature_matching = 'knn' # Can try with knn or bf
+feature_matching = 'bf' # Can try with knn or bf
 
 # Nota knn esta a funcionar melhor para esta imagem
 
@@ -17,11 +17,11 @@ feature_matching = 'knn' # Can try with knn or bf
 # Make sure that the train image is the image that will be transformed
 
 #trainImg = imageio.imread('http://www.ic.unicamp.br/~helio/imagens_registro/foto1A.jpg')
-trainImg =cv2.imread("Right.jpg")
+trainImg =cv2.imread("Right.png")
 trainImg_gray = cv2.cvtColor(trainImg, cv2.COLOR_RGB2GRAY)
 
 #queryImg = imageio.imread('http://www.ic.unicamp.br/~helio/imagens_registro/foto1B.jpg')
-queryImg = cv2.imread("Left.jpg")
+queryImg = cv2.imread("Left.png")
 
 # Opencv defines the color channel in the order BGR. 
 # Transform it to RGB to be compatible to matplotlib

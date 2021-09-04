@@ -5,8 +5,8 @@ import numpy as np
 #http://datahacker.rs/005-how-to-create-a-panorama-image-using-opencv-with-python/
 
 # TODO: Substituir isto por webcam LEFT , WEBCAM RIGHT
-img1 = cv2.imread("Left.jpg")
-img2 = cv2.imread("Right.jpg")
+img1 = cv2.imread("Left.png")
+img2 = cv2.imread("Right.png")
 
 img1_gray = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
 img2_gray = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
