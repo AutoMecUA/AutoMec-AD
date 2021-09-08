@@ -5,6 +5,7 @@
     <arg name="world" default="arena1"/>
     <arg name="vel" default="0.5"/>
 
+
     <include file="$(find simulation_bringup)/launch/modules/arena.launch" >
         <arg name="world" value="$(arg world)"/>
     </include>
