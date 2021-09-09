@@ -153,9 +153,15 @@ def main():
     # only to display saved image counter
     counter = 0
 
-    while True:
+    while not rospy.is_shutdown():
 
-        if begin_cmd == False or begin_img == False:
+        if not begin_img:
+            continue
+
+        cv2.imshow('Robot View', img_rbg)
+        cv2.waitKey(1)
+
+        if not begin_cmd:
             continue
 
         if linear == 0:
@@ -165,15 +171,14 @@ def main():
         image_name = str(curr_time.year) + '_' + str(curr_time.month) + '_' + str(curr_time.day) + '__' + str(
             curr_time.hour) + '_' + str(curr_time.minute) + '_' + str(curr_time.second) + '__' + str(
             curr_time.microsecond) + str('.jpg')
-        # TODO clean angular and linear = 0
         # add image, angle and velocity to the driving_log pandas
         row = pd.DataFrame([[image_name, angular, linear]], columns=['Center', 'Steering', 'Velocity'])
         driving_log = driving_log.append(row, ignore_index=True)
 
         # save image
         dim = (image_width, image_height)
-        img_rbg = cv2.resize(img_rbg, dim, interpolation=cv2.INTER_AREA)
-        image_saved = Image_pil.fromarray(img_rbg)
+        img_rbg_resize = cv2.resize(img_rbg, dim, interpolation=cv2.INTER_AREA)
+        image_saved = Image_pil.fromarray(img_rbg_resize)
         image_saved.save(data_path + '/IMG/' + image_name)
         counter += 1
         rospy.loginfo('Image Saved: %s', counter)
