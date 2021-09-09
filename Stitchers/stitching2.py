@@ -13,7 +13,7 @@ right = cv2.imread('Right.png',cv2.IMREAD_COLOR)
 #right = cv2.resize(right,dim,interpolation = cv2.INTER_AREA)
 
 
-img = cv2.imread('dumb.jpg')
+#img = cv2.imread('dumb.jpg')
 images = []
 
 images.append(left)

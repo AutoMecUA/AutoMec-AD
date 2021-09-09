@@ -25,13 +25,10 @@ def stitching(left,right,dim=(640,480)):
     stitcher = cv2.Stitcher.create()
     ret,pano = stitcher.stitch(images)
 
-    return pano
-    
-    #
-    #if ret == cv2.STITCHER_OK:
-    #    cv2.imshow('Panorama',pano)
-    #    cv2.waitKey()
-    #    cv2.destroyAllWindows()
-    #else:
-    #    print('Error during stitching')
+    if ret == cv2.STITCHER_OK:
+        cv2.imshow('Panorama',pano)
+        cv2.waitKey()
+        cv2.destroyAllWindows()
+    else:
+        print('Error during stitching')
 
