@@ -21,6 +21,8 @@ from PIL import Image as Image_pil
 
 import pathlib
 
+import yaml
+
 # Global Variables
 global angular
 global linear
@@ -111,6 +113,12 @@ def main():
     image_width = rospy.get_param('~width', 320)
     image_height = rospy.get_param('~height', 160)
 
+    # params only used in yaml file
+    cam_height = rospy.get_param('~cam_height', '')
+    cam_angle = rospy.get_param('~cam_angle', '')
+    env = rospy.get_param('~env', '')
+    vel = rospy.get_param('~vel', '0')
+
     s = str(pathlib.Path(__file__).parent.absolute())
     data_path = s + '/../data/' + base_folder
 
@@ -124,6 +132,27 @@ def main():
     else:
         rospy.logerr('Folder already exists, please try again with a different folder!')
         os._exit(os.EX_OK)
+
+    # yaml file
+    imgsize_list = [image_width, image_height]
+    string_ints = [str(int) for int in imgsize_list]
+    imgsize_str = ",".join(string_ints)
+
+    info_data = dict(
+
+        dataset = dict(
+            developer = os.getenv('automec_developer'),
+            image_size = imgsize_str,
+            frequency = rate_hz,
+            cam_height = cam_height,
+            cam_angle = cam_angle,
+            linear_velocity = vel,
+            environment = env   
+        )
+    )
+
+    with open(data_path+'/info.yaml', 'w') as outfile:
+        yaml.dump(info_data, outfile, default_flow_style=False)
 
     # Subscribe topics
     # If we have a bool topic, we are recording the linear variable as the boolean.
