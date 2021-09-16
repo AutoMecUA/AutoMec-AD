@@ -9,6 +9,7 @@ from geometry_msgs.msg import Twist
 global PubDir
 global PubVel
 global ma1, ma2, ba1, ba2
+global bool_vel
 
 
 # Direction Callback Function
@@ -32,10 +33,16 @@ def messageReceivedCallbackDir(message):
 # Velocity Callback Function
 def messageReceivedCallbackVel(message):
 
-    bool = message.data
+    global bool_vel
+
+    bool_button = message.data
 
     # If the button is pressed, the velocity is max, if it's not, it's null
-    if bool:
+    if bool_button:
+        bool_vel = not bool_vel
+
+
+    if bool_vel:
         vel = vel_max
     else:
         vel = vel_center
@@ -54,6 +61,11 @@ def main():
     global PubVel
     global ma1, ma2, ba1, ba2
     global vel_max, vel_center
+    global bool_vel
+
+    #Define initial variable
+    bool_vel = False
+
 
     # Initiates the node
     rospy.init_node('AndroidConversor', anonymous=False)
