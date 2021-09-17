@@ -133,7 +133,7 @@ dmypy.json
 
 
 # images
-*.jpg
+IMG/*.jpg
 
 # csv
 *.csv
