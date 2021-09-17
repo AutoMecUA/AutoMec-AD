@@ -181,7 +181,7 @@
 <gazebo reference="kinect_place_optical_frame">
     <sensor name="kinect" type="depth">
         <!-- openni plugin has the x pointing towards the scene, so rotate to have z -->
-        <pose frame="kinect">0.0 0.0 0.0 0.0 -1.5708 1.5708</pose>
+        <pose frame="kinect_place_optical_frame">0.0 0.0 0.0 -1.5708 0.0 1.5708</pose>
         <mesh><uri>file://traxxas_description/meshes/kinect.dae</uri></mesh>
         <camera>
             <horizontal_fov>0.74839718</horizontal_fov>
@@ -221,10 +221,8 @@
     </sensor>
 </gazebo>
 
-<gazebo reference="kinect2_place_optical_frame">
+<gazebo reference="kinect2_optical_frame">
     <sensor name="kinect2" type="depth">
-        <!-- openni plugin has the x pointing towards the scene, so rotate to have z -->
-        <pose frame="world">0.0 0.0 1.0 0.0 -1.5708 1.5708</pose>
         <camera>
             <horizontal_fov>0.74839718</horizontal_fov>
             <image>
@@ -254,7 +252,7 @@
             <depthImageTopicName>/3d_image2/image_raw_depth</depthImageTopicName>
             <depthImageInfoTopicName>/3d_image2/camera_info</depthImageInfoTopicName>
             <pointCloudTopicName>/3d_image2/3d_cloud</pointCloudTopicName>
-            <frameName>kinect2_place_optical_frame</frameName>
+            <frameName>kinect2_optical_frame</frameName>
             <pointCloudCutoff>0.5</pointCloudCutoff>
             <pointCloudCutoffMax>2.0</pointCloudCutoffMax>
         </plugin>

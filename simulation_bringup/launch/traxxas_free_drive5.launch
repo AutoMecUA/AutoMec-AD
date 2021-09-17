@@ -16,4 +16,9 @@
     </include>
 
     <include file="$(find simulation_bringup)/launch/modules/twist_to_ackermann.launch" />
+
+    <!--
+    <node pkg="tf" type="static_transform_publisher" name="base_to_kinect" args=" 0.0 0.0 0.3 1.5708 3.14159 1.5708 base_link kinect2_optical_frame 10" />
+    -->
+    
 </launch>

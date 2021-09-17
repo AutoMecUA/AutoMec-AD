@@ -3,7 +3,7 @@
 
   <arg name="model" default="$(find traxxas_description)/urdf/robot05.urdf.xacro"/>
   <arg name="gui" default="true" />
-  <arg name="rvizconfig" default="$(find traxxas_description)/urdf.rviz" />
+  <arg name="rvizconfig" default="$(find traxxas_description)/urdf_robot05.rviz" />
 
   <param name="robot_description" command="$(find xacro)/xacro $(arg model)" />
 

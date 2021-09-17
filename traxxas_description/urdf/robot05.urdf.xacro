@@ -400,7 +400,7 @@
     <visual>
       <geometry>
         <box size="0.015 0.030 0.027"/>
-        <mesh filename="package://traxxas_description/meshes/kinect.dae"/>
+        <!-- <mesh filename="package://traxxas_description/meshes/kinect.dae" /> -->
       </geometry>
       <material name="kinect_mat"/>
     </visual>
@@ -428,39 +428,32 @@
 
   <!--signal camara -->
   <joint name="kinect2_joint" type="fixed">
-    <origin xyz="0.073 0.0 0.14" rpy="0 0 0"/>
+    <origin xyz="0.073 0.0 0.14" rpy="0 0 1.5708"/>
     <parent link="base_link"/>
     <child link="kinect2_link"/>
   </joint>
 
   <link name="kinect2_link">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
     <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <box size="0.015 0.030 0.027"/>
+        <mesh filename="package://traxxas_description/meshes/kinect.dae"/>
       </geometry>
-      <material name="kinect_mat"/>
     </visual>
     <collision>
-      <origin xyz="0.005 0.0 0.013" rpy="0 0 0"/>
       <geometry>
-        <box size="0.015 0.030 0.027"/>
+        <box size="0.06 0.30 0.07"/>
       </geometry>
     </collision>
   </link>
 
-  <joint name="kinect2_place_joint" type="fixed">
-    <origin xyz="0.003 0.0 0.45" rpy="0 0 0"/>
+  <joint name="kinect2_optical_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 -1.5708"/>
     <parent link="kinect2_link"/>
-    <child link="kinect2_place_frame"/>
+    <child link="kinect2_optical_frame"/>
   </joint>
-  <link name="kinect2_place_frame"/>
-
-  <joint name="kinect2_place_optical_joint" type="fixed">
-    <origin xyz="0 0 0" rpy="-1.57 0 -1.57"/>
-    <parent link="kinect2_place_frame"/>
-    <child link="kinect2_place_optical_frame"/>
-  </joint>
-  <link name="kinect2_place_optical_frame"/>
+  <link name="kinect2_optical_frame" />
 
   <!--lane camara left -->
   <joint name="cameral_joint" type="fixed">
