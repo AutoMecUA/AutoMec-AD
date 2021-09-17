@@ -37,5 +37,15 @@
   <export>
     <gazebo_ros gazebo_model_path="${prefix}/models"/> <!-- prefix: is the path to package.xml-->
     <!-- <gazebo_ros gazebo_plugin_path="${prefix}/plugins"/> --><!-- prefix: path to package.xml-->
+    <gazebo_ros gazebo_model_path="${prefix}/description/models"/>
+    <!--  prefix: path to package.xml -->
+    <gazebo_ros gazebo_model_path="${prefix}/description/models/verticalSignals/TriangularSignals"/>
+    <!--  prefix: path to package.xml -->
+    <gazebo_ros gazebo_model_path="${prefix}/description/models/verticalSignals/QuadrangularSignals"/>
+    <!--  prefix: path to package.xml -->
+    <gazebo_ros gazebo_model_path="${prefix}/description/models/verticalSignals/CircularSignals"/>
+    <!--  prefix: path to package.xml -->
+    <gazebo_ros gazebo_plugin_path="${prefix}/plugins"/>
+
   </export>
 </package>
