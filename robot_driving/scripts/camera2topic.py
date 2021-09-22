@@ -10,7 +10,7 @@ rospy.init_node('physical_camera', anonymous=False)
 
 # Get param
 camera_topic = rospy.get_param('~camera_topic','/real_camera')
-int_camera_id = rospy.get_param('~int_camera_id', 0)
+int_camera_id = rospy.get_param('~int_camera_id', 2)
 
 # Define the camera
 cap = cv2.VideoCapture(int(int_camera_id))
