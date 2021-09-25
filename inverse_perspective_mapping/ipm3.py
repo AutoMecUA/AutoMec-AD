@@ -37,11 +37,11 @@ class IPM():
 
         cRr[0,0] = 1
         cRr[1,1] = math.cos(self.yaw)
-        cRr[1,2] = math.sin(-self.yaw)
+        cRr[1,2] = -math.sin(self.yaw)
         cRr[2,1] = math.sin(self.yaw)
         cRr[2,2] = math.cos(self.yaw)
 
-        cTr[2] = - self.cam_height
+        cTr[2] = self.cam_height
 
         self.P = np.matmul(self.K,cRr)
         self.t = np.matmul(self.K,cTr)
@@ -110,8 +110,7 @@ class IPM():
 
         for i in range(0, len(x_array_scaled)):
             output_image[x_array_scaled[i],y_array_scaled[i]] = v_array[i]
-            print(v_array[i])
-        
+            
         return output_image
 
 
@@ -136,7 +135,7 @@ def main():
                         'img_dim' : dim}
 
     config_extrinsic = {'camera_height' : 0.547,
-                        'yaw' : 0.6 }
+                        'yaw' : 0.60 }
     
     ipm = IPM(config_intrinsic,config_extrinsic)
 
