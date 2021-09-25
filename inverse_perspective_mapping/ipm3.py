@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 import math
 from sklearn import preprocessing
+import datetime
 
 class IPM():
     def __init__(self, config_intrinsic, config_extrinsic):
@@ -23,23 +24,38 @@ class IPM():
         x0 = self.dim[0]/2
         y0 = self.dim[1]/2
 
-        intrinsic_matrix[0,0] = focal_length_x
-        intrinsic_matrix[1,1] = focal_length_y
+        # intrinsic_matrix[0,0] = focal_length_x
+        # intrinsic_matrix[1,1] = focal_length_y
+        # intrinsic_matrix[2,2] = 1
+        # intrinsic_matrix[0,2] = x0
+        # intrinsic_matrix[1,2] = y0
+
+        # camera_info topic
+        intrinsic_matrix[0,0] = 563.62
+        intrinsic_matrix[1,1] = 563.62
         intrinsic_matrix[2,2] = 1
-        intrinsic_matrix[0,2] = x0
-        intrinsic_matrix[1,2] = y0
+        intrinsic_matrix[0,2] = 340.5
+        intrinsic_matrix[1,2] = 240.5     
 
         self.K = intrinsic_matrix
+
 
     def calculate_extrinsic_matrix(self):
         cRr = np.zeros([3,3])
         cTr = np.zeros([3,1])
 
-        cRr[0,0] = 1
-        cRr[1,1] = math.cos(self.yaw)
-        cRr[1,2] = -math.sin(self.yaw)
-        cRr[2,1] = math.sin(self.yaw)
+        # cRr[0,0] = 1
+        # cRr[1,1] = math.cos(self.yaw)
+        # cRr[1,2] = -math.sin(self.yaw)
+        # cRr[2,1] = math.sin(self.yaw)
+        # cRr[2,2] = math.cos(self.yaw)
+
+        cRr[0,0] = math.cos(self.yaw)
+        cRr[0,2] = math.sin(self.yaw)
+        cRr[1,1] = 1
+        cRr[2,0] = -math.sin(self.yaw)
         cRr[2,2] = math.cos(self.yaw)
+        
 
         cTr[2] = self.cam_height
 
@@ -124,7 +140,8 @@ class new_point():
         
 def main():
     
-    path = 'images/image1.png'
+  
+    path = 'images/image2.png'
     img = cv2.imread(path,2) #gray image
 
 
@@ -135,11 +152,12 @@ def main():
                         'img_dim' : dim}
 
     config_extrinsic = {'camera_height' : 0.547,
-                        'yaw' : 0.60 }
+                        'yaw' : 0.6 }
     
     ipm = IPM(config_intrinsic,config_extrinsic)
 
     output_image = ipm.calculate_new_points_list(img)
+
 
     cv2.imshow('initial_image', img)
     cv2.imshow('final_image', output_image.astype(np.uint8))
