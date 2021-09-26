@@ -123,12 +123,12 @@ def augmentImage(imgPath, steering):
     return img, steering
 
 
-def preProcessing(img):
+def preProcessing(img, imgwidth, imgheight):
     # Cropping Region of intrest, Ajust with Gazebo and use Andre Code in the Future
     # img = img[60:135, :, :]
     img = cv2.cvtColor(img, cv2.COLOR_RGB2YUV)  # For better jornalization
     img = cv2.GaussianBlur(img, (3, 3), 0)
-    img = cv2.resize(img, (320, 160))  # NIVIDA uses 200x66
+    img = cv2.resize(img, (imgwidth, imgheight))  # NIVIDA uses 200x66
     img = img/255
 
     return img
@@ -139,7 +139,7 @@ def preProcessing(img):
 # plt.show()
 
 
-def batchGen(imagesPath, steeringList, batchSize, trainFlag):
+def batchGen(imagesPath, steeringList, batchSize, trainFlag, imgwidth, imgheight):
     # Creates a batch and applies augmentation
     while True:
         imgBatch = []
@@ -154,7 +154,7 @@ def batchGen(imagesPath, steeringList, batchSize, trainFlag):
             else:
                 img = mpimg.imread(imagesPath[index])
                 steering = steeringList[index]
-            img = preProcessing(img)
+            img = preProcessing(img, imgwidth, imgheight)
 
             imgBatch.append(img)
             steeringBatch.append(steering)
@@ -162,10 +162,10 @@ def batchGen(imagesPath, steeringList, batchSize, trainFlag):
         yield(np.asarray(imgBatch), np.asarray(steeringBatch))
 
 
-def createModel():
+def createModel(imgwidth, imgheight):
     model = Sequential()
     model.add(Convolution2D(24, (5, 5), (2, 2),
-                            input_shape=(160, 320, 3), activation='elu'))
+                            input_shape=(imgheight, imgwidth, 3), activation='elu'))
     model.add(Convolution2D(36, (5, 5), (2, 2), activation='elu'))
     model.add(Convolution2D(48, (5, 5), (2, 2), activation='elu'))
     model.add(Convolution2D(64, (3, 3), activation='elu'))
