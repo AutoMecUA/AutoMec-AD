@@ -72,7 +72,7 @@ def main():
 
     # Get parameters
     twist_dir_topic = rospy.get_param('~twist_dir_topic', '/android_input_dir') 
-    bool_vel_topic = rospy.get_param('~bool_vel_topic', '/android_input_vel') 
+    vel_cmd_topic = rospy.get_param('~vel_cmd_topic', '/android_input_vel') 
     int_dir_topic = rospy.get_param('~int_dir_topic', '/pub_dir') 
     int_vel_topic = rospy.get_param('~int_vel_topic', '/pub_vel')
     int_vel_max = rospy.get_param('~int_vel_max', 108)
@@ -84,7 +84,7 @@ def main():
     PubDir = rospy.Publisher(int_dir_topic, Int16, queue_size=10)
     PubVel = rospy.Publisher(int_vel_topic, Int16, queue_size=10)
     rospy.Subscriber(twist_dir_topic, Twist, messageReceivedCallbackDir)
-    rospy.Subscriber(bool_vel_topic, Bool, messageReceivedCallbackVel)
+    rospy.Subscriber(vel_cmd_topic, Bool, messageReceivedCallbackVel)
 
     #Angle
 
