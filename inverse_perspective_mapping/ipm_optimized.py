@@ -115,7 +115,7 @@ class IPM():
         for i in range(0, len(x_array_scaled)):
             output_image[x_array_scaled[i],y_array_scaled[i]] = v_array[i]
             
-        print(datetime.now()-aaa)
+       
         return output_image
 
         
