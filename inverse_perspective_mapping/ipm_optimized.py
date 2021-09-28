@@ -131,6 +131,7 @@ class IPM:
         # Time the image writing process
         _t3 = time.time()
         print(f"The image writing process takes \t{_t3 - _t2}s")
+        print(f"The total process takes \t\t\t{_t3 - _t0}")
 
         return output_image
 
