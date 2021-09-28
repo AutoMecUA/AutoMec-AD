@@ -24,6 +24,8 @@ class IPM():
         self.calculate_intrinsic_matrix()
         self.calculate_extrinsic_matrix()
         self.calculate_global_matrix()
+        self.calculate_A_const()
+
 
     def calculate_intrinsic_matrix(self):
         intrinsic_matrix = np.zeros([3,3])
@@ -84,14 +86,12 @@ class IPM():
         self.vector = np.zeros([4,1])
         self.vector[0:3,0] = -self.t[0:3,0]
 
+    def calculate_A_const(self):
 
-    def calculate_output_image(self, img_in):
-
-        
         x_array = []
         y_array = []
         v_array =  []
-
+        
         index_point = 0
         for x in range(0,self.dim[0]):
             for y in range(0,self.dim[1]):
@@ -99,23 +99,26 @@ class IPM():
                 self.A[1,3] = -y
 
                 (X,Y,_,__) = np.matmul(np.linalg.inv(self.A),self.vector)
-
                 x_array.append(X)
                 y_array.append(Y)
-                v_array.append(img_in[x,y])
-
+        
         minmax_scale_x = preprocessing.MinMaxScaler(feature_range=(0, self.dim[0]-1))
         minmax_scale_y = preprocessing.MinMaxScaler(feature_range=(0, self.dim[1]-1))
 
         x_array_scaled = minmax_scale_x.fit_transform(x_array).astype((int))
         y_array_scaled = minmax_scale_y.fit_transform(y_array).astype((int))
+        self.x_array = x_array_scaled
+        self.y_array = y_array_scaled
 
+        
+    def calculate_output_image(self, img_in):
+
+        v_array = np.array(img_in).ravel()
         output_image = np.zeros([self.dim[0],self.dim[1]])
 
-        for i in range(0, len(x_array_scaled)):
-            output_image[x_array_scaled[i],y_array_scaled[i]] = v_array[i]
-            
-       
+        for i in range(0, len(self.x_array)):
+            output_image[self.x_array[i],self.y_array[i]] = v_array[i]
+
         return output_image
 
         
@@ -123,6 +126,8 @@ def main():
     
     path = 'images/image1.png'
     img = cv2.imread(path,2) #gray image
+
+   
 
 
     dim = (img.shape[0], img.shape[1])
@@ -149,7 +154,7 @@ def main():
     print(output_image.dtype)
     print(img.dtype)
     cv2.waitKey(0)
-    
+
 
 
 
