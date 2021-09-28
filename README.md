@@ -84,10 +84,9 @@ And add the previous line to the end of your file. Same procedure if you use zsh
 To Save press Cntrl+O , Enter . Cntrl+X to exit
 
 # Ackerman dependencies
-    sudo apt install ros-noetic-ros-controllers
-    sudo apt-get install ros-noetic-ackermann-msgs
+    sudo apt-get install ros-noetic-ros-controllers ros-noetic-ackermann-msgs
 
-# Launch woth ackerman
+# Launch with ackerman
     roslaunch ackermann_vehicle_gazebo ackermann_robot_with_arena_conversion.launch
 
 # Running the simulation enviroment

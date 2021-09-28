@@ -4,6 +4,8 @@
   <arg name="int_vel_topic" default="/pub_vel"/>
   <arg name="int_vel_max" default="108"/>
   <arg name="vel_cmd_topic" default="/android_input_vel"/>
+  <arg name="bool_btn_topic" default="/android_input_velin"/>
+
 
 
     <node name="robot_driving" pkg="robot_driving" type="AndroidConversor.py" output="screen">

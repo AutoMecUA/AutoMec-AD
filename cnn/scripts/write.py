@@ -107,7 +107,7 @@ def main():
 
     image_raw_topic = rospy.get_param('~image_raw_topic', '/ackermann_vehicle/camera/rgb/image_raw')
     twist_cmd_topic = rospy.get_param('~twist_cmd_topic', '/cmd_vel')
-    bool_cmd_topic = rospy.get_param('~bool_cmd_topic', '')
+    vel_cmd_topic = rospy.get_param('~vel_cmd_topic', '')
     base_folder = rospy.get_param('~folder', 'set1')
     rate_hz = rospy.get_param('~rate', 30)
     image_width = rospy.get_param('~width', 320)
@@ -157,11 +157,11 @@ def main():
     # Subscribe topics
     # If we have a bool topic, we are recording the linear variable as the boolean.
     # If not, we are recording the linear velocity from the twist
-    if bool_cmd_topic != "":
+    if vel_cmd_topic != "":
         # Define angular as 0 to prevent errors when we give velocity first instead of angle
         angular = 0
         rospy.Subscriber(twist_cmd_topic, Twist, messageRealReceivedCallback)
-        rospy.Subscriber(bool_cmd_topic, Bool, boolReceivedCallback)
+        rospy.Subscriber(vel_cmd_topic, Bool, boolReceivedCallback)
     else:
         rospy.Subscriber(twist_cmd_topic, Twist, messageReceivedCallback)
 
