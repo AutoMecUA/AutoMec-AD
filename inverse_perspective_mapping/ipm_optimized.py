@@ -78,7 +78,6 @@ class IPM:
         self.P = np.matmul(self.K, cRr)
         self.t = np.matmul(self.K, cTr)
 
-
     def calculate_global_matrix(self):
 
         global_matrix = np.zeros([4, 4])
@@ -127,9 +126,6 @@ class IPM:
         print(f"The min-max scaling takes \t\t\t{_t2 - _t1}s")
 
         for i in range(0, len(x_array_scaled)):
-            output_image[x_array_scaled[i],y_array_scaled[i]] = v_array[i]
-            
-
             output_image[x_array_scaled[i], y_array_scaled[i]] = v_array[i]
 
         # Time the image writing process
