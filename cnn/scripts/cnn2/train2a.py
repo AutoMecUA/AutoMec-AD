@@ -82,7 +82,7 @@ def main():
             
             # Change image and store the same angle, with some distortion, both in image and in angle (to increase robustness)
             # flipped
-            center_image_temp = np.expand_dims(cv2.flip(center_image, 1), axis=2)
+            #center_image_temp = np.expand_dims(cv2.flip(center_image, 1), axis=2)
             
             # images.append(center_image_temp)
             # angles.append(-float(line[1]))

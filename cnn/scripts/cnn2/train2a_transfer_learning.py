@@ -90,6 +90,7 @@ def main():
                 if k<limits[0] or k>limits[1]:
                     continue
 
+             
 
                 center_image = cv2.imread(image_path + line[0],0)
                 center_image = cv2.resize(center_image, (320, 160))
