@@ -4,6 +4,17 @@ import cv2
 from sensor_msgs.msg._Image import Image
 from cv_bridge.core import CvBridge
 import rospy
+import signal
+import sys
+
+
+def signal_handler(sig, frame):
+    # When everything is done, release the capture
+    print('The camera was released')
+    cap.release()
+    cv2.destroyAllWindows()
+    sys.exit(0)
+
 
 # Initiate the node
 rospy.init_node('physical_camera', anonymous=False)
@@ -18,6 +29,9 @@ cap = cv2.VideoCapture(int(int_camera_id))
 # Define publisher and rate
 Pub = rospy.Publisher(camera_topic, Image, queue_size=10)
 rate = rospy.Rate(30)
+
+# set handler on termination
+signal.signal(signal.SIGINT, signal_handler)
 
 while not rospy.is_shutdown():
     # Capture frame-by-frame
@@ -34,6 +48,4 @@ while not rospy.is_shutdown():
 
     rate.sleep()
 
-# When everything is done, release the capture
-cap.release()
-cv2.destroyAllWindows()
+
