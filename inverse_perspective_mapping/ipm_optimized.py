@@ -79,7 +79,7 @@ class IPM:
         self.t = np.matmul(self.K, cTr)
 
     def calculate_global_matrix(self):
-
+    
         global_matrix = np.zeros([4, 4])
         global_matrix[0:3, 0:3] = self.P
         global_matrix[0:2, 3] = None

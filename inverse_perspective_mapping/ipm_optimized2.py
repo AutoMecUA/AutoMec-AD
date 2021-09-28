@@ -106,8 +106,8 @@ class IPM():
 
         x_array_scaled = minmax_scale_x.fit_transform(x_array).astype((int))
         y_array_scaled = minmax_scale_y.fit_transform(y_array).astype((int))
-        self.x_array = x_array_scaled
-        self.y_array = y_array_scaled
+        self.x_array = tuple(x_array_scaled)
+        self.y_array = tuple(y_array_scaled)
 
     def calculate_output_image(self, img_in):
 
@@ -128,6 +128,8 @@ class IPM():
 def main():
     path = 'images/image1.png'
     img = cv2.imread(path, 2)  # gray image
+
+    img = cv2.resize(img, (400,300))
 
     dim = (img.shape[0], img.shape[1])
 

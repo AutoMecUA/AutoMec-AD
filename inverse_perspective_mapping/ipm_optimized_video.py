@@ -14,7 +14,7 @@ from sensor_msgs.msg._Image import Image
 from cv_bridge.core import CvBridge
 from datetime import datetime
 import pandas as pd
-from ipm_optimized import IPM
+from ipm_optimized2 import IPM
 from sklearn import preprocessing
 global ipm
 global bridge
@@ -41,7 +41,7 @@ def message_RGB_ReceivedCallback(message):
 
         cv2.imshow('initial_image', img_rbg)
         cv2.imshow('final_image', output_image.astype(np.uint8))
-        cv2.waitKey(0)
+        cv2.waitKey(1)
 
 
 
@@ -59,7 +59,7 @@ def main():
 
     #rospy.Subscriber('/ackermann_vehicle/camera/rgb/image_raw', Image, message_RGB_ReceivedCallback)
 
-    dim = (480,680)
+    dim = (400,300)
 
     config_intrinsic = {'fov_x' : 1.09,
                         'fov_y' : 1.09,
@@ -80,19 +80,21 @@ def main():
         gray = cv2.resize(frame, (dim[1],dim[0]))
         gray = cv2.cvtColor(gray, cv2.COLOR_BGR2GRAY)
         
-        print(gray.shape)
+        
      
         output_image = ipm.calculate_output_image(gray.astype(np.uint8))
 
         cv2.imshow('initial_image', frame)
         cv2.imshow('final_image', output_image.astype(np.uint8))
-        cv2.waitKey(0)
+
+        cv2.waitKey(1)
+        
 
 
   
 
 
-    rospy.spin()
+    
 
 
 
