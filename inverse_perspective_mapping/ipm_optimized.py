@@ -87,7 +87,7 @@ class IPM():
 
     def calculate_output_image(self, img_in):
 
-        aaa = datetime.now()
+        
         x_array = []
         y_array = []
         v_array =  []
