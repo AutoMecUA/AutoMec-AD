@@ -101,7 +101,7 @@ def main():
                 
                 # Change image and store the same angle, with some distortion, both in image and in angle (to increase robustness)
                 # flipped
-                center_image_temp = np.expand_dims(cv2.flip(center_image, 1), axis=2)
+                #center_image_temp = np.expand_dims(cv2.flip(center_image, 1), axis=2)
                 
                 # images.append(center_image_temp)
                 # angles.append(-float(line[1]))
@@ -118,8 +118,21 @@ def main():
         csvfile.close()
 
 
-        left_to_straight_ratio = total_straight_angles/total_left_angles
-        right_to_straight_ratio = total_straight_angles/total_right_angles
+        if total_left_angles == 0:
+            left_to_straight_ratio = None
+        else:
+            left_to_straight_ratio = total_straight_angles/total_left_angles
+
+        if total_right_angles == 0:
+            right_to_straight_ratio = None
+        else:
+            right_to_straight_ratio = total_straight_angles/total_right_angles
+
+
+
+
+        
+        
 
         #print('angles are: ' + str(list(angles)))
 
