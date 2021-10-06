@@ -57,13 +57,14 @@ def signalCallback(message):
 def main():
 
     # Global variables
-    global vel
+    global vel, velbool
     global img_rbg
     global bridge
     global begin_img
     global twist_linear_x
     begin_img = False
-
+    vel = 0
+    velbool = False
     twist = Twist()
 
     # Init Node

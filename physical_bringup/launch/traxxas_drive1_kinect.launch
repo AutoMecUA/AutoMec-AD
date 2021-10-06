@@ -1,8 +1,6 @@
 <launch>
 
     <arg name="model" default="" />
-    <arg name="float_cmd_topic" default="" />
-    <arg name="twist_linear_x" default="1" />
 
     <arg name="twist_dir_topic" default="/android_input_dir"/>
     <arg name="int_dir_topic" default="/pub_dir"/>
@@ -19,8 +17,6 @@
 
         <include file="$(find physical_bringup)/launch/modules/driving_cnn1.launch" >
             <arg name="model" value="$(arg model)"/>
-            <arg name="float_cmd_topic" value="$(arg float_cmd_topic)"/>
-            <arg name="twist_linear_x" value="$(arg twist_linear_x)"/>
             <arg name="vel_cmd_topic" value="$(arg vel_cmd_topic)"/>
             <arg name="image_raw_topic" value="$(arg image_raw_topic)"/>
         </include>
