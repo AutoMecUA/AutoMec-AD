@@ -17,4 +17,9 @@
         <arg name="bool_btn_topic" value="$(arg bool_btn_topic)"/>
     </include>
 
+    <include file="$(find freenect_launch)/launch/freenect.launch">
+        <arg name="depth_registration" value="true"/>
+    </include>
+
+
 </launch>

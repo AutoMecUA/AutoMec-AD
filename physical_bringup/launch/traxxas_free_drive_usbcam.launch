@@ -6,6 +6,9 @@
     <arg name="vel_cmd_topic" default="/android_input_vel"/>
     <arg name="bool_btn_topic" default="/android_input_velin"/>
 
+    <arg name="camera_topic" default="/real_camera"/>
+    <arg name="int_camera_id" default="2"/>
+
     <include file="$(find physical_bringup)/launch/modules/rosserial.launch" />
 
     <include file="$(find physical_bringup)/launch/modules/android_conversor.launch">
@@ -15,6 +18,11 @@
         <arg name="int_vel_max" value="$(arg int_vel_max)"/>
         <arg name="vel_cmd_topic" value="$(arg vel_cmd_topic)"/>
         <arg name="bool_btn_topic" value="$(arg bool_btn_topic)"/>
+    </include>
+
+    <include file="$(find physical_bringup)/launch/modules/lane_camera.launch">
+        <arg name="camera_topic" value="$(arg camera_topic)"/>
+        <arg name="int_camera_id" value="$(arg int_camera_id)"/>
     </include>
 
 </launch>
