@@ -40,10 +40,18 @@ def message_RGB_ReceivedCallback(message):
 
     begin_img = True
 
-def signal_Callback(message):
-    global vel
 
-    vel = message.data
+def signalCallback(message):
+    global vel
+    global velbool
+    global twist_linear_x
+
+    if message.data:
+        vel = twist_linear_x
+        velbool = True
+    else:
+        vel = 0
+        velbool = False
 
 
 def main():
@@ -53,6 +61,7 @@ def main():
     global img_rbg
     global bridge
     global begin_img
+    global twist_linear_x
     begin_img = False
 
     twist = Twist()
@@ -60,11 +69,11 @@ def main():
     # Init Node
     rospy.init_node('driving', anonymous=False)
 
-    image_raw_topic = rospy.get_param('~image_raw_topic', '/ackermann_vehicle/camera/rgb/image_raw') 
-    twist_cmd_topic = rospy.get_param('~twist_cmd_topic', '/cmd_vel') 
-    vel_cmd_topic = rospy.get_param('~vel_cmd_topic', '') 
+    image_raw_topic = rospy.get_param('~image_raw_topic', '/ackermann_vehicle/camera/rgb/image_raw')
+    twist_cmd_topic = rospy.get_param('~twist_cmd_topic', '')
+    vel_cmd_topic = rospy.get_param('~vel_cmd_topic', '')
     twist_linear_x = rospy.get_param('~twist_linear_x', 1)
-    float_cmd_topic = rospy.get_param('~float_cmd_topic', '') 
+    signal_cmd_topic = rospy.get_param('~signal_cmd_topic', '')
     modelname = rospy.get_param('~modelname', 'model1.h5')
 
     s = str(pathlib.Path(__file__).parent.absolute())
@@ -75,25 +84,25 @@ def main():
 
     # Subscribe and publish topics
     rospy.Subscriber(image_raw_topic, Image, message_RGB_ReceivedCallback)
-    
+
     # does we need to check float_cmd_topic ?
-    if float_cmd_topic != '':
-        vel = 0
-        rospy.Subscriber(float_cmd_topic, Float32, signal_Callback)
-    
-    vel = twist_linear_x
+    if signal_cmd_topic == '':
+        vel = twist_linear_x
+        velbool = True
+    else:
+        rospy.Subscriber(signal_cmd_topic, Bool, signalCallback)
 
-    pub = rospy.Publisher(twist_cmd_topic, Twist, queue_size=10)
+    if twist_cmd_topic != '':
+        pub = rospy.Publisher(twist_cmd_topic, Twist, queue_size=10)
 
-    # does we need to publish vel_cmd_topic ?
     if vel_cmd_topic != '':
         pub_velocity = rospy.Publisher(vel_cmd_topic, Bool, queue_size=10)
-        print('Boolean is on')
-    
+
+
     # Create an object of the CvBridge class
     bridge = CvBridge()
 
-    #Frames per second 
+    #Frames per second
     rate = rospy.Rate(30)
 
     while not rospy.is_shutdown():
@@ -114,17 +123,17 @@ def main():
 
         # Send twist
         twist.linear.x = vel
-        #twist.linear.x = 1
         twist.linear.y = 0
         twist.linear.z = 0
         twist.angular.x = 0
         twist.angular.y = 0
         twist.angular.z = angle
 
-        pub.publish(twist)
+        if twist_cmd_topic != '':
+            pub.publish(twist)
 
         if vel_cmd_topic != '':
-            pub_velocity.publish(True)
+            pub_velocity.publish(velbool)
 
         rate.sleep()
 

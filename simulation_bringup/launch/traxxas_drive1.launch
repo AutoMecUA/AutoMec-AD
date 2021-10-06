@@ -3,7 +3,6 @@
     <arg name="model" default="" />
     <arg name="urdf" default="robot04" />
     <arg name="world" default="arena1" />
-    <arg name="float_cmd_topic" default="" />
     <arg name="twist_linear_x" default="0.5" />
 
     <group if="$(eval arg('model') != '')">
@@ -17,7 +16,6 @@
 
         <include file="$(find simulation_bringup)/launch/modules/driving_cnn1.launch" >
             <arg name="model" value="$(arg model)"/>
-            <arg name="float_cmd_topic" value="$(arg float_cmd_topic)"/>
             <arg name="twist_linear_x" value="$(arg twist_linear_x)"/>
         </include>
 
