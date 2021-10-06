@@ -32,7 +32,7 @@
             <arg name="vel_cmd_topic" value="$(arg vel_cmd_topic)"/>
         </include>
 
-        <include file="$(find simulation_bringup)/launch/modules/signal_panel_recognition.launch">
+        <include file="$(find physical_bringup)/launch/modules/signal_panel_recognition.launch">
             <arg name="vel_cmd_topic" value="$(arg vel_cmd_topic)"/>
             <arg name="signal_cmd_topic" value="$(arg signal_cmd_topic)"/>
             <arg name="image_raw_topic" value="$(arg camera_topic)"/>
