@@ -24,7 +24,7 @@ global begin_img
 
 
 def preProcess(img):
-    # Define Region of intrest- Perguntar ao Daniel se corto ou não , problema do angulo da camera
+    # Define Region of interest
     #img = img[60:135, :, :]
 
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
