@@ -2,18 +2,29 @@
 
   <arg name="image_raw_topic" default="/ackermann_vehicle/camera/rgb/image_raw"/>
   <arg name="twist_cmd_topic" default="/cmd_vel"/>
+  <arg name="vel_cmd_topic" default=""/>
   <arg name="folder" default="set1"/>
   <arg name="rate" default="30"/>
   <arg name="width" default="320"/>
   <arg name="height" default="160"/>
+  <!-- only for yaml file -->
+  <arg name="cam_height" default=""/>
+  <arg name="cam_angle" default=""/>
+  <arg name="env" default=""/>
+  <arg name="vel" default="0"/>
 
     <node name="cnn_write" pkg="cnn" type="write.py" output="screen" required="true">
       <param name="image_raw_topic" value="$(arg image_raw_topic)"/>
       <param name="twist_cmd_topic" value="$(arg twist_cmd_topic)"/>
+      <param name="vel_cmd_topic" value="$(arg vel_cmd_topic)"/>
       <param name="folder" value="$(arg folder)"/>
       <param name="rate" value="$(arg rate)"/>
       <param name="width" value="$(arg width)"/>
       <param name="height" value="$(arg height)"/>
+      <param name="cam_height" value="$(arg cam_height)"/>
+      <param name="cam_angle" value="$(arg cam_angle)"/>
+      <param name="env" value="$(arg env)"/>
+      <param name="vel" value="$(arg vel)"/>
     </node>
 
 </launch>
