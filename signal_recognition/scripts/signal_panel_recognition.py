@@ -82,7 +82,9 @@ def main():
     global begin_img
     begin_img = False
     velbool = False
-
+    count_stop = 0
+    count_start = 0
+    count_max = 5
 
     # Init Node
     rospy.init_node('ml_driving', anonymous=False)
@@ -202,7 +204,7 @@ def main():
                      Image, message_RGB_ReceivedCallback)
 
 
-    rate = rospy.Rate(10)
+    rate = rospy.Rate(30)
 
     while not rospy.is_shutdown():
 
@@ -270,10 +272,19 @@ def main():
             # Defining and publishing the velocity of the car in regards to the signal seen
             if max_name == "pForward":
                 velbool = True
+                count_start = count_start + 1
+                count_stop = 0
             elif max_name == "pStop":
                 velbool = False
+                count_stop = count_stop + 1
+                count_start = 0
 
-        pubbool.publish(velbool)
+            if count_stop >= count_max or count_start >= count_max:
+                pubbool.publish(velbool)
+
+        else:
+            count_stop = 0
+            count_start = 0
 
         # Show image
         cv2.imshow("Frame", img_rbg)
