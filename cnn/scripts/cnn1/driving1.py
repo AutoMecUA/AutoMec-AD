@@ -23,7 +23,7 @@ global bridge
 global begin_img
 
 def preProcess(img):
-    # Define Region of intrest- Perguntar ao Daniel se corto ou não , problema do angulo da camera
+    # Define Region of interest
     #img = img[60:135, :, :]
     img = cv2.cvtColor(img, cv2.COLOR_RGB2YUV)
     img = cv2.GaussianBlur(img,  (3, 3), 0)
@@ -40,33 +40,48 @@ def message_RGB_ReceivedCallback(message):
 
     begin_img = True
 
-def signal_Callback(message):
-    global vel
 
-    vel = message.data
+def signalCallback(message):
+    global vel
+    global velbool
+    global twist_linear_x
+
+    # If we receive a positive message from the signal topic, we should go. If not, we should stop.
+    if message.data:
+        vel = twist_linear_x
+        velbool = True
+    else:
+        vel = 0
+        velbool = False
 
 
 def main():
 
     # Global variables
-    global vel
+    global vel, velbool
     global img_rbg
     global bridge
     global begin_img
-    begin_img = False
+    global twist_linear_x
 
+    # Defining starting values
+    begin_img = False
+    vel = 0
+    velbool = False
     twist = Twist()
 
     # Init Node
     rospy.init_node('driving', anonymous=False)
 
-    image_raw_topic = rospy.get_param('~image_raw_topic', '/ackermann_vehicle/camera/rgb/image_raw') 
-    twist_cmd_topic = rospy.get_param('~twist_cmd_topic', '/cmd_vel') 
-    vel_cmd_topic = rospy.get_param('~vel_cmd_topic', '') 
+    # Getting parameters
+    image_raw_topic = rospy.get_param('~image_raw_topic', '/ackermann_vehicle/camera/rgb/image_raw')
+    twist_cmd_topic = rospy.get_param('~twist_cmd_topic', '')
+    vel_cmd_topic = rospy.get_param('~vel_cmd_topic', '')
     twist_linear_x = rospy.get_param('~twist_linear_x', 1)
-    float_cmd_topic = rospy.get_param('~float_cmd_topic', '') 
+    signal_cmd_topic = rospy.get_param('~signal_cmd_topic', '')
     modelname = rospy.get_param('~modelname', 'model1.h5')
 
+    # Defining path to model
     s = str(pathlib.Path(__file__).parent.absolute())
     path = s + '/../../models/cnn1_' + modelname
 
@@ -75,25 +90,27 @@ def main():
 
     # Subscribe and publish topics
     rospy.Subscriber(image_raw_topic, Image, message_RGB_ReceivedCallback)
-    
-    # does we need to check float_cmd_topic ?
-    if float_cmd_topic != '':
-        vel = 0
-        rospy.Subscriber(float_cmd_topic, Float32, signal_Callback)
-    
-    vel = twist_linear_x
 
-    pub = rospy.Publisher(twist_cmd_topic, Twist, queue_size=10)
+    # If there is the signal topic, it should subscribe to it and act accordingly.
+    # If not, the velocity should be max.
+    if signal_cmd_topic == '':
+        vel = twist_linear_x
+        velbool = True
+    else:
+        rospy.Subscriber(signal_cmd_topic, Bool, signalCallback)
 
-    # does we need to publish vel_cmd_topic ?
+    # Differentiation between gazebo and real car
+    if twist_cmd_topic != '':
+        pub = rospy.Publisher(twist_cmd_topic, Twist, queue_size=10)
+
     if vel_cmd_topic != '':
         pub_velocity = rospy.Publisher(vel_cmd_topic, Bool, queue_size=10)
-        print('Boolean is on')
-    
+
+
     # Create an object of the CvBridge class
     bridge = CvBridge()
 
-    #Frames per second 
+    #Frames per second
     rate = rospy.Rate(30)
 
     while not rospy.is_shutdown():
@@ -114,17 +131,18 @@ def main():
 
         # Send twist
         twist.linear.x = vel
-        #twist.linear.x = 1
         twist.linear.y = 0
         twist.linear.z = 0
         twist.angular.x = 0
         twist.angular.y = 0
         twist.angular.z = angle
 
-        pub.publish(twist)
+        # To avoid any errors
+        if twist_cmd_topic != '':
+            pub.publish(twist)
 
         if vel_cmd_topic != '':
-            pub_velocity.publish(True)
+            pub_velocity.publish(velbool)
 
         rate.sleep()
 
