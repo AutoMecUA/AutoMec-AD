@@ -20,7 +20,7 @@ from sensor_msgs.msg._Image import Image
 from cv_bridge.core import CvBridge
 import numpy as np
 
-from lib.bev4points import bev
+from plib.bev4points import bev
 
 # Callback function to receive image
 def message_RGB_ReceivedCallback(message):
