@@ -5,6 +5,9 @@
   <arg name="batch_size" default="32"/>
   <arg name="folder" default="set1"/>
   <arg name="model" default="model1.h5"/>
+  <arg name="width" default="320"/>
+  <arg name="height" default="160"/>
+
 
   <!--
   <arg name="folder" default=""/>
@@ -17,6 +20,8 @@
       <param name="base_folder" value="$(arg folder)"/>
       <param name="modelname" value="$(arg model)"/>
       <param name="batch_size" value="$(arg batch_size)"/>
+      <param name="width" value="$(arg width)"/>
+      <param name="height" value="$(arg height)"/>
     </node>
   <!--</group>-->
   

@@ -3,7 +3,9 @@
     <arg name="model" default=""/>
     <arg name="urdf" default="robot04"/>
     <arg name="world" default="arena1"/>
-    <arg name="float_cmd_topic" default="/flt_cmd"/>
+    <arg name="twist_cmd_topic" default="/cmd_vel"/>
+    <arg name="vel_cmd_topic" default=""/>
+    <arg name="signal_cmd_topic" default="/signal_vel"/>
     <arg name="twist_linear_x" default="0.5" />
 
     <group if="$(eval arg('model') != '')">
@@ -15,13 +17,17 @@
             <arg name="urdf" value="$(arg urdf)"/>
         </include>
 
-        <include file="$(find simulation_bringup)/launch/modules/driving_cnn1.launch" >
+        <include file="$(find simulation_bringup)/launch/modules/driving_cnn2a.launch" >
             <arg name="model" value="$(arg model)"/>
-            <arg name="float_cmd_topic" value="$(arg float_cmd_topic)"/>
+            <arg name="twist_linear_x" value="$(arg twist_linear_x)"/>
+            <arg name="signal_cmd_topic" value="$(arg signal_cmd_topic)"/>
         </include>
 
         <include file="$(find simulation_bringup)/launch/modules/signal_panel_recognition.launch">
             <arg name="twist_linear_x" value="$(arg twist_linear_x)"/>
+            <arg name="vel_cmd_topic" value="$(arg vel_cmd_topic)"/>
+            <arg name="twist_cmd_topic" value="$(arg twist_cmd_topic)"/>
+            <arg name="signal_cmd_topic" value="$(arg signal_cmd_topic)"/>
         </include>
 
         <include file="$(find simulation_bringup)/launch/modules/twist_to_ackermann.launch" />

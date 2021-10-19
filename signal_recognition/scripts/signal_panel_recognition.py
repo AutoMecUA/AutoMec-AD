@@ -7,7 +7,7 @@ from csv import writer
 #import copy
 import numpy as np
 import rospy
-from std_msgs.msg import Float32
+from std_msgs.msg import Bool
 from geometry_msgs.msg._Twist import Twist
 from sensor_msgs.msg._Image import Image
 from cv_bridge.core import CvBridge
@@ -23,9 +23,6 @@ global begin_img
 
 # not used by now
 def preProcess(img):
-    # Define Region of intrest- Perguntar ao Daniel se corto ou não , problema do angulo da camera
-    #img = img[60:135, :, :]
-
     img = cv2.cvtColor(img, cv2.COLOR_RGB2YUV)
     img = cv2.GaussianBlur(img,  (3, 3), 0)
     img = cv2.resize(img, (200, 66))
@@ -92,16 +89,25 @@ def main():
     global bridge
     global begin_img
     begin_img = False
+    velbool = False
 
     #twist = Twist()
 
     # Init Node
     rospy.init_node('ml_driving', anonymous=False)
 
+    # Get parameters
     image_raw_topic = rospy.get_param('~image_raw_topic', '/ackermann_vehicle/camera2/rgb/image_raw') 
-    #twist_cmd_topic = rospy.get_param('~twist_cmd_topic', '/vel_cmd') 
-    float_cmd_topic = rospy.get_param('~float_cmd_topic', '/flt_cmd') 
+    twist_cmd_topic = rospy.get_param('~twist_cmd_topic', '/cmd_vel')
+    signal_cmd_topic = rospy.get_param('~signal_cmd_topic', '/signal_vel')
     twist_linear_x = rospy.get_param('~twist_linear_x', 0.5)
+    
+    # Create publishers
+    #if twist_cmd_topic!= "":
+        #pubtwist = rospy.Publisher(twist_cmd_topic, Twist, queue_size=10)
+
+    #if vel_cmd_topic!= "":
+    pubbool = rospy.Publisher(signal_cmd_topic, Bool, queue_size=10)
 
     # ______________________________________________________________________________
     
@@ -210,8 +216,7 @@ def main():
     # Subscribe and publish topics (only after CvBridge)
     rospy.Subscriber(image_raw_topic,
                      Image, message_RGB_ReceivedCallback)
-    #pub = rospy.Publisher(twist_cmd_topic, Twist, queue_size=10)
-    pubflt = rospy.Publisher(float_cmd_topic, Float32, queue_size=10)
+
 
     rate = rospy.Rate(10)
 
@@ -286,26 +291,24 @@ def main():
 
             # Defining and publishing the velocity of the car in regards to the signal seen
             if max_name == "pForward":
-                vel = twist_linear_x
+                velbool = True
             elif max_name == "pStop":
-                vel = 0
+                velbool = False
 
-        #print(max_res, max_key, vel)
+        # Send twist or bool
+        #if twist_cmd_topic != "":
+        #    twist.linear.x = vel
+        #    twist.linear.y = 0
+        #    twist.linear.z = 0
+        #    twist.angular.x = 0
+        #    twist.angular.y = 0
+        #    twist.angular.z = 0
+        #    pubtwist.publish(twist)
 
-        # Send float
-        flt = vel
+        #if vel_cmd_topic != "":
+        pubbool.publish(velbool)
 
-        # Send twist
-        #twist.linear.x = vel
-        #twist.linear.y = 0
-        #twist.linear.z = 0
-        #twist.angular.x = 0
-        #twist.angular.y = 0
-        #twist.angular.z = 0
-
-        #pub.publish(twist)
-        pubflt.publish(flt)
-
+        # Show image
         cv2.imshow("Frame", img_rbg)
         key = cv2.waitKey(1)
 
