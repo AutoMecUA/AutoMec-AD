@@ -4,7 +4,7 @@
   <arg name="twist_cmd_topic" default="/android_input_dir" />
   <arg name="vel_cmd_topic" default="android_input_vel" />
   <arg name="model" default="" />
-  <arg name="signal_cmd_topic" default="/signal_vel"/>
+  <arg name="signal_cmd_topic" default=""/>
   
   <include file="$(find cnn)/launch/driving2a.launch">
     <arg name="image_raw_topic" value="$(arg image_raw_topic)" />
