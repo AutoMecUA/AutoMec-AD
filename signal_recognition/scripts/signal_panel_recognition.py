@@ -13,6 +13,7 @@ import pandas as pd
 import signal
 import sys
 
+
 global img_rbg
 global bridge
 global begin_img
@@ -81,6 +82,10 @@ def main():
     global begin_img
     begin_img = False
     velbool = False
+    count_stop = 0
+    count_start = 0
+    count_max = 5
+
 
     # Init Node
     rospy.init_node('ml_driving', anonymous=False)
@@ -258,7 +263,7 @@ def main():
         # add image, angle and velocity to the driving_log pandas
         row = pd.DataFrame([[time_str, max_name, max_res]], columns=['Time', 'Signal', 'Recognition'])
         driving_log = driving_log.append(row, ignore_index=True)
-
+        
         if max_res > detection_threshold:
 
             max_width = int(dict_images[max_name]['images'][max_key].shape[1] / scale_cap)
@@ -282,11 +287,19 @@ def main():
             # Defining and publishing the velocity of the car in regards to the signal seen
             if max_name == "pForward":
                 velbool = True
+                count_start = count_start + 1
+                count_stop = 0
             elif max_name == "pStop":
                 velbool = False
+                count_stop = count_stop + 1
+                count_start = 0
 
-        # Send bool
-        pubbool.publish(velbool)
+            if count_stop >= count_max or count_start >= count_max:
+                pubbool.publish(velbool)
+
+        else:
+            count_stop = 0
+            count_start = 0
 
         # Show image
         cv2.imshow("Frame", img_rbg)
