@@ -1,0 +1,29 @@
+<launch>
+
+    <arg name="folder" default="set1"/>
+    <arg name="urdf" default="robot04"/>
+    <arg name="world" default="arena1"/>
+    <arg name="vel" default="0.5"/>
+    <arg name="imgtopic" default="/bev"/>
+
+
+    <include file="$(find simulation_bringup)/launch/modules/arena.launch" >
+        <arg name="world" value="$(arg world)"/>
+    </include>
+
+    <include file="$(find simulation_bringup)/launch/modules/traxxas_robot.launch" >
+        <arg name="urdf" value="$(arg urdf)"/>
+    </include>
+
+    <include file="$(find simulation_bringup)/launch/modules/cmd_vel.launch" >
+        <arg name="linear_default" value="$(arg vel)"/>
+    </include>
+
+    <include file="$(find simulation_bringup)/launch/modules/write_cnn.launch" >
+        <arg name="folder" value="$(arg folder)"/>
+        <arg name="image_raw_topic" value="$(arg imgtopic)"/>
+    </include>
+
+    <include file="$(find simulation_bringup)/launch/modules/twist_to_ackermann.launch" />
+
+</launch>
