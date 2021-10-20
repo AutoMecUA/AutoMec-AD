@@ -187,7 +187,7 @@ def main():
                      Image, message_RGB_ReceivedCallback)
 
 
-    rate = rospy.Rate(10)
+    rate = rospy.Rate(30)
 
     while not rospy.is_shutdown():
 
