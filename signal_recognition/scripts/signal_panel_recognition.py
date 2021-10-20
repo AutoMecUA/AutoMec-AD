@@ -1,34 +1,17 @@
 #!/usr/bin/env python3
 
 # Imports
-#import argparse
 import cv2
-from csv import writer
-#import copy
 import numpy as np
 import rospy
 from std_msgs.msg import Bool
-from geometry_msgs.msg._Twist import Twist
 from sensor_msgs.msg._Image import Image
 from cv_bridge.core import CvBridge
-from datetime import datetime
-#from tensorflow.keras.models import load_model
 import pathlib
-#import os
-#import string
 
 global img_rbg
 global bridge
 global begin_img
-
-# not used by now
-def preProcess(img):
-    img = cv2.cvtColor(img, cv2.COLOR_RGB2YUV)
-    img = cv2.GaussianBlur(img,  (3, 3), 0)
-    img = cv2.resize(img, (200, 66))
-    img = img/255
-
-    return img
 
 
 def message_RGB_ReceivedCallback(message):
@@ -48,7 +31,6 @@ def main():
     # Import Parameters
     scale_import = 0.1  # The scale of the first image, related to the imported one.
     N_red = 2  # Number of piramidizations to apply to each image.
-    factor_red = 0.8
 
     # Font Parameters
     subtitle_offset = -10
@@ -62,12 +44,8 @@ def main():
     line_thickness = 3
 
     # Detection Parameters
-
     scale_cap = 0.4
     detection_threshold = 0.85
-
-    # Initial velocity
-    vel = 0
 
     # ______________________________________________________________________________
 
@@ -91,22 +69,14 @@ def main():
     begin_img = False
     velbool = False
 
-    #twist = Twist()
-
     # Init Node
     rospy.init_node('ml_driving', anonymous=False)
 
     # Get parameters
-    image_raw_topic = rospy.get_param('~image_raw_topic', '/ackermann_vehicle/camera2/rgb/image_raw') 
-    twist_cmd_topic = rospy.get_param('~twist_cmd_topic', '/cmd_vel')
+    image_raw_topic = rospy.get_param('~image_raw_topic', '/ackermann_vehicle/camera2/rgb/image_raw')
     signal_cmd_topic = rospy.get_param('~signal_cmd_topic', '/signal_vel')
-    twist_linear_x = rospy.get_param('~twist_linear_x', 0.5)
     
     # Create publishers
-    #if twist_cmd_topic!= "":
-        #pubtwist = rospy.Publisher(twist_cmd_topic, Twist, queue_size=10)
-
-    #if vel_cmd_topic!= "":
     pubbool = rospy.Publisher(signal_cmd_topic, Bool, queue_size=10)
 
     # ______________________________________________________________________________
@@ -205,7 +175,6 @@ def main():
     for name in dict_images.keys():
         for key in dict_images[name]['images']:
             dict_images[name]['images'][key] = cv2.GaussianBlur(dict_images[name]['images'][key], (3, 3), 0)
-            #cv2.imshow(name + ' ' + key, dict_images[name]['images'][key])
 
     # ______________________________________________________________________________
 
@@ -225,11 +194,8 @@ def main():
         if begin_img == False:
             continue
 
-        #resized_ = preProcess(img_rbg)
-
         width_frame = img_rbg.shape[1]
         height_frame = img_rbg.shape[0]
-        #default_dim = (width_frame, height_frame)
         reduced_dim = (int(width_frame * scale_cap), int(height_frame * scale_cap))
         frame = cv2.resize(img_rbg, reduced_dim)
 
@@ -243,11 +209,6 @@ def main():
         max_name = ''
         max_key = ''
 
-
-        ##cv2.imshow('Robot View Processed', resized_)
-        #cv2.imshow('Robot View', img_rbg)
-        #cv2.imshow('Robot View used', frame)
-        #cv2.waitKey(1)
 
         # For each image:
         for name in dict_images.keys():
@@ -264,13 +225,11 @@ def main():
                     max_name = name
                     max_key = key
 
-        #print (max_res, max_key)
 
         if max_res > detection_threshold:
 
             max_width = int(dict_images[max_name]['images'][max_key].shape[1] / scale_cap)
             max_height = int(dict_images[max_name]['images'][max_key].shape[0] / scale_cap)
-            max_dim = (max_width, max_height)
 
             for pt in zip(*max_loc[::-1]):
                 pt = tuple(int(pti / scale_cap) for pti in pt)
@@ -278,8 +237,6 @@ def main():
                             dict_colors.get(dict_images[max_name]['color']), line_thickness)
                 text = 'Detected: ' + max_name + ' ' + max_key + ' > ' + dict_images[max_name]['type'] + ': ' + \
                     dict_images[max_name]['title']
-                
-                #print(text)
 
                 origin = (pt[0], pt[1] + subtitle_offset)
                 origin_2 = (0, height_frame + subtitle_2_offset)
@@ -295,17 +252,7 @@ def main():
             elif max_name == "pStop":
                 velbool = False
 
-        # Send twist or bool
-        #if twist_cmd_topic != "":
-        #    twist.linear.x = vel
-        #    twist.linear.y = 0
-        #    twist.linear.z = 0
-        #    twist.angular.x = 0
-        #    twist.angular.y = 0
-        #    twist.angular.z = 0
-        #    pubtwist.publish(twist)
-
-        #if vel_cmd_topic != "":
+        # Send bool
         pubbool.publish(velbool)
 
         # Show image
