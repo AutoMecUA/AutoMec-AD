@@ -34,8 +34,10 @@ def signal_handler(sig, frame):
     global log_path
 
     rospy.loginfo('You pressed Ctrl+C!')
-    signal_log.to_csv(log_path + '/signal_log.csv', mode='a', index=False, header=False)
-    print(signal_log)
+    curr_time = datetime.now()
+    time_str = str(curr_time.year) + '_' + str(curr_time.month) + '_' + str(curr_time.day) + '__' + str(
+        curr_time.hour) + '_' + str(curr_time.minute)
+    signal_log.to_csv(log_path + '/signal_log_' + time_str + '.csv', mode='a', index=False, header=False)
     sys.exit(0)
 
 def main():
