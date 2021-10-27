@@ -12,6 +12,7 @@ from datetime import datetime
 import pandas as pd
 import signal
 import sys
+import os
 
 
 global img_rbg
@@ -104,6 +105,10 @@ def main():
     s = str(pathlib.Path(__file__).parent.absolute())
     log_path = s + '/log/'
     rospy.loginfo(log_path)
+
+    # If the path does not exist, create it
+    if not os.path.exists(log_path):
+        os.makedirs(log_path)
 
     # Create pandas dataframe
     signal_log = pd.DataFrame(columns=['Time', 'Signal', 'Resolution'])
@@ -264,7 +269,9 @@ def main():
             curr_time.hour) + '_' + str(curr_time.minute) + '_' + str(curr_time.second) + '__' + str(
             curr_time.microsecond)
         # add image, angle and velocity to the signal_log pandas
-        row = pd.DataFrame([[time_str, max_name, max_res]], columns=['Time', 'Signal', 'Resolution'])
+        max_res_round = round(max_res, 3)
+        print(max_res_round)
+        row = pd.DataFrame([[time_str, max_name, max_res_round]], columns=['Time', 'Signal', 'Resolution'])
         signal_log = signal_log.append(row, ignore_index=True)
         
         if max_res > detection_threshold:
