@@ -93,7 +93,7 @@
     <color rgba="0 1 0 1"/>
   </material>
 
-  <xacro:include filename="$(find traxxas_description)/urdf/robot05.gazebo.macro.xacro"/>
+  <xacro:include filename="$(find traxxas_description)/urdf/robot05_test.gazebo.macro.xacro"/>
 
   <!-- Null inertial element. This is needed to make the model work with
        Gazebo. -->

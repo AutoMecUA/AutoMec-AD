@@ -2,6 +2,7 @@
     <arg name="urdf" default="robot05"/>
     <arg name="world" default="arena1"/>
     <arg name="vel" default="0.5"/>
+    <arg name="image_raw_topic" default="/3d_image/image_raw"
 
     <include file="$(find simulation_bringup)/launch/modules/arena.launch" >
         <arg name="world" value="$(arg world)"/>
