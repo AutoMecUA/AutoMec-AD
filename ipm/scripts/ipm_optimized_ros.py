@@ -27,7 +27,6 @@ def message_RGB_ReceivedCallback(message):
 def message_Info_ReceivedCallback(message):
     # Defining global variables
     global K
-    global R
     global height, width
     global seeinfo
 
@@ -35,11 +34,6 @@ def message_Info_ReceivedCallback(message):
     K_tu = message.K
     K_norm = ([K_tu[0], K_tu[1], K_tu[2]], [K_tu[3], K_tu[4], K_tu[5]], [K_tu[6], K_tu[7], K_tu[8]])
     K = np.asarray(K_norm)
-
-    # Retrieving intrinsic matrix and converting it
-    R_tu = message.R
-    R_norm = ([R_tu[0], R_tu[1], R_tu[2]], [R_tu[3], R_tu[4], R_tu[5]], [R_tu[6], R_tu[7], R_tu[8]])
-    R = np.asarray(R_norm)
 
     # Retrieving heigth and width
     height = message.height
@@ -52,7 +46,6 @@ def message_Info_ReceivedCallback(message):
 def main():
     global bridge
     global K
-    global R
     global height, width
     global img_rgb
     global seeimage, seeinfo
@@ -60,6 +53,7 @@ def main():
     # Defining variables
     bridge = CvBridge()
     cam_height = 0.547
+    yaw = 0.6
     seeimage = False
     seeinfo = False
 
@@ -90,7 +84,7 @@ def main():
         rospy.loginfo('Received camera image')
 
         # Defining IPM
-        ipm = ipm_class_ros.IPM(height=height, width=width, K=K, R=R, cam_height=cam_height)
+        ipm = ipm_class_ros.IPM(height=height, width=width, K=K, yaw=yaw, cam_height=cam_height)
 
         # Converting to grayscale
         gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
