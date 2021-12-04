@@ -11,12 +11,12 @@ class IPM():
         Class to do IPM (Inverse Perspective Mapping). The objetive is to get a BEV (Bird's Eye View) image
     """
 
-    def __init__(self, height, width, K, R, cam_height):
+    def __init__(self, width, height, K, R, cam_height):
         """
         Initiating the class, retrieving the variables, and calling needed functions
         """
-        self.height = height
         self.width = width
+        self.height = height
 
         self.K = K
         self.R = R
@@ -66,8 +66,8 @@ class IPM():
         v_array = []
 
         index_point = 0
-        for x in range(0, self.width):
-            for y in range(0, self.height):
+        for x in range(0, self.height):
+            for y in range(0, self.width):
                 self.A[0, 3] = -x
                 self.A[1, 3] = -y
 
@@ -75,8 +75,8 @@ class IPM():
                 x_array.append(X)
                 y_array.append(Y)
 
-        minmax_scale_x = preprocessing.MinMaxScaler(feature_range=(0, self.width - 1))
-        minmax_scale_y = preprocessing.MinMaxScaler(feature_range=(0, self.height - 1))
+        minmax_scale_x = preprocessing.MinMaxScaler(feature_range=(0, self.height - 1))
+        minmax_scale_y = preprocessing.MinMaxScaler(feature_range=(0, self.width - 1))
 
         x_array_scaled = minmax_scale_x.fit_transform(x_array).astype((int))
         y_array_scaled = minmax_scale_y.fit_transform(y_array).astype((int))
@@ -89,7 +89,7 @@ class IPM():
         _t0 = time.time()
 
         v_array = np.array(img_in).ravel()
-        output_image = np.zeros([self.width, self.height])
+        output_image = np.zeros([self.height, self.width])
 
         for i in range(0, len(self.x_array)):
             output_image[self.x_array[i], self.y_array[i]] = v_array[i]
