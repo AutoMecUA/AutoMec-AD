@@ -1,12 +1,25 @@
 #!/usr/bin/env python3
 
-# Imports
 import cv2
 import numpy as np
 import rospy
 from sensor_msgs.msg import Image, CameraInfo
 from cv_bridge.core import CvBridge
 from lib import ipm_class_ros
+
+# Debugging mode
+# If set, start the debug server before this program (otherwise, error 111)
+debug_mode: bool = True
+try:
+    import pydevd_pycharm
+except ModuleNotFoundError:
+    # If module is not installed, this mode can't be set
+    debug_mode = False
+
+global ipm
+global bridge
+global begin
+
 
 # Callback function to receive image
 def message_RGB_ReceivedCallback(message):
@@ -38,7 +51,7 @@ def message_Info_ReceivedCallback(message):
     # Retrieving heigth and width
     height = message.height
     width = message.width
-    
+
     # Setting the variable as true
     seeinfo = True
 
@@ -67,6 +80,11 @@ def main():
     # Subscribing to both topics
     rospy.Subscriber(image_info_topic, CameraInfo, message_Info_ReceivedCallback)
     rospy.Subscriber(image_raw_topic, Image, message_RGB_ReceivedCallback)
+
+    # Debug settrace
+    if debug_mode:
+        pydevd_pycharm.settrace('localhost', port=5005,
+                                stdoutToServer=True, stderrToServer=True, suspend=False)
 
     # Continuous running
     while not rospy.is_shutdown():
