@@ -54,7 +54,7 @@ def main():
     # Defining variables
     bridge = CvBridge()
     cam_height = 0.547
-    yaw = 0.6
+    rpy = (0, 0.6, 0)
     seeimage = False
     seeinfo = False
 
@@ -94,7 +94,7 @@ def main():
         rospy.loginfo('Received camera image')
 
         # Defining IPM
-        ipm = ipm_class_ros.IPM(height=height, width=width, K=K, yaw=yaw, cam_height=cam_height)
+        ipm = ipm_class_ros.IPM(height=height, width=width, K=K, rpy=rpy, cam_height=cam_height)
 
         # Converting to grayscale
         gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
