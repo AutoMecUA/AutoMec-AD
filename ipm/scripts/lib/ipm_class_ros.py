@@ -2,7 +2,6 @@
 
 import time
 import numpy as np
-from math import sin, cos
 from sklearn import preprocessing
 import scipy.spatial.transform as transf
 
@@ -11,18 +10,19 @@ class IPM():
         Class to do IPM (Inverse Perspective Mapping). The objetive is to get a BEV (Bird's Eye View) image
     """
 
-    def __init__(self, width, height, K, rpy, cam_height):
+    def __init__(self, width, height, K, pose):
         """
         Initiating the class, retrieving the variables, and calling needed functions
         """
+
+        # Defining class variables
         self.width = width
         self.height = height
-
         self.K = K
-        self.rpy = rpy
+        self.XYZ = (pose['X'], pose['Y'], pose['Z'])
+        self.rpy = (pose['r'], pose['p'], pose['y'])
 
-        self.cam_height = cam_height
-
+        # Calling functions
         self.calculate_extrinsic_matrix()
         self.calculate_global_matrix()
         self.calculate_A_const()
@@ -33,13 +33,13 @@ class IPM():
         From world parameters, calculate the extrinsic matrix
         """
 
-        cTr = np.zeros([3, 1])
+        # Defining translation vector
+        cTr = np.vstack(self.XYZ)
 
-        # Creating rotation matrix
+        # Defining rotation matrix
         cRr = transf.Rotation.from_rotvec(np.asarray(self.rpy)).as_matrix()
 
-        cTr[2] = self.cam_height
-
+        # Multiplying by the intrinsic matrix
         self.P = np.matmul(self.K, cRr)
         self.t = np.matmul(self.K, cTr)
 
