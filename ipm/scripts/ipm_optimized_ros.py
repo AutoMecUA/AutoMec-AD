@@ -7,6 +7,68 @@ import pydevd_pycharm
 from sensor_msgs.msg import Image, CameraInfo
 from cv_bridge.core import CvBridge
 from lib import ipm_class_ros
+from math import pi
+
+roll: float = .0
+pitch: float = .6
+yaw: float = .0
+x: float = .0
+y: float = .0
+z: float = .547
+
+
+def on_change_roll(value: float):
+    """
+    Change the yaw variable
+    """
+    global roll
+    # yaw = value
+    roll = value
+
+
+def on_change_pitch(value: float):
+    """
+    Change the yaw variable
+    """
+    global pitch
+    # yaw = value
+    pitch = value
+
+
+def on_change_yaw(value: float):
+    """
+    Change the yaw variable
+    """
+    global yaw
+    # yaw = value
+    yaw = value
+
+
+def on_change_x(value: float):
+    """
+    Change the yaw variable
+    """
+    global x
+    # yaw = value
+    x = value
+
+
+def on_change_y(value: float):
+    """
+    Change the yaw variable
+    """
+    global y
+    # yaw = value
+    y = value
+
+
+def on_change_z(value: float):
+    """
+    Change the z variable
+    """
+    global z
+    # yaw = value
+    z = value
 
 
 # Callback function to receive image
@@ -50,10 +112,13 @@ def main():
     global height, width
     global img_rgb
     global seeimage, seeinfo
+    # Pose parameters
+    global roll, pitch, yaw, x, y, z
 
     # Defining variables
     bridge = CvBridge()
-    pose = dict(X=.0, Y=.0, Z=.547, r=.0, p=.6, y=.0)
+
+    pose = dict(X=x, Y=y, Z=z, r=roll, p=pitch, y=yaw)
     seeimage = False
     seeinfo = False
 
@@ -70,12 +135,9 @@ def main():
         pydevd_pycharm.settrace('localhost', port=5005,
                                 stdoutToServer=True, stderrToServer=True, suspend=False)
 
-
-
     # Subscribing to both topics
     rospy.Subscriber(image_info_topic, CameraInfo, message_Info_ReceivedCallback)
     rospy.Subscriber(image_raw_topic, Image, message_RGB_ReceivedCallback)
-
 
     # Continuous running
     while not rospy.is_shutdown():
@@ -103,9 +165,18 @@ def main():
 
         # Showing image
         cv2.imshow('initial_image', img_rgb)
-        cv2.imshow('final_image', output_image.astype(np.uint8))
-        cv2.waitKey(1)
+        cv2.imshow(winname='final_image', mat=output_image.astype(np.uint8))
+        # Sliders parametrize each pose's parameter
+        # FIXME actual sliders don't move
+        # TODO check for way to accept float input or else do a workaround
+        cv2.createTrackbar('roll', "final_image", 0, int(2.0*pi), on_change_roll)
+        cv2.createTrackbar('pitch', "final_image", 0, int(2.0*pi), on_change_pitch)
+        cv2.createTrackbar('yaw', "final_image", 0, int(2.0*pi), on_change_yaw)
+        cv2.createTrackbar('x', "final_image", 0, 1, on_change_x)
+        cv2.createTrackbar('y', "final_image", 0, 1, on_change_y)
+        cv2.createTrackbar('z', "final_image", 0, 1, on_change_z)
 
+        cv2.waitKey(1)
 
 
 if __name__ == "__main__":
