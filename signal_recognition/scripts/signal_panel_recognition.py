@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 # Imports
+import copy
+
 import cv2
 import numpy as np
 import rospy
@@ -13,12 +15,41 @@ import pandas as pd
 import signal
 import sys
 import os
-
+import json
 
 global img_rbg
 global bridge
 global begin_img
 
+def createMask(ranges_red, ranges_green, image):
+    """
+    Using a dictionary wth ranges, create a mask of an image respecting those ranges
+    :param ranges_red: Dictionary generated in color_segmenter.py
+    :param ranges_red: Dictionary generated in color_segmenter.py
+    :param image: Cv2 image - UInt8
+    :return mask: Cv2 image - UInt8
+    """
+
+    # Create an array for minimum and maximum values
+    mins_red = np.array([ranges_red['B']['min'], ranges_red['G']['min'], ranges_red['R']['min']])
+    maxs_red = np.array([ranges_red['B']['max'], ranges_red['G']['max'], ranges_red['R']['max']])
+
+    # Create a mask using the previously created array
+    mask_red = cv2.inRange(image, mins_red, maxs_red)
+
+    # Create an array for minimum and maximum values
+    mins_green = np.array([ranges_green['B']['min'], ranges_green['G']['min'], ranges_green['R']['min']])
+    maxs_green = np.array([ranges_green['B']['max'], ranges_green['G']['max'], ranges_green['R']['max']])
+
+    # Create a mask using the previously created array
+    mask_green = cv2.inRange(image, mins_green, maxs_green)
+
+    # Unite the mask
+    mask = np.zeros((image.shape[0], image.shape[1]))
+    mask[mask_green.astype(np.bool)] = 1
+    mask[mask_red.astype(np.bool)] = 1
+
+    return mask.astype(np.bool)
 
 def message_RGB_ReceivedCallback(message):
     global img_rbg
@@ -90,7 +121,6 @@ def main():
     count_start = 0
     count_max = 5
 
-
     # Init Node
     rospy.init_node('ml_driving', anonymous=False)
 
@@ -109,6 +139,14 @@ def main():
     # If the path does not exist, create it
     if not os.path.exists(log_path):
         os.makedirs(log_path)
+
+    # Defining limits
+    with open(log_path + 'limits_green.json') as file_handle:
+        # returns JSON object as a dictionary
+        limits_green = json.load(file_handle)
+    with open(log_path + 'limits_red.json') as file_handle:
+        # returns JSON object as a dictionary
+        limits_red = json.load(file_handle)
 
     # Create pandas dataframe
     signal_log = pd.DataFrame(columns=['Time', 'Signal', 'Resolution'])
@@ -218,11 +256,9 @@ def main():
     # Create an object of the CvBridge class
     bridge = CvBridge()
 
-
     # Subscribe and publish topics (only after CvBridge)
     rospy.Subscriber(image_raw_topic,
                      Image, message_RGB_ReceivedCallback)
-
 
     rate = rospy.Rate(30)
 
@@ -234,10 +270,23 @@ def main():
         width_frame = img_rbg.shape[1]
         height_frame = img_rbg.shape[0]
         reduced_dim = (int(width_frame * scale_cap), int(height_frame * scale_cap))
-        frame = cv2.resize(img_rbg, reduced_dim)
+
+        # Creating mask
+        mask_frame = createMask(limits_red, limits_green, img_rbg)
+
+        # Creating masked image
+        img_rbg_masked = copy.deepcopy(img_rbg)
+        img_rbg_masked[~mask_frame] = 0
+
+        # Resizing the image
+        frame = cv2.resize(img_rbg_masked, reduced_dim)
 
         # Converting to a grayscale frame
         gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+
+
+
 
         res = 0
         loc = 0
@@ -313,6 +362,7 @@ def main():
 
         # Show image
         cv2.imshow("Frame", img_rbg)
+        cv2.imshow("Frame Masked", img_rbg_masked)
         key = cv2.waitKey(1)
 
         rate.sleep()
