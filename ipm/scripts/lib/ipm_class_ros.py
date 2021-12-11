@@ -4,8 +4,10 @@ import time
 import numpy as np
 from sklearn import preprocessing
 import scipy.spatial.transform as transf
+import profile
 
-class IPM():
+
+class IPM:
     """
         Class to do IPM (Inverse Perspective Mapping). The objetive is to get a BEV (Bird's Eye View) image
     """
@@ -26,7 +28,6 @@ class IPM():
         self.calculate_extrinsic_matrix()
         self.calculate_global_matrix()
         self.calculate_A_const()
-
 
     def calculate_extrinsic_matrix(self):
         """

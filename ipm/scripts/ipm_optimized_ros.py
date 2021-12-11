@@ -6,6 +6,8 @@ import rospy
 import pydevd_pycharm
 from sensor_msgs.msg import Image, CameraInfo
 from cv_bridge.core import CvBridge
+from typing import Tuple
+
 from lib import ipm_class_ros
 from math import pi
 
@@ -16,14 +18,20 @@ x: float = .0
 y: float = .0
 z: float = .547
 
+# Pose parameters' scope constants (min,max)
+RPY_RANGE: Tuple[float, float] = (.0, 2 * pi)
+XY_RANGE: Tuple[float, float] = (-10., 10.)
+Z_RANGE: Tuple[float, float] = (-3., 3.)
 
-def on_change_roll(value: float):
+
+def on_change_roll(value: int):
     """
     Change the yaw variable
     """
     global roll
-    # yaw = value
-    roll = value
+    # value is contained in [0, 100] (%)
+    # Roll value is calculated from the percentage between min and max values (0% -> roll = min)
+    roll = (value / 100.) * (RPY_RANGE[1] - RPY_RANGE[0]) + RPY_RANGE[0]
 
 
 def on_change_pitch(value: float):
@@ -31,8 +39,9 @@ def on_change_pitch(value: float):
     Change the yaw variable
     """
     global pitch
-    # yaw = value
-    pitch = value
+    # value is contained in [0, 100] (%)
+    # Pitch value is calculated from the percentage between min and max values (0% -> roll = min)
+    pitch = (value / 100.) * (RPY_RANGE[1] - RPY_RANGE[0]) + RPY_RANGE[0]
 
 
 def on_change_yaw(value: float):
@@ -40,8 +49,9 @@ def on_change_yaw(value: float):
     Change the yaw variable
     """
     global yaw
-    # yaw = value
-    yaw = value
+    # value is contained in [0, 100] (%)
+    # Yaw value is calculated from the percentage between min and max values (0% -> roll = min)
+    yaw = (value / 100.) * (RPY_RANGE[1] - RPY_RANGE[0]) + RPY_RANGE[0]
 
 
 def on_change_x(value: float):
@@ -49,8 +59,9 @@ def on_change_x(value: float):
     Change the yaw variable
     """
     global x
-    # yaw = value
-    x = value
+    # value is contained in [0, 100] (%)
+    # X value is calculated from the percentage between min and max values (0% -> roll = min)
+    x = (value / 100.) * (XY_RANGE[1] - XY_RANGE[0]) + XY_RANGE[0]
 
 
 def on_change_y(value: float):
@@ -58,8 +69,9 @@ def on_change_y(value: float):
     Change the yaw variable
     """
     global y
-    # yaw = value
-    y = value
+    # value is contained in [0, 100] (%)
+    # Y value is calculated from the percentage between min and max values (0% -> roll = min)
+    y = (value / 100.) * (XY_RANGE[1] - XY_RANGE[0]) + XY_RANGE[0]
 
 
 def on_change_z(value: float):
@@ -67,8 +79,9 @@ def on_change_z(value: float):
     Change the z variable
     """
     global z
-    # yaw = value
-    z = value
+    # value is contained in [0, 100] (%)
+    # Z value is calculated from the percentage between min and max values (0% -> roll = min)
+    z = (value / 100.) * (Z_RANGE[1] - Z_RANGE[0]) + Z_RANGE[0]
 
 
 # Callback function to receive image
@@ -132,8 +145,12 @@ def main():
 
     # Debug settrace
     if bool(debug_mode):
-        pydevd_pycharm.settrace('localhost', port=5005,
-                                stdoutToServer=True, stderrToServer=True, suspend=False)
+        try:
+            pydevd_pycharm.settrace('localhost', port=5005,
+                                    stdoutToServer=True, stderrToServer=True, suspend=False)
+        except ConnectionRefusedError:
+            rospy.logwarn("Didn't find any debug server (Errno 111: Connection refused). "
+                          "Make sure you launch it before this script.")
 
     # Subscribing to both topics
     rospy.Subscriber(image_info_topic, CameraInfo, message_Info_ReceivedCallback)
@@ -166,15 +183,15 @@ def main():
         # Showing image
         cv2.imshow('initial_image', img_rgb)
         cv2.imshow(winname='final_image', mat=output_image.astype(np.uint8))
-        # Sliders parametrize each pose's parameter
+        # Sliders parametrize pose's each parameter
         # FIXME actual sliders don't move
         # TODO check for way to accept float input or else do a workaround
-        cv2.createTrackbar('roll', "final_image", 0, int(2.0*pi), on_change_roll)
-        cv2.createTrackbar('pitch', "final_image", 0, int(2.0*pi), on_change_pitch)
-        cv2.createTrackbar('yaw', "final_image", 0, int(2.0*pi), on_change_yaw)
-        cv2.createTrackbar('x', "final_image", 0, 1, on_change_x)
-        cv2.createTrackbar('y', "final_image", 0, 1, on_change_y)
-        cv2.createTrackbar('z', "final_image", 0, 1, on_change_z)
+        cv2.createTrackbar('roll', "final_image", 0, 100, on_change_roll)
+        cv2.createTrackbar('pitch', "final_image", 0, 100, on_change_pitch)
+        cv2.createTrackbar('yaw', "final_image", 0, 100, on_change_yaw)
+        cv2.createTrackbar('x', "final_image", 0, 100, on_change_x)
+        cv2.createTrackbar('y', "final_image", 0, 100, on_change_y)
+        cv2.createTrackbar('z', "final_image", 0, 100, on_change_z)
 
         cv2.waitKey(1)
 
