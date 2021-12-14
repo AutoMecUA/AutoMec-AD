@@ -127,7 +127,8 @@ def main():
     # Get parameters
     image_raw_topic = rospy.get_param('~image_raw_topic', '/ackermann_vehicle/camera2/rgb/image_raw')
     signal_cmd_topic = rospy.get_param('~signal_cmd_topic', '/signal_vel')
-    
+    mask_mode = rospy.get_param('~mask_mode', 'False')
+
     # Create publishers
     pubbool = rospy.Publisher(signal_cmd_topic, Bool, queue_size=10)
 
@@ -141,12 +142,13 @@ def main():
         os.makedirs(log_path)
 
     # Defining limits
-    with open(log_path + 'limits_green.json') as file_handle:
-        # returns JSON object as a dictionary
-        limits_green = json.load(file_handle)
-    with open(log_path + 'limits_red.json') as file_handle:
-        # returns JSON object as a dictionary
-        limits_red = json.load(file_handle)
+    if mask_mode:
+        with open(log_path + 'limits_green.json') as file_handle:
+            # returns JSON object as a dictionary
+            limits_green = json.load(file_handle)
+        with open(log_path + 'limits_red.json') as file_handle:
+            # returns JSON object as a dictionary
+            limits_red = json.load(file_handle)
 
     # Create pandas dataframe
     signal_log = pd.DataFrame(columns=['Time', 'Signal', 'Resolution'])
@@ -271,22 +273,22 @@ def main():
         height_frame = img_rbg.shape[0]
         reduced_dim = (int(width_frame * scale_cap), int(height_frame * scale_cap))
 
-        # Creating mask
-        mask_frame = createMask(limits_red, limits_green, img_rbg)
+        if mask_mode:
+            # Creating mask
+            mask_frame = createMask(limits_red, limits_green, img_rbg)
 
-        # Creating masked image
-        img_rbg_masked = copy.deepcopy(img_rbg)
-        img_rbg_masked[~mask_frame] = 0
+            # Creating masked image
+            img_rbg_masked = copy.deepcopy(img_rbg)
+            img_rbg_masked[~mask_frame] = 0
 
-        # Resizing the image
-        frame = cv2.resize(img_rbg_masked, reduced_dim)
+            # Resizing the image
+            frame = cv2.resize(img_rbg_masked, reduced_dim)
+        else:
+            # Resizing the image
+            frame = cv2.resize(img_rbg, reduced_dim)
 
         # Converting to a grayscale frame
         gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
-
-
-
 
         res = 0
         loc = 0
@@ -294,7 +296,6 @@ def main():
         max_loc = 0
         max_name = ''
         max_key = ''
-
 
         # For each image:
         for name in dict_images.keys():
@@ -310,7 +311,6 @@ def main():
 
                     max_name = name
                     max_key = key
-
 
         # Write log files
         curr_time = datetime.now()
@@ -362,7 +362,8 @@ def main():
 
         # Show image
         cv2.imshow("Frame", img_rbg)
-        cv2.imshow("Frame Masked", img_rbg_masked)
+        if mask_mode:
+            cv2.imshow("Frame Masked", img_rbg_masked)
         key = cv2.waitKey(1)
 
         rate.sleep()

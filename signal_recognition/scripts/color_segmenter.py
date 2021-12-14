@@ -76,6 +76,7 @@ def main():
 
     # Get parameters
     image_raw_topic = rospy.get_param('~image_raw_topic', '/ackermann_vehicle/camera2/rgb/image_raw')
+    print(image_raw_topic)
 
     # Subscribe and publish topics (only after CvBridge)
     rospy.Subscriber(image_raw_topic,
