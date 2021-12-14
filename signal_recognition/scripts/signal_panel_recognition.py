@@ -280,12 +280,12 @@ def main():
             # Creating masked image
             img_rbg_masked = copy.deepcopy(img_rbg)
             img_rbg_masked[~mask_frame] = 0
-
-            # Resizing the image
-            frame = cv2.resize(img_rbg_masked, reduced_dim)
+            img = copy.deepcopy(img_rbg_masked)
         else:
-            # Resizing the image
-            frame = cv2.resize(img_rbg, reduced_dim)
+            img = copy.deepcopy(img_rbg)
+
+        # Resizing the image
+        frame = cv2.resize(img, reduced_dim)
 
         # Converting to a grayscale frame
         gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -330,7 +330,7 @@ def main():
 
             for pt in zip(*max_loc[::-1]):
                 pt = tuple(int(pti / scale_cap) for pti in pt)
-                cv2.rectangle(frame, pt, (pt[0] + max_width, pt[1] + max_height),
+                cv2.rectangle(img, pt, (pt[0] + max_width, pt[1] + max_height),
                             dict_colors.get(dict_images[max_name]['color']), line_thickness)
                 text = 'Detected: ' + max_name + ' ' + max_key + ' > ' + dict_images[max_name]['type'] + ': ' + \
                     dict_images[max_name]['title']
@@ -338,9 +338,9 @@ def main():
                 origin = (pt[0], pt[1] + subtitle_offset)
                 origin_2 = (0, height_frame + subtitle_2_offset)
                 # Using cv2.putText() method
-                subtitle = cv2.putText(img_rbg, str(max_name) + '_' + str(max_key) + ' ' + str(round(max_res, 2)), origin,
+                subtitle = cv2.putText(img, str(max_name) + '_' + str(max_key) + ' ' + str(round(max_res, 2)), origin,
                                     font, font_scale, font_color, font_thickness, cv2.LINE_AA)
-                subtitle_2 = cv2.putText(img_rbg, text, origin_2, font, font_scale, font_color, font_thickness,
+                subtitle_2 = cv2.putText(img, text, origin_2, font, font_scale, font_color, font_thickness,
                                         cv2.LINE_AA)
 
             # Defining and publishing the velocity of the car in regards to the signal seen
@@ -362,8 +362,7 @@ def main():
 
         # Show image
         cv2.imshow("Frame", img_rbg)
-        if mask_mode:
-            cv2.imshow("Frame Masked", img_rbg_masked)
+        cv2.imshow("Frame Detections", img)
         key = cv2.waitKey(1)
 
         rate.sleep()
