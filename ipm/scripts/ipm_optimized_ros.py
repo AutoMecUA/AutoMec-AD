@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from functools import partial
 
 import cv2
 import numpy as np
@@ -6,82 +7,66 @@ import rospy
 import pydevd_pycharm
 from sensor_msgs.msg import Image, CameraInfo
 from cv_bridge.core import CvBridge
-from typing import Tuple
+from typing import Tuple, Dict
 
 from lib import ipm_class_ros
 from math import pi
 
-roll: float = .0
-pitch: float = .6
-yaw: float = .0
-x: float = .0
-y: float = .0
-z: float = .547
+# Get debug_mode param
+debug_mode = rospy.get_param('~debug_mode', 'False')
+# Debug settrace
+if bool(debug_mode):
+    try:
+        pydevd_pycharm.settrace('localhost', port=5005,
+                                stdoutToServer=True, stderrToServer=True, suspend=True)
+    except ConnectionRefusedError:
+        rospy.logwarn("Didn't find any debug server (Errno 111: Connection refused). "
+                      "Make sure you launch it before this script.")
 
 # Pose parameters' scope constants (min,max)
 RPY_RANGE: Tuple[float, float] = (.0, 2 * pi)
 XY_RANGE: Tuple[float, float] = (-10., 10.)
 Z_RANGE: Tuple[float, float] = (-3., 3.)
+# Maps each parameter to its range
+ID_RANGES: dict = dict(
+    roll=RPY_RANGE, pitch=RPY_RANGE, yaw=RPY_RANGE,
+    x=XY_RANGE, y=XY_RANGE, z=Z_RANGE
+)
 
 
-def on_change_roll(value: int):
+def normalize(range_max: float, range_min: float, percentage: int) -> float:
     """
-    Change the yaw variable
+    Maps a percentage value to its absolute given the minimum value (0%) and maximum (100%)
     """
-    global roll
-    # value is contained in [0, 100] (%)
-    # Roll value is calculated from the percentage between min and max values (0% -> roll = min)
-    roll = (value / 100.) * (RPY_RANGE[1] - RPY_RANGE[0]) + RPY_RANGE[0]
+    portion: float = percentage / 100.
+    return range_min + (range_max - range_min) * portion
 
 
-def on_change_pitch(value: float):
+def onTrackBars(_, window_name) -> Dict[str, float]:
     """
-    Change the yaw variable
+    Function that is called continuously to get the position of the 6 trackbars created for binarizing an image.
+    The function returns these positions in a dictionary and in Numpy Arrays.
+    :param _: Obligatory variable from OpenCV trackbars but assigned as a silent variable because will not be used.
+    :param window_name: The name of the OpenCV window from where we need to get the values of the trackbars.
+    Datatype: OpenCV object
+    :return: The dictionary with the limits assigned in the trackbars. Convert the dictionary to numpy arrays because
+    of OpenCV and return also.
+    'limits' Datatype: Dict
+    'mins' Datatype: Numpy Array object
+    'maxs' Datatype: Numpy Array object
     """
-    global pitch
-    # value is contained in [0, 100] (%)
-    # Pitch value is calculated from the percentage between min and max values (0% -> roll = min)
-    pitch = (value / 100.) * (RPY_RANGE[1] - RPY_RANGE[0]) + RPY_RANGE[0]
 
+    # Pose parameters
+    pose_params: tuple = ("roll", "pitch", "yaw", "x", "y", "z")
 
-def on_change_yaw(value: float):
-    """
-    Change the yaw variable
-    """
-    global yaw
-    # value is contained in [0, 100] (%)
-    # Yaw value is calculated from the percentage between min and max values (0% -> roll = min)
-    yaw = (value / 100.) * (RPY_RANGE[1] - RPY_RANGE[0]) + RPY_RANGE[0]
+    pose: dict = {
+        param: normalize(range_max=ID_RANGES[param][1],
+                         range_min=ID_RANGES[param][0],
+                         percentage=cv2.getTrackbarPos(param, window_name))
+        for param in pose_params
+    }
 
-
-def on_change_x(value: float):
-    """
-    Change the yaw variable
-    """
-    global x
-    # value is contained in [0, 100] (%)
-    # X value is calculated from the percentage between min and max values (0% -> roll = min)
-    x = (value / 100.) * (XY_RANGE[1] - XY_RANGE[0]) + XY_RANGE[0]
-
-
-def on_change_y(value: float):
-    """
-    Change the yaw variable
-    """
-    global y
-    # value is contained in [0, 100] (%)
-    # Y value is calculated from the percentage between min and max values (0% -> roll = min)
-    y = (value / 100.) * (XY_RANGE[1] - XY_RANGE[0]) + XY_RANGE[0]
-
-
-def on_change_z(value: float):
-    """
-    Change the z variable
-    """
-    global z
-    # value is contained in [0, 100] (%)
-    # Z value is calculated from the percentage between min and max values (0% -> roll = min)
-    z = (value / 100.) * (Z_RANGE[1] - Z_RANGE[0]) + Z_RANGE[0]
+    return pose
 
 
 # Callback function to receive image
@@ -97,7 +82,6 @@ def message_RGB_ReceivedCallback(message):
 
     # Setting the variable as true
     seeimage = True
-
 
 
 def message_Info_ReceivedCallback(message):
@@ -126,7 +110,12 @@ def main():
     global img_rgb
     global seeimage, seeinfo
     # Pose parameters
-    global roll, pitch, yaw, x, y, z
+    roll: float = .0
+    pitch: float = .6
+    yaw: float = .0
+    x: float = .0
+    y: float = .0
+    z: float = .547
 
     # Defining variables
     bridge = CvBridge()
@@ -141,20 +130,15 @@ def main():
     # Defining parameters
     image_info_topic = rospy.get_param('~image_info_topic', '/ackermann_vehicle/camera/rgb/camera_info')
     image_raw_topic = rospy.get_param('~image_raw_topic', '/ackermann_vehicle/camera/rgb/image_raw')
-    debug_mode = rospy.get_param('~debug_mode', 'False')
-
-    # Debug settrace
-    if bool(debug_mode):
-        try:
-            pydevd_pycharm.settrace('localhost', port=5005,
-                                    stdoutToServer=True, stderrToServer=True, suspend=False)
-        except ConnectionRefusedError:
-            rospy.logwarn("Didn't find any debug server (Errno 111: Connection refused). "
-                          "Make sure you launch it before this script.")
-
     # Subscribing to both topics
     rospy.Subscriber(image_info_topic, CameraInfo, message_Info_ReceivedCallback)
     rospy.Subscriber(image_raw_topic, Image, message_RGB_ReceivedCallback)
+
+    # Create windows
+    window_name_1 = "Webcam Input"
+    cv2.namedWindow(window_name_1, cv2.WINDOW_NORMAL)
+    window_name_2 = "IPM output"
+    cv2.namedWindow(window_name_2, cv2.WINDOW_NORMAL)
 
     # Continuous running
     while not rospy.is_shutdown():
@@ -181,17 +165,17 @@ def main():
         output_image = ipm.calculate_output_image(gray)
 
         # Showing image
-        cv2.imshow('initial_image', img_rgb)
-        cv2.imshow(winname='final_image', mat=output_image.astype(np.uint8))
+        cv2.imshow(winname=window_name_1, mat=img_rgb)
+        cv2.imshow(winname=window_name_2, mat=output_image.astype(np.uint8))
         # Sliders parametrize pose's each parameter
+        onTrackBars_partial: partial[dict] = partial(onTrackBars, window_name=window_name_2)
         # FIXME actual sliders don't move
-        # TODO check for way to accept float input or else do a workaround
-        cv2.createTrackbar('roll', "final_image", 0, 100, on_change_roll)
-        cv2.createTrackbar('pitch', "final_image", 0, 100, on_change_pitch)
-        cv2.createTrackbar('yaw', "final_image", 0, 100, on_change_yaw)
-        cv2.createTrackbar('x', "final_image", 0, 100, on_change_x)
-        cv2.createTrackbar('y', "final_image", 0, 100, on_change_y)
-        cv2.createTrackbar('z', "final_image", 0, 100, on_change_z)
+        cv2.createTrackbar('roll', window_name_2, 0, 100, onTrackBars_partial)
+        cv2.createTrackbar('pitch', window_name_2, 0, 100, onTrackBars_partial)
+        cv2.createTrackbar('yaw', window_name_2, 0, 100, onTrackBars_partial)
+        cv2.createTrackbar('x', window_name_2, 0, 100, onTrackBars_partial)
+        cv2.createTrackbar('y', window_name_2, 0, 100, onTrackBars_partial)
+        cv2.createTrackbar('z', window_name_2, 0, 100, onTrackBars_partial)
 
         cv2.waitKey(1)
 
