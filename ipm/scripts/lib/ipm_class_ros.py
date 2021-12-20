@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 
 import time
+
+import cv2
 import numpy as np
+import rospy
 from sklearn import preprocessing
 import scipy.spatial.transform as transf
 import profile
@@ -27,7 +30,7 @@ class IPM:
         # Calling functions
         self.calculate_extrinsic_matrix()
         self.calculate_global_matrix()
-        self.calculate_A_const()
+        # self.calculate_A_const()
 
     def calculate_extrinsic_matrix(self):
         """
@@ -56,8 +59,38 @@ class IPM:
         global_matrix[3, 2] = 1
 
         self.A = global_matrix
+        print(self.A)
         self.vector = np.zeros([4, 1])
         self.vector[0:3, 0] = -self.t[0:3, 0]
+
+    def calculate_corners_coords(self, corners):
+        """
+        Defines the output image using the corners
+        """
+
+        x_array = []
+        y_array = []
+        for x, y in corners:
+            self.A[0, 3] = -x
+            self.A[1, 3] = -y
+
+            (X, Y, _, __) = np.matmul(np.linalg.inv(self.A), self.vector)
+            x_array.append(X)
+            y_array.append(Y)
+
+        minmax_scale_x = preprocessing.MinMaxScaler(feature_range=(0, self.height - 1))
+        minmax_scale_y = preprocessing.MinMaxScaler(feature_range=(0, self.width - 1))
+
+        x_array_scaled = minmax_scale_x.fit_transform(x_array).astype((int))
+        y_array_scaled = minmax_scale_y.fit_transform(y_array).astype((int))
+        self.new_corners = (np.concatenate((x_array_scaled, y_array_scaled), axis=1)).astype(np.float32)
+        self.old_corners = (np.asarray(corners).astype(np.float32))
+        rospy.loginfo('Old: ' + str(self.old_corners) + '\n New: ' + str(self.new_corners))
+
+    def calculate_corners_image(self, img_in):
+        warp = cv2.getPerspectiveTransform(self.old_corners, self.new_corners)
+        img_out = cv2.warpPerspective(img_in, warp, [self.width, self.height])
+        return img_out
 
     def calculate_A_const(self):
         """
@@ -66,8 +99,8 @@ class IPM:
 
         x_array = []
         y_array = []
-        v_array = []
-
+        # Start the timer
+        _t0 = time.time()
         index_point = 0
         for x in range(0, self.height):
             for y in range(0, self.width):

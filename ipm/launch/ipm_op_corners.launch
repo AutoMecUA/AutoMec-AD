@@ -1,0 +1,13 @@
+<launch>
+
+  <arg name="image_raw_topic" default="/ackermann_vehicle/camera/rgb/image_raw" />
+  <arg name="image_info_topic" default="/ackermann_vehicle/camera/rgb/camera_info" />
+  <arg name="debug_mode" default="False" />
+
+  <node name="ipm_ros" pkg="ipm" type="ipm_optimized_ros_corners.py" output="screen" required="true" >
+    <param name="image_raw_topic" value="$(arg image_raw_topic)" />
+    <param name="image_info_topic" value="$(arg image_info_topic)" />
+    <param name="debug_mode" value="$(arg debug_mode)" />
+  </node>
+
+</launch>
