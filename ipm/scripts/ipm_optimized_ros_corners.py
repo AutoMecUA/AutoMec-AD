@@ -109,9 +109,15 @@ def define_corners(image, list):
         key = cv2.waitKey(1)
         if (key & 0xFF) == ord("q"):
             if len(corners) < 4:
-                print('')
-            cv2.destroyAllWindows()
-            break
+                rospy.logwarn('Please define 4 points, you only have ' + str(len(corners)) + ' defined')
+            elif len(corners) == 4:
+                rospy.loginfo('4 corners selected')
+                cv2.destroyAllWindows()
+                break
+            else:
+                rospy.loginfo(str(len(corners)) + ' points selected, only using the last 4')
+                corners = corners[(len(corners)-4):]
+                break
     return corners
 
 
@@ -201,7 +207,7 @@ def main():
         if not bool(corners):
             # Defining corners
             rospy.loginfo('Defining corners')
-            define_corners(img_rgb, corners)
+            corners = define_corners(img_rgb, corners)
             rospy.loginfo('Corners Defined')
 
             # Create windows
