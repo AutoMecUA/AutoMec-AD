@@ -110,6 +110,8 @@ def main():
 
     path = s + '/../../models/cnn1_' + modelname
 
+    enter_pressed = input("\n" + "Create a new model from scratch? [Y/N]: ")
+
     if enter_pressed.lower() == "y" or enter_pressed == "":
         model = createModel(image_width, image_height)
         is_newmodel = True
