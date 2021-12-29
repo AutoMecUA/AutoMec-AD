@@ -1,13 +1,9 @@
 <launch>
     <arg name="camera_topic" default="/real_camera"/>
     <arg name="int_camera_id" default="2"/>
-    <arg name="signal_cmd_topic" default="/signal_vel"/>
-    <arg name="mask_mode" default="True"/>
 
-    <include file="$(find physical_bringup)/launch/modules/signal_panel_recognition.launch">
-        <arg name="signal_cmd_topic" value="$(arg signal_cmd_topic)"/>
+    <include file="$(find physical_bringup)/launch/modules/signal_color_segmenter.launch">
         <arg name="image_raw_topic" value="$(arg camera_topic)"/>
-        <arg name="mask_mode" value="$(arg mask_mode)"/>
     </include>
 
     <include file="$(find physical_bringup)/launch/modules/lane_camera.launch">

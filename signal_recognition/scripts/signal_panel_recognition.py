@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 # Imports
+import copy
+
 import cv2
 import numpy as np
 import rospy
@@ -13,12 +15,41 @@ import pandas as pd
 import signal
 import sys
 import os
-
+import json
 
 global img_rbg
 global bridge
 global begin_img
 
+def createMask(ranges_red, ranges_green, image):
+    """
+    Using a dictionary wth ranges, create a mask of an image respecting those ranges
+    :param ranges_red: Dictionary generated in color_segmenter.py
+    :param ranges_red: Dictionary generated in color_segmenter.py
+    :param image: Cv2 image - UInt8
+    :return mask: Cv2 image - UInt8
+    """
+
+    # Create an array for minimum and maximum values
+    mins_red = np.array([ranges_red['B']['min'], ranges_red['G']['min'], ranges_red['R']['min']])
+    maxs_red = np.array([ranges_red['B']['max'], ranges_red['G']['max'], ranges_red['R']['max']])
+
+    # Create a mask using the previously created array
+    mask_red = cv2.inRange(image, mins_red, maxs_red)
+
+    # Create an array for minimum and maximum values
+    mins_green = np.array([ranges_green['B']['min'], ranges_green['G']['min'], ranges_green['R']['min']])
+    maxs_green = np.array([ranges_green['B']['max'], ranges_green['G']['max'], ranges_green['R']['max']])
+
+    # Create a mask using the previously created array
+    mask_green = cv2.inRange(image, mins_green, maxs_green)
+
+    # Unite the mask
+    mask = np.zeros((image.shape[0], image.shape[1]))
+    mask[mask_green.astype(np.bool)] = 1
+    mask[mask_red.astype(np.bool)] = 1
+
+    return mask.astype(np.bool)
 
 def message_RGB_ReceivedCallback(message):
     global img_rbg
@@ -90,14 +121,14 @@ def main():
     count_start = 0
     count_max = 5
 
-
     # Init Node
     rospy.init_node('ml_driving', anonymous=False)
 
     # Get parameters
     image_raw_topic = rospy.get_param('~image_raw_topic', '/ackermann_vehicle/camera2/rgb/image_raw')
     signal_cmd_topic = rospy.get_param('~signal_cmd_topic', '/signal_vel')
-    
+    mask_mode = rospy.get_param('~mask_mode', 'False')
+
     # Create publishers
     pubbool = rospy.Publisher(signal_cmd_topic, Bool, queue_size=10)
 
@@ -109,6 +140,15 @@ def main():
     # If the path does not exist, create it
     if not os.path.exists(log_path):
         os.makedirs(log_path)
+
+    # Defining limits
+    if mask_mode:
+        with open(log_path + 'limits_green.json') as file_handle:
+            # returns JSON object as a dictionary
+            limits_green = json.load(file_handle)
+        with open(log_path + 'limits_red.json') as file_handle:
+            # returns JSON object as a dictionary
+            limits_red = json.load(file_handle)
 
     # Create pandas dataframe
     signal_log = pd.DataFrame(columns=['Time', 'Signal', 'Resolution'])
@@ -218,11 +258,9 @@ def main():
     # Create an object of the CvBridge class
     bridge = CvBridge()
 
-
     # Subscribe and publish topics (only after CvBridge)
     rospy.Subscriber(image_raw_topic,
                      Image, message_RGB_ReceivedCallback)
-
 
     rate = rospy.Rate(30)
 
@@ -234,7 +272,20 @@ def main():
         width_frame = img_rbg.shape[1]
         height_frame = img_rbg.shape[0]
         reduced_dim = (int(width_frame * scale_cap), int(height_frame * scale_cap))
-        frame = cv2.resize(img_rbg, reduced_dim)
+
+        if mask_mode:
+            # Creating mask
+            mask_frame = createMask(limits_red, limits_green, img_rbg)
+
+            # Creating masked image
+            img_rbg_masked = copy.deepcopy(img_rbg)
+            img_rbg_masked[~mask_frame] = 0
+            img = copy.deepcopy(img_rbg_masked)
+        else:
+            img = copy.deepcopy(img_rbg)
+
+        # Resizing the image
+        frame = cv2.resize(img, reduced_dim)
 
         # Converting to a grayscale frame
         gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -245,7 +296,6 @@ def main():
         max_loc = 0
         max_name = ''
         max_key = ''
-
 
         # For each image:
         for name in dict_images.keys():
@@ -261,7 +311,6 @@ def main():
 
                     max_name = name
                     max_key = key
-
 
         # Write log files
         curr_time = datetime.now()
@@ -281,7 +330,7 @@ def main():
 
             for pt in zip(*max_loc[::-1]):
                 pt = tuple(int(pti / scale_cap) for pti in pt)
-                cv2.rectangle(frame, pt, (pt[0] + max_width, pt[1] + max_height),
+                cv2.rectangle(img, pt, (pt[0] + max_width, pt[1] + max_height),
                             dict_colors.get(dict_images[max_name]['color']), line_thickness)
                 text = 'Detected: ' + max_name + ' ' + max_key + ' > ' + dict_images[max_name]['type'] + ': ' + \
                     dict_images[max_name]['title']
@@ -289,9 +338,9 @@ def main():
                 origin = (pt[0], pt[1] + subtitle_offset)
                 origin_2 = (0, height_frame + subtitle_2_offset)
                 # Using cv2.putText() method
-                subtitle = cv2.putText(img_rbg, str(max_name) + '_' + str(max_key) + ' ' + str(round(max_res, 2)), origin,
+                subtitle = cv2.putText(img, str(max_name) + '_' + str(max_key) + ' ' + str(round(max_res, 2)), origin,
                                     font, font_scale, font_color, font_thickness, cv2.LINE_AA)
-                subtitle_2 = cv2.putText(img_rbg, text, origin_2, font, font_scale, font_color, font_thickness,
+                subtitle_2 = cv2.putText(img, text, origin_2, font, font_scale, font_color, font_thickness,
                                         cv2.LINE_AA)
 
             # Defining and publishing the velocity of the car in regards to the signal seen
@@ -313,6 +362,7 @@ def main():
 
         # Show image
         cv2.imshow("Frame", img_rbg)
+        cv2.imshow("Frame Detections", img)
         key = cv2.waitKey(1)
 
         rate.sleep()
