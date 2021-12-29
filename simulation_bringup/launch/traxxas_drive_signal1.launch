@@ -1,10 +1,9 @@
 <launch>
 
     <arg name="model" default=""/>
-    <arg name="urdf" default="robot04"/>
+    <arg name="urdf" default="robot05"/>
     <arg name="world" default="arena1"/>
     <arg name="twist_cmd_topic" default="/cmd_vel"/>
-    <arg name="vel_cmd_topic" default=""/>
     <arg name="signal_cmd_topic" default="/signal_vel"/>
     <arg name="twist_linear_x" default="0.5" />
 
@@ -24,9 +23,6 @@
         </include>
 
         <include file="$(find simulation_bringup)/launch/modules/signal_panel_recognition.launch">
-            <arg name="twist_linear_x" value="$(arg twist_linear_x)"/>
-            <arg name="vel_cmd_topic" value="$(arg vel_cmd_topic)"/>
-            <arg name="twist_cmd_topic" value="$(arg twist_cmd_topic)"/>
             <arg name="signal_cmd_topic" value="$(arg signal_cmd_topic)"/>
         </include>
 

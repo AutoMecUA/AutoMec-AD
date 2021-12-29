@@ -1,7 +1,7 @@
 <launch>
 
     <arg name="folder" default="set1"/>
-    <arg name="urdf" default="robot05_test"/>
+    <arg name="urdf" default="robot05"/>
     <arg name="world" default="arena1"/>
     <arg name="vel" default="0.5"/>
     <arg name="image_raw_topic" default="/3d_image/image_raw"/>

@@ -1,6 +1,6 @@
 <launch>
 
-    <arg name="topic" default="/ackermann_vehicle/camera/rgb/image_raw" />
+    <arg name="topic" default="/3d_image/image_raw" />
     <arg name="topicl" default="/ackermann_vehicle/cameral/rgb/image_raw" />
     <arg name="topicr" default="/ackermann_vehicle/camerar/rgb/image_raw" />
 
