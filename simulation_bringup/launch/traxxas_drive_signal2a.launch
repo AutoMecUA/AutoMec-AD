@@ -24,9 +24,6 @@
         </include>
 
         <include file="$(find simulation_bringup)/launch/modules/signal_panel_recognition.launch">
-            <arg name="twist_linear_x" value="$(arg twist_linear_x)"/>
-            <arg name="vel_cmd_topic" value="$(arg vel_cmd_topic)"/>
-            <arg name="twist_cmd_topic" value="$(arg twist_cmd_topic)"/>
             <arg name="signal_cmd_topic" value="$(arg signal_cmd_topic)"/>
         </include>
 
