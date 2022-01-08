@@ -1,8 +1,0 @@
-<launch>
-  <arg name="image_raw_topic" default="/real_camera"/>
-
-  <include file="$(find signal_recognition)/launch/color_segmenter.launch">
-    <arg name="image_raw_topic" value="$(arg image_raw_topic)"/>
-  </include>
-
-</launch>
