@@ -12,6 +12,8 @@
   <arg name="cam_angle" default=""/>
   <arg name="env" default=""/>
   <arg name="vel" default="0"/>
+  <arg name="urdf" default=""/>
+
 
     <node name="cnn_write" pkg="cnn" type="write.py" output="screen" required="true">
       <param name="image_raw_topic" value="$(arg image_raw_topic)"/>
@@ -25,6 +27,7 @@
       <param name="cam_angle" value="$(arg cam_angle)"/>
       <param name="env" value="$(arg env)"/>
       <param name="vel" value="$(arg vel)"/>
+      <param name="urdf" value="$(arg urdf)"/>
     </node>
 
 </launch>

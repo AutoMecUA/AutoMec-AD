@@ -12,6 +12,7 @@
   <arg name="cam_angle" default=""/>
   <arg name="env" default="gazebo"/>
   <arg name="vel" default="0"/>
+  <arg name="urdf" default=""/>
 
   <include file="$(find cnn)/launch/write.launch">
     <arg name="image_raw_topic" value="$(arg image_raw_topic)"/>
@@ -25,6 +26,7 @@
     <arg name="cam_height" value="$(arg cam_height)"/>
     <arg name="cam_angle" value="$(arg cam_angle)"/>
     <arg name="env" value="$(arg env)"/>
+    <arg name="urdf" value="$(arg urdf)"/>
   </include>
 
 </launch>

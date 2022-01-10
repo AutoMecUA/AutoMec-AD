@@ -28,7 +28,7 @@
         <arg name="cam_height" value="$(arg cam_height)"/>
         <arg name="cam_angle" value="$(arg cam_angle)"/>
         <arg name="image_raw_topic" value="$(arg image_raw_topic)"/>
-
+        <arg name="urdf" value="$(arg urdf)"/>
     </include>
 
     <include file="$(find simulation_bringup)/launch/modules/twist_to_ackermann.launch" />

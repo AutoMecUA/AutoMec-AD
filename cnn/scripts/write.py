@@ -118,6 +118,9 @@ def main():
     cam_angle = rospy.get_param('~cam_angle', '')
     env = rospy.get_param('~env', '')
     vel = rospy.get_param('~vel', '0')
+    urdf = rospy.get_param('~urdf', '')
+
+    
 
     s = str(pathlib.Path(__file__).parent.absolute())
     data_path = s + '/../data/' + base_folder
@@ -144,12 +147,17 @@ def main():
             developer = os.getenv('automec_developer'),
             image_size = imgsize_str,
             frequency = rate_hz,
-            cam_height = cam_height,
-            cam_angle = cam_angle,
             linear_velocity = vel,
             environment = env   
         )
     )
+
+    if env == "gazebo":
+        info_data["dataset"]["urdf"] = urdf
+    else:
+        info_data["dataset"]["cam_height"] = cam_height
+        info_data["dataset"]["cam_angle"] = cam_angle
+
 
     with open(data_path+'/info.yaml', 'w') as outfile:
         yaml.dump(info_data, outfile, default_flow_style=False)
