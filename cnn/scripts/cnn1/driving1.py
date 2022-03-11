@@ -2,11 +2,14 @@
 
 # Imports
 import argparse
+import sys
+
 import cv2
 from csv import writer
 import copy
 import numpy as np
 import rospy
+import yaml
 from geometry_msgs.msg._Twist import Twist
 from sensor_msgs.msg._Image import Image
 from std_msgs.msg import Bool
@@ -80,10 +83,34 @@ def main():
     twist_linear_x = rospy.get_param('~twist_linear_x', 1)
     signal_cmd_topic = rospy.get_param('~signal_cmd_topic', '')
     modelname = rospy.get_param('~modelname', 'model1.h5')
+    urdf = 'robot05_040_039' #TODO wrong variable, needs to be corrected
 
     # Defining path to model
     s = str(pathlib.Path(__file__).parent.absolute())
     path = s + '/../../models/cnn1_' + modelname
+
+    if not os.path.isfile(path + '_info.yaml'):
+        have_dataset_yaml = False
+        # we may allow to continue processing with default data
+        print("no yaml info file found. exit.")
+        sys.exit()
+    else:
+        with open(path + '_info.yaml') as file:
+            # The FullLoader parameter handles the conversion from YAML
+            # scalar values to Python the dictionary format
+            info_loaded = yaml.load(file, Loader=yaml.FullLoader)
+            ds_environment = info_loaded['model']['environment']
+
+            if ds_environment == 'gazebo':
+                ds_urdf = info_loaded['model']['urdf']
+                if urdf == ds_urdf:
+                    rospy.loginfo(f'You are running with {urdf}')
+                else:
+                    rospy.logerr(f'You are running with {urdf} instead of {ds_urdf}')
+                    sys.exit()
+
+
+
 
     rospy.loginfo('Using model: %s', path)
     model = load_model(path)
