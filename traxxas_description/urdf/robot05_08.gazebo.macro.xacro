@@ -187,7 +187,7 @@
             <image>
                 <width>1280</width>
                 <height>1024</height>
-                <format>R8G8B8</format>
+                <format>L_INT8</format>
             </image>
             <clip>
                 <near>0.1</near>
@@ -216,7 +216,7 @@
             <pointCloudCutoffMax>2.0</pointCloudCutoffMax>
         </plugin>
         <always_on>true</always_on>
-        <update_rate>30.0</update_rate>
+        <update_rate>1.0</update_rate>
     </sensor>
 </gazebo>
 
@@ -229,7 +229,7 @@
             <image>
                 <width>1280</width>
                 <height>1024</height>
-                <format>R8G8B8</format>
+                <format>L_INT8</format>
             </image>
             <clip>
                 <near>0.1</near>

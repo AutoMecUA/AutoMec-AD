@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 
 # Imports
+import copy
+from functools import partial
+
 import cv2
 import numpy as np
 import rospy
@@ -13,12 +16,74 @@ import pandas as pd
 import signal
 import sys
 import os
-
+import json
 
 global img_rbg
 global bridge
 global begin_img
 
+
+def onTrackBars(_, window_name):
+    """
+    Function that is called continuously to get the position of the 6 trackbars created for binarizing an image.
+    The function returns these positions in a dictionary and in Numpy Arrays.
+    :param _: Obligatory variable from OpenCV trackbars but assigned as a silent variable because will not be used.
+    :param window_name: The name of the OpenCV window from where we need to get the values of the trackbars.
+    Datatype: OpenCV object
+    :return: The dictionary with the limits assigned in the trackbars. Convert the dictionary to numpy arrays because
+    of OpenCV and return also.
+    'limits' Datatype: Dict
+    'mins' Datatype: Numpy Array object
+    'maxs' Datatype: Numpy Array object
+    """
+    # Get ranges for each channel from trackbar and assign to a dictionary
+    min_b = cv2.getTrackbarPos('min B', window_name)
+    max_b = cv2.getTrackbarPos('max B', window_name)
+    min_g = cv2.getTrackbarPos('min G', window_name)
+    max_g = cv2.getTrackbarPos('max G', window_name)
+    min_r = cv2.getTrackbarPos('min R', window_name)
+    max_r = cv2.getTrackbarPos('max R', window_name)
+
+    limits = {'B': {'min': min_b, 'max': max_b},
+              'G': {'min': min_g, 'max': max_g},
+              'R': {'min': min_r, 'max': max_r}}
+
+    # Convert the dict structure created before to numpy arrays, because is the structure that opencv uses it.
+    mins = np.array([limits['B']['min'], limits['G']['min'], limits['R']['min']])
+    maxs = np.array([limits['B']['max'], limits['G']['max'], limits['R']['max']])
+
+    return limits, mins, maxs
+
+
+def createMask(ranges_red, ranges_green, image):
+    """
+    Using a dictionary wth ranges, create a mask of an image respecting those ranges
+    :param ranges_red: Dictionary generated in color_segmenter.py
+    :param ranges_red: Dictionary generated in color_segmenter.py
+    :param image: Cv2 image - UInt8
+    :return mask: Cv2 image - UInt8
+    """
+
+    # Create an array for minimum and maximum values
+    mins_red = np.array([ranges_red['B']['min'], ranges_red['G']['min'], ranges_red['R']['min']])
+    maxs_red = np.array([ranges_red['B']['max'], ranges_red['G']['max'], ranges_red['R']['max']])
+
+    # Create a mask using the previously created array
+    mask_red = cv2.inRange(image, mins_red, maxs_red)
+
+    # Create an array for minimum and maximum values
+    mins_green = np.array([ranges_green['B']['min'], ranges_green['G']['min'], ranges_green['R']['min']])
+    maxs_green = np.array([ranges_green['B']['max'], ranges_green['G']['max'], ranges_green['R']['max']])
+
+    # Create a mask using the previously created array
+    mask_green = cv2.inRange(image, mins_green, maxs_green)
+
+    # Unite the mask
+    mask = np.zeros((image.shape[0], image.shape[1]))
+    mask[mask_green.astype(np.bool)] = 1
+    mask[mask_red.astype(np.bool)] = 1
+
+    return mask.astype(np.bool)
 
 def message_RGB_ReceivedCallback(message):
     global img_rbg
@@ -41,85 +106,7 @@ def signal_handler(sig, frame):
     signal_log.to_csv(log_path + '/signal_log_' + time_str + '.csv', mode='a', index=False, header=False)
     sys.exit(0)
 
-def main():
-    global signal_log
-    global log_path
-    # PARAMETERS__________________________________________________________________
-
-    # Import Parameters
-    scale_import = 0.1  # The scale of the first image, related to the imported one.
-    N_red = 2  # Number of piramidizations to apply to each image.
-
-    # Font Parameters
-    subtitle_offset = -10
-    subtitle_2_offset = -10
-    font = cv2.FONT_HERSHEY_SIMPLEX
-    font_scale = 0.5
-    font_color = (0, 0, 255)
-    font_thickness = 2
-
-    # Line Parameters
-    line_thickness = 3
-
-    # Detection Parameters
-    scale_cap = 0.4
-    detection_threshold = 0.85
-
-    # ______________________________________________________________________________
-
-    # Images to import and Images Info
-    dict_images = {
-        'pForward': {'title': 'Follow Straight Ahead', 'type': 'Panel', 'color': 'green', 'images': {}},
-        'pStop': {'title': 'Stop', 'type': 'Panel', 'color': 'red', 'images': {}},
-        'pLeft': {'title': 'Left', 'type': 'Panel', 'color': 'green', 'images': {}},
-        'pRight': {'title': 'Right', 'type': 'Panel', 'color': 'green', 'images': {}},
-        'pParking': {'title': 'Parking', 'type': 'Panel', 'color': 'yellow', 'images': {}},
-        'pChess': {'title': 'Chess', 'type': 'Panel', 'color': 'red', 'images': {}}
-    }
-
-    # Colors dictionary
-    dict_colors = {'red': (0, 0, 255), 'green': (0, 255, 0), 'blue': (255, 0, 0), 'yellow': (0, 255, 255)}
-
-    # Global variables
-    global img_rbg
-    global bridge
-    global begin_img
-    begin_img = False
-    velbool = False
-    count_stop = 0
-    count_start = 0
-    count_max = 5
-
-
-    # Init Node
-    rospy.init_node('ml_driving', anonymous=False)
-
-    # Get parameters
-    image_raw_topic = rospy.get_param('~image_raw_topic', '/ackermann_vehicle/camera2/rgb/image_raw')
-    signal_cmd_topic = rospy.get_param('~signal_cmd_topic', '/signal_vel')
-    
-    # Create publishers
-    pubbool = rospy.Publisher(signal_cmd_topic, Bool, queue_size=10)
-
-    # Define path for .csv
-    s = str(pathlib.Path(__file__).parent.absolute())
-    log_path = s + '/log/'
-    rospy.loginfo(log_path)
-
-    # If the path does not exist, create it
-    if not os.path.exists(log_path):
-        os.makedirs(log_path)
-
-    # Create pandas dataframe
-    signal_log = pd.DataFrame(columns=['Time', 'Signal', 'Resolution'])
-
-    # set handler on termination
-    signal.signal(signal.SIGINT, signal_handler)
-
-    # ______________________________________________________________________________
-    
-    path = str(pathlib.Path(__file__).parent.absolute())
-
+def create_image_dict(dict_images, scale_import, N_red, path):
     # Images Importation and Resizing
     Counter_Nr_Images = 0
     for name in dict_images.keys():
@@ -207,22 +194,134 @@ def main():
             Counter_Nr_Images += 8
 
     # Number of Images Created
-    print("Number of images: " + str(Counter_Nr_Images))
+    rospy.loginfo("Number of images: " + str(Counter_Nr_Images))
 
     for name in dict_images.keys():
         for key in dict_images[name]['images']:
             dict_images[name]['images'][key] = cv2.GaussianBlur(dict_images[name]['images'][key], (3, 3), 0)
+    return dict_images
+
+
+def main():
+    global signal_log
+    global log_path
+    # PARAMETERS__________________________________________________________________
+
+    # Import Parameters
+    scale_import = 0.1  # The scale of the first image, related to the imported one.
+    N_red = 2  # Number of piramidizations to apply to each image.
+
+    # Font Parameters
+    subtitle_offset = -10
+    subtitle_2_offset = -10
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    font_scale = 0.5
+    font_color = (0, 0, 255)
+    font_thickness = 2
+
+    # Line Parameters
+    line_thickness = 3
+
+    # Detection Parameters
+    scale_cap = 0.4
+    detection_threshold = 0.85
+
+    # ______________________________________________________________________________
+
+    # Images to import and Images Info
+    dict_images = {
+        'pForward': {'title': 'Follow Straight Ahead', 'type': 'Panel', 'color': 'green', 'images': {}},
+        'pStop': {'title': 'Stop', 'type': 'Panel', 'color': 'red', 'images': {}},
+        'pLeft': {'title': 'Left', 'type': 'Panel', 'color': 'green', 'images': {}},
+        'pRight': {'title': 'Right', 'type': 'Panel', 'color': 'green', 'images': {}},
+        'pParking': {'title': 'Parking', 'type': 'Panel', 'color': 'yellow', 'images': {}},
+        'pChess': {'title': 'Chess', 'type': 'Panel', 'color': 'red', 'images': {}}
+    }
+
+    # Colors dictionary
+    dict_colors = {'red': (0, 0, 255), 'green': (0, 255, 0), 'blue': (255, 0, 0), 'yellow': (0, 255, 255)}
+
+    # Defining variables
+    global img_rbg
+    global bridge
+    global begin_img
+    begin_img = False
+    velbool = False
+    segment = True
+    count_stop = 0
+    count_start = 0
+    count_max = 5
+
+    # Init Node
+    rospy.init_node('ml_driving', anonymous=False)
+
+    # Get parameters
+    image_raw_topic = rospy.get_param('~image_raw_topic', '/ackermann_vehicle/camera2/rgb/image_raw')
+    signal_cmd_topic = rospy.get_param('~signal_cmd_topic', '/signal_vel')
+    mask_mode = rospy.get_param('~mask_mode', 'False')
+
+    # Create publishers
+    pubbool = rospy.Publisher(signal_cmd_topic, Bool, queue_size=10)
+
+    # Define path for .csv
+    s = str(pathlib.Path(__file__).parent.absolute())
+    log_path = s + '/log/'
+    rospy.loginfo(log_path)
+
+    # If the path does not exist, create it
+    if not os.path.exists(log_path):
+        os.makedirs(log_path)
+
+    # Defining variables for mask mode
+    if mask_mode:
+        # Create windows
+        window_name_1 = 'Webcam'
+        cv2.namedWindow(window_name_1, cv2.WINDOW_NORMAL)
+        window_name_2 = 'Segmented image'
+        cv2.namedWindow(window_name_2, cv2.WINDOW_NORMAL)
+
+        # Use partial function for the trackbars
+        onTrackBars_partial = partial(onTrackBars, window_name=window_name_2)
+
+        # Create trackbars to control the threshold of the binarization
+        cv2.createTrackbar('min B', window_name_2, 0, 255, onTrackBars_partial)
+        cv2.createTrackbar('max B', window_name_2, 0, 255, onTrackBars_partial)
+        cv2.createTrackbar('min G', window_name_2, 0, 255, onTrackBars_partial)
+        cv2.createTrackbar('max G', window_name_2, 0, 255, onTrackBars_partial)
+        cv2.createTrackbar('min R', window_name_2, 0, 255, onTrackBars_partial)
+        cv2.createTrackbar('max R', window_name_2, 0, 255, onTrackBars_partial)
+
+        # Set the trackbar position to 255 for maximum trackbars
+        cv2.setTrackbarPos('max B', window_name_2, 255)
+        cv2.setTrackbarPos('max G', window_name_2, 255)
+        cv2.setTrackbarPos('max R', window_name_2, 255)
+
+        # Prints to make the program user friendly. Present to the user the hotkeys
+        rospy.loginfo('Use the trackbars to define the threshold limits as you wish.')
+        rospy.loginfo('Start capturing the webcam video.')
+        rospy.loginfo('Press "g" to save the threshold limits to green')
+        rospy.loginfo('Press "r" to save the threshold limits to red')
+        rospy.loginfo('Press "q" to exit without saving the threshold limits')
+
+    # Create pandas dataframe
+    signal_log = pd.DataFrame(columns=['Time', 'Signal', 'Resolution'])
+
+    # set handler on termination
+    signal.signal(signal.SIGINT, signal_handler)
+
+    # ______________________________________________________________________________
+
+    path = str(pathlib.Path(__file__).parent.absolute())
+    dict_images = create_image_dict(dict_images, scale_import, N_red, path)
 
     # ______________________________________________________________________________
 
     # Create an object of the CvBridge class
     bridge = CvBridge()
 
-
     # Subscribe and publish topics (only after CvBridge)
     rospy.Subscriber(image_raw_topic,
                      Image, message_RGB_ReceivedCallback)
-
 
     rate = rospy.Rate(30)
 
@@ -231,21 +330,75 @@ def main():
         if begin_img == False:
             continue
 
+        # Defining image shape
         width_frame = img_rbg.shape[1]
         height_frame = img_rbg.shape[0]
         reduced_dim = (int(width_frame * scale_cap), int(height_frame * scale_cap))
-        frame = cv2.resize(img_rbg, reduced_dim)
+
+        if mask_mode:
+            if segment:
+                # Get an image from the camera (a frame) and show
+                frame = img_rbg
+                cv2.imshow(window_name_1, frame)
+
+                # Get ranges from trackbars in dict and numpy data structures
+                limits, mins, maxs = onTrackBars_partial(0)
+
+                # Create mask using cv2.inRange. The output is still in uint8
+                segmented_frame = cv2.inRange(frame, mins, maxs)
+
+                # Show segmented image
+                cv2.imshow(window_name_2, segmented_frame)  # Display the image
+
+                key = cv2.waitKey(1)  # Wait a key to stop the program
+
+                # Keyboard inputs to finish the cycle
+                if key == ord('q'):
+                    rospy.loginfo('Letter "q" pressed, exiting the program without saving limits')
+                    segment = False
+                    cv2.destroyAllWindows()
+                elif key == ord('g'):
+                    rospy.loginfo('Letter "g" pressed, saving green limits')
+                    file_name = log_path + 'limits_green.json'
+                    with open(file_name, 'w') as file_handle:
+                        rospy.loginfo("writing dictionary with threshold limits to file " + file_name)
+                        json.dump(limits, file_handle)  # 'limits' is the dictionary
+                elif key == ord('r'):
+                    rospy.loginfo('Letter "r" pressed, saving red limits')
+                    file_name = log_path + 'limits_red.json'
+                    with open(file_name, 'w') as file_handle:
+                        rospy.loginfo("writing dictionary with threshold limits to file " + file_name)
+                        json.dump(limits, file_handle)  # 'limits' is the dictionary
+                continue
+
+            # Defining limits
+            with open(log_path + 'limits_green.json') as file_handle:
+                # returns JSON object as a dictionary
+                limits_green = json.load(file_handle)
+            with open(log_path + 'limits_red.json') as file_handle:
+                # returns JSON object as a dictionary
+                limits_red = json.load(file_handle)
+
+            # Creating mask
+            mask_frame = createMask(limits_red, limits_green, img_rbg)
+
+            # Creating masked image
+            img_rbg_masked = copy.deepcopy(img_rbg)
+            img_rbg_masked[~mask_frame] = 0
+            img = copy.deepcopy(img_rbg_masked)
+        else:
+            img = copy.deepcopy(img_rbg)
+
+        # Resizing the image
+        frame = cv2.resize(img, reduced_dim)
 
         # Converting to a grayscale frame
         gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-        res = 0
-        loc = 0
         max_res = 0
         max_loc = 0
         max_name = ''
         max_key = ''
-
 
         # For each image:
         for name in dict_images.keys():
@@ -262,7 +415,6 @@ def main():
                     max_name = name
                     max_key = key
 
-
         # Write log files
         curr_time = datetime.now()
         time_str = str(curr_time.year) + '_' + str(curr_time.month) + '_' + str(curr_time.day) + '__' + str(
@@ -270,10 +422,10 @@ def main():
             curr_time.microsecond)
         # add image, angle and velocity to the signal_log pandas
         max_res_round = round(max_res, 3)
-        print(max_res_round)
+        rospy.loginfo(max_res_round)
         row = pd.DataFrame([[time_str, max_name, max_res_round]], columns=['Time', 'Signal', 'Resolution'])
         signal_log = signal_log.append(row, ignore_index=True)
-        
+
         if max_res > detection_threshold:
 
             max_width = int(dict_images[max_name]['images'][max_key].shape[1] / scale_cap)
@@ -281,7 +433,7 @@ def main():
 
             for pt in zip(*max_loc[::-1]):
                 pt = tuple(int(pti / scale_cap) for pti in pt)
-                cv2.rectangle(frame, pt, (pt[0] + max_width, pt[1] + max_height),
+                cv2.rectangle(img, pt, (pt[0] + max_width, pt[1] + max_height),
                             dict_colors.get(dict_images[max_name]['color']), line_thickness)
                 text = 'Detected: ' + max_name + ' ' + max_key + ' > ' + dict_images[max_name]['type'] + ': ' + \
                     dict_images[max_name]['title']
@@ -289,9 +441,9 @@ def main():
                 origin = (pt[0], pt[1] + subtitle_offset)
                 origin_2 = (0, height_frame + subtitle_2_offset)
                 # Using cv2.putText() method
-                subtitle = cv2.putText(img_rbg, str(max_name) + '_' + str(max_key) + ' ' + str(round(max_res, 2)), origin,
+                subtitle = cv2.putText(img, str(max_name) + '_' + str(max_key) + ' ' + str(round(max_res, 2)), origin,
                                     font, font_scale, font_color, font_thickness, cv2.LINE_AA)
-                subtitle_2 = cv2.putText(img_rbg, text, origin_2, font, font_scale, font_color, font_thickness,
+                subtitle_2 = cv2.putText(img, text, origin_2, font, font_scale, font_color, font_thickness,
                                         cv2.LINE_AA)
 
             # Defining and publishing the velocity of the car in regards to the signal seen
@@ -313,6 +465,7 @@ def main():
 
         # Show image
         cv2.imshow("Frame", img_rbg)
+        cv2.imshow("Frame Detections", img)
         key = cv2.waitKey(1)
 
         rate.sleep()

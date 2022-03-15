@@ -55,7 +55,6 @@
 
   <!-- The specifications for a Titan(R) 550 motor could not be found, so the
        stall torque of a Mabuchi Motor(R) RS-550VC-7525 motor was used instead.
-
        num_spur_gear_teeth = 68
        num_pinion_gear_teeth = 19
        final_gear_ratio = (num_spur_gear_teeth / num_pinion_gear_teeth) *
@@ -63,7 +62,6 @@
        stall_torque = 0.549 N m
        axle_eff_limit = ((2 * stall_torque) * final_gear_ratio) / 4 =
          5.12766 N m
-
        max_speed = 40 mph (30+ mph) = 17.8816 m/s
        axle_vel_limit = (2 * pi) * (max_speed / (pi * tire_dia)) =
          244.8696 rad/s -->
@@ -86,16 +84,16 @@
     <color rgba="0.5 0.5 0.5 1"/>
   </material>
   <material name="tire_mat">
-    <color rgba="0 0 0 1"/>
+    <color rgba="0.3 0.3 0.3 1"/>
   </material>
     <material name="camera_mat">
     <color rgba="1 0 0 1"/>
   </material>
-    <material name="imu_mat">
+  <material name="imu_mat">
     <color rgba="0 1 0 1"/>
   </material>
 
-  <xacro:include filename="$(find traxxas_description)/urdf/robot01.gazebo.macro.xacro"/>
+  <xacro:include filename="$(find traxxas_description)/urdf/robot05.gazebo.macro.xacro"/>
 
   <!-- Null inertial element. This is needed to make the model work with
        Gazebo. -->
@@ -268,7 +266,7 @@
     </link>
 
     <gazebo reference="${lr_prefix}_${fr_prefix}_wheel">
-      <material>Gazebo/Black</material>
+      <material>Gazebo/DarkGrey</material>
     </gazebo>
   </xacro:macro>
 
@@ -391,13 +389,73 @@
     </visual>
   </link>
 
-  <joint name="camera_joint" type="fixed">
-    <origin xyz="0.073 -0.011 0.084" rpy="0 0 0"/>
+  <!--lane kinect camara center -->
+  <joint name="kinect_joint" type="fixed">
+    <origin xyz="0.073 0.0 0.12" rpy="0.5 0.0 1.5708"/>
     <parent link="base_link"/>
-    <child link="camera_link"/>
+    <child link="kinect_link"/>
   </joint>
 
-  <link name="camera_link">
+  <link name="kinect_link">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://traxxas_description/meshes/kinect.dae"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.06 0.30 0.07"/>
+      </geometry>
+    </collision>
+  </link>
+
+
+  <joint name="kinect_optical_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 -1.5708"/>
+    <parent link="kinect_link"/>
+    <child link="kinect_optical_frame"/>
+  </joint>
+  <link name="kinect_optical_frame"/>
+
+  <!--signal kinect camara -->
+  <joint name="kinect2_joint" type="fixed">
+    <origin xyz="0.073 0.0 0.24" rpy="0 0 1.5708"/>
+    <parent link="base_link"/>
+    <child link="kinect2_link"/>
+  </joint>
+
+  <link name="kinect2_link">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://traxxas_description/meshes/kinect.dae"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.06 0.30 0.07"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="kinect2_optical_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 -1.5708"/>
+    <parent link="kinect2_link"/>
+    <child link="kinect2_optical_frame"/>
+  </joint>
+  <link name="kinect2_optical_frame" />
+
+  <!--lane camara left -->
+  <joint name="cameral_joint" type="fixed">
+    <origin xyz="0.073 0.15 0.084" rpy="0 0.6 0"/>
+    <parent link="base_link"/>
+    <child link="cameral_link"/>
+  </joint>
+
+  <link name="cameral_link">
     <visual>
       <geometry>
         <box size="0.015 0.030 0.027"/>
@@ -412,21 +470,57 @@
     </collision>
   </link>
 
-    <joint name="camera_rgb_joint" type="fixed">
-    <origin xyz="0.003 0.011 0.45" rpy="0 0.6 0"/> 
-    <parent link="camera_link"/>
-    <child link="camera_rgb_frame"/>
+  <joint name="cameral_rgb_joint" type="fixed">
+    <origin xyz="0.003 0.011 0.45" rpy="0 0 0"/> 
+      <parent link="cameral_link"/>
+    <child link="cameral_rgb_frame"/>
   </joint>
-  <link name="camera_rgb_frame"/>
+  <link name="cameral_rgb_frame"/>
 
-  <joint name="camera_rgb_optical_joint" type="fixed">
+  <joint name="cameral_rgb_optical_joint" type="fixed">
     <origin xyz="0 0 0" rpy="-1.57 0 -1.57"/>
-    <parent link="camera_rgb_frame"/>
-    <child link="camera_rgb_optical_frame"/>
+    <parent link="cameral_rgb_frame"/>
+    <child link="cameral_rgb_optical_frame"/>
   </joint>
-  <link name="camera_rgb_optical_frame"/>
+  <link name="cameral_rgb_optical_frame"/>
 
+  <!--lane camara right -->
+  <joint name="camerar_joint" type="fixed">
+    <origin xyz="0.073 -0.15 0.084" rpy="0 0.6 0"/>
+    <parent link="base_link"/>
+    <child link="camerar_link"/>
+  </joint>
 
+  <link name="camerar_link">
+    <visual>
+      <geometry>
+        <box size="0.015 0.030 0.027"/>
+      </geometry>
+      <material name="camera_mat"/>
+    </visual>
+    <collision>
+      <origin xyz="0.005 0.011 0.013" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.015 0.030 0.027"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="camerar_rgb_joint" type="fixed">
+    <origin xyz="0.003 0.011 0.45" rpy="0 0 0"/> 
+      <parent link="camerar_link"/>
+    <child link="camerar_rgb_frame"/>
+  </joint>
+  <link name="camerar_rgb_frame"/>
+
+  <joint name="camerar_rgb_optical_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="-1.57 0 -1.57"/>
+    <parent link="camerar_rgb_frame"/>
+    <child link="camerar_rgb_optical_frame"/>
+  </joint>
+  <link name="camerar_rgb_optical_frame"/>
+
+  <!--gazebo control -->
   <gazebo>
     <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
       <!-- As of 10/7/13, setting controlPeriod to a value greater than

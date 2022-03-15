@@ -1,6 +1,6 @@
 <launch>
 
-  <arg name="image_raw_topic" default="/ackermann_vehicle/camera/rgb/image_raw" />
+  <arg name="image_raw_topic" default="/3d_image/image_raw" />
   <arg name="twist_cmd_topic" default="/cmd_vel" />
   <arg name="signal_cmd_topic" default=""/>
   <arg name="twist_linear_x" default="1" />

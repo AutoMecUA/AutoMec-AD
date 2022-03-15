@@ -93,7 +93,7 @@
     <color rgba="0 1 0 1"/>
   </material>
 
-  <xacro:include filename="$(find traxxas_description)/urdf/robot04.gazebo.macro.xacro"/>
+  <xacro:include filename="$(find traxxas_description)/urdf/robot05.gazebo.macro.xacro"/>
 
   <!-- Null inertial element. This is needed to make the model work with
        Gazebo. -->
@@ -389,77 +389,64 @@
     </visual>
   </link>
 
-  <!--lane camara center -->
-  <joint name="camera_joint" type="fixed">
-    <origin xyz="0.073 0.0 0.084" rpy="0 0.6 0"/>
+  <!--lane kinect camara center -->
+  <joint name="kinect_joint" type="fixed">
+    <origin xyz="0.073 0.0 0.12" rpy="0.8 0.0 1.5708"/>
     <parent link="base_link"/>
-    <child link="camera_link"/>
+    <child link="kinect_link"/>
   </joint>
 
-  <link name="camera_link">
+  <link name="kinect_link">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
     <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <box size="0.015 0.030 0.027"/>
+        <mesh filename="package://traxxas_description/meshes/kinect.dae"/>
       </geometry>
-      <material name="camera_mat"/>
     </visual>
     <collision>
-      <origin xyz="0.005 0.0 0.013" rpy="0 0 0"/>
       <geometry>
-        <box size="0.015 0.030 0.027"/>
+        <box size="0.06 0.30 0.07"/>
       </geometry>
     </collision>
   </link>
 
-  <joint name="camera_rgb_joint" type="fixed">
-    <origin xyz="0.003 0.0 0.45" rpy="0 0 0"/>  
-      <parent link="camera_link"/>
-    <child link="camera_rgb_frame"/>
-  </joint>
-  <link name="camera_rgb_frame"/>
 
-  <joint name="camera_rgb_optical_joint" type="fixed">
-    <origin xyz="0 0 0" rpy="-1.57 0 -1.57"/>
-    <parent link="camera_rgb_frame"/>
-    <child link="camera_rgb_optical_frame"/>
+  <joint name="kinect_optical_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 -1.5708"/>
+    <parent link="kinect_link"/>
+    <child link="kinect_optical_frame"/>
   </joint>
-  <link name="camera_rgb_optical_frame"/>
+  <link name="kinect_optical_frame"/>
 
-  <!--signal camara -->
-  <joint name="camera2_joint" type="fixed">
-    <origin xyz="0.073 0.0 0.14" rpy="0 0 0"/>
+  <!--signal kinect camara -->
+  <joint name="kinect2_joint" type="fixed">
+    <origin xyz="0.073 0.0 0.24" rpy="0 0 1.5708"/>
     <parent link="base_link"/>
-    <child link="camera2_link"/>
+    <child link="kinect2_link"/>
   </joint>
 
-  <link name="camera2_link">
+  <link name="kinect2_link">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
     <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <box size="0.015 0.030 0.027"/>
+        <mesh filename="package://traxxas_description/meshes/kinect.dae"/>
       </geometry>
-      <material name="camera_mat"/>
     </visual>
     <collision>
-      <origin xyz="0.005 0.0 0.013" rpy="0 0 0"/>
       <geometry>
-        <box size="0.015 0.030 0.027"/>
+        <box size="0.06 0.30 0.07"/>
       </geometry>
     </collision>
   </link>
 
-  <joint name="camera2_rgb_joint" type="fixed">
-    <origin xyz="0.003 0.0 0.45" rpy="0 0 0"/>
-    <parent link="camera2_link"/>
-    <child link="camera2_rgb_frame"/>
+  <joint name="kinect2_optical_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 -1.5708"/>
+    <parent link="kinect2_link"/>
+    <child link="kinect2_optical_frame"/>
   </joint>
-  <link name="camera2_rgb_frame"/>
-
-  <joint name="camera2_rgb_optical_joint" type="fixed">
-    <origin xyz="0 0 0" rpy="-1.57 0 -1.57"/>
-    <parent link="camera2_rgb_frame"/>
-    <child link="camera2_rgb_optical_frame"/>
-  </joint>
-  <link name="camera2_rgb_optical_frame"/>
+  <link name="kinect2_optical_frame" />
 
   <!--lane camara left -->
   <joint name="cameral_joint" type="fixed">
