@@ -5,6 +5,7 @@
   <arg name="signal_cmd_topic" default=""/>
   <arg name="twist_linear_x" default="1" />
   <arg name="model" default="" />
+  <arg name="urdf" default="robot05_040_038"/>
   
   <include file="$(find cnn)/launch/driving1.launch">
     <arg name="signal_cmd_topic" value="$(arg signal_cmd_topic)"/>
@@ -12,6 +13,7 @@
     <arg name="twist_cmd_topic" value="$(arg twist_cmd_topic)" />
     <arg name="twist_linear_x" value="$(arg twist_linear_x)" />
     <arg name="model" value="$(arg model)" />
+    <arg name="urdf" value="$(arg urdf)"/>
   </include>
   
 </launch>

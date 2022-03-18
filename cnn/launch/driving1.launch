@@ -6,6 +6,8 @@
   <arg name="signal_cmd_topic" default=""/>
   <arg name="vel_cmd_topic" default="" /> <!-- /android_input_vel -->
   <arg name="model" default=""/>
+  <arg name="urdf" default="robot05_040_038"/>
+
 
   <group if="$(eval arg('model') != '')">
     <node name="driving" pkg="cnn" type="driving1.py" output="screen" required="true" >
@@ -15,6 +17,7 @@
       <param name="vel_cmd_topic" value="$(arg vel_cmd_topic)" />
       <param name="signal_cmd_topic" value="$(arg signal_cmd_topic)"/>
       <param name="modelname" value="$(arg model)" />
+      <param name="urdf" value="$(arg urdf)" />
     </node>
   </group>
   
