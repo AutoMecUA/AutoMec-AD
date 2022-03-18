@@ -3,6 +3,7 @@
 # Imports
 import argparse
 import sys
+import time
 
 import cv2
 from csv import writer
@@ -102,12 +103,21 @@ def main():
             ds_environment = info_loaded['model']['environment']
 
             if ds_environment == 'gazebo':
+                time.sleep(5)
                 ds_urdf = info_loaded['model']['urdf']
                 if urdf == ds_urdf:
                     rospy.loginfo(f'You are running with {urdf}')
                 else:
                     rospy.logerr(f'You are running with {urdf} instead of {ds_urdf}')
-                    sys.exit()
+                    enter_pressed = input("\n" + "Continue to use this model? [y/N]: ")
+
+                    if enter_pressed.lower() == "n" or enter_pressed == "":
+                        rospy.loginfo("Shutting down")
+                        sys.exit()
+                    else:
+                        rospy.loginfo("Continuing the script")
+
+
 
 
 
