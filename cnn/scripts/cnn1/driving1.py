@@ -84,7 +84,7 @@ def main():
     twist_linear_x = rospy.get_param('~twist_linear_x', 1)
     signal_cmd_topic = rospy.get_param('~signal_cmd_topic', '')
     modelname = rospy.get_param('~modelname', 'model1.h5')
-    urdf = rospy.get_param('~urdf','robot05_040_038')
+    urdf = rospy.get_param('~urdf','')
 
     # Defining path to model
     s = str(pathlib.Path(__file__).parent.absolute())
@@ -103,11 +103,24 @@ def main():
             ds_environment = info_loaded['model']['environment']
 
             if ds_environment == 'gazebo':
-                time.sleep(5)
                 ds_urdf = info_loaded['model']['urdf']
-                if urdf == ds_urdf:
+
+                if urdf == "":
+                    rospy.logerr(f'You are running a simulation model in real life\n')
+                    while True:
+                        enter_pressed = input("Continue to use this model? [y/N]: ")
+                        if enter_pressed.lower() == "n" or enter_pressed.lower() == "no" or enter_pressed == "":
+                            rospy.loginfo("Shutting down")
+                            sys.exit()
+                        elif enter_pressed.lower() == "yes" or enter_pressed.lower() == "y":
+                            rospy.loginfo("Continuing the script")
+                            break
+                        else:
+                            rospy.loginfo("Please use a valid statement (yes/no)")
+                elif urdf == ds_urdf:
                     rospy.loginfo(f'You are running with {urdf}')
                 else:
+                    time.sleep(5)
                     rospy.logerr(f'You are running with {urdf} instead of {ds_urdf} \n')
                     while True:
 
@@ -121,7 +134,24 @@ def main():
                             break
                         else:
                             rospy.loginfo("Please use a valid statement (yes/no)")
+            elif ds_environment == 'physical':
 
+                if urdf != "":
+                    time.sleep(5)
+                    rospy.logerr(f'You are running a physical model in gazebo\n')
+                    while True:
+                        enter_pressed = input("Continue to use this model? [y/N]: ")
+                        if enter_pressed.lower() == "n" or enter_pressed.lower() == "no" or enter_pressed == "":
+                            rospy.loginfo("Shutting down")
+                            sys.exit()
+                        elif enter_pressed.lower() == "yes" or enter_pressed.lower() == "y":
+                            rospy.loginfo("Continuing the script")
+                            break
+                        else:
+                            rospy.loginfo("Please use a valid statement (yes/no)")
+            else:
+                rospy.logerr("No valid environment, please verify your YAML file")
+                sys.exit()
 
 
 

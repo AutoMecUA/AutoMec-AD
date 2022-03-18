@@ -6,7 +6,7 @@
   <arg name="signal_cmd_topic" default=""/>
   <arg name="vel_cmd_topic" default="" /> <!-- /android_input_vel -->
   <arg name="model" default=""/>
-  <arg name="urdf" default="robot05_040_038"/>
+  <arg name="urdf" default=""/>
 
 
   <group if="$(eval arg('model') != '')">
