@@ -24,50 +24,6 @@ if bool(debug_mode):
         rospy.logwarn("Didn't find any debug server (Errno 111: Connection refused). "
                       "Make sure you launch it before this script.")
 
-# Pose parameters' scope constants (min,max)
-RPY_RANGE: Tuple[float, float] = (.0, 2 * pi)
-XY_RANGE: Tuple[float, float] = (-10., 10.)
-Z_RANGE: Tuple[float, float] = (-3., 3.)
-# Maps each parameter to its range
-ID_RANGES: dict = dict(
-    roll=RPY_RANGE, pitch=RPY_RANGE, yaw=RPY_RANGE,
-    x=XY_RANGE, y=XY_RANGE, z=Z_RANGE
-)
-
-
-def normalize(range_max: float, range_min: float, percentage: int) -> float:
-    """
-    Maps a percentage value to its absolute given the minimum value (0%) and maximum (100%)
-    """
-    portion: float = percentage / 100.
-    return range_min + (range_max - range_min) * portion
-
-
-def onTrackBars(_, window_name) -> Dict[str, float]:
-    """
-    Function that is called continuously to get the position of the 6 trackbars created for binarizing an image.
-    The function returns these positions in a dictionary and in Numpy Arrays.
-    :param _: Obligatory variable from OpenCV trackbars but assigned as a silent variable because will not be used.
-    :param window_name: The name of the OpenCV window from where we need to get the values of the trackbars.
-    Datatype: OpenCV object
-    :return: The dictionary with the limits assigned in the trackbars. Convert the dictionary to numpy arrays because
-    of OpenCV and return also.
-    'limits' Datatype: Dict
-    'mins' Datatype: Numpy Array object
-    'maxs' Datatype: Numpy Array object
-    """
-
-    # Pose parameters
-    pose_params: tuple = ("roll", "pitch", "yaw", "x", "y", "z")
-
-    pose: dict = {
-        param: normalize(range_max=ID_RANGES[param][1],
-                         range_min=ID_RANGES[param][0],
-                         percentage=cv2.getTrackbarPos(param, window_name))
-        for param in pose_params
-    }
-
-    return pose
 
 def onMouse(event, x, y, flags, param):
     """
@@ -162,12 +118,12 @@ def main():
     global img_rgb
     global seeimage, seeinfo
     # Pose parameters
-    roll: float = 0.6
-    pitch: float = .0
-    yaw: float = .0
+    roll: float = 3.14
+    pitch: float = -0.972
+    yaw: float = -1.57
     x: float = .0
-    y: float = .0
-    z: float = .547
+    y: float = .561
+    z: float = .016
 
 
     # Defining variables
@@ -229,15 +185,6 @@ def main():
         # Showing image
         cv2.imshow(winname=window_name_1, mat=img_rgb)
         cv2.imshow(winname=window_name_2, mat=output_image.astype(np.uint8))
-        # Sliders parametrize pose's each parameter
-        onTrackBars_partial: partial[dict] = partial(onTrackBars, window_name=window_name_2)
-        # FIXME actual sliders don't move
-        cv2.createTrackbar('roll', window_name_2, 0, 100, onTrackBars_partial)
-        cv2.createTrackbar('pitch', window_name_2, 0, 100, onTrackBars_partial)
-        cv2.createTrackbar('yaw', window_name_2, 0, 100, onTrackBars_partial)
-        cv2.createTrackbar('x', window_name_2, 0, 100, onTrackBars_partial)
-        cv2.createTrackbar('y', window_name_2, 0, 100, onTrackBars_partial)
-        cv2.createTrackbar('z', window_name_2, 0, 100, onTrackBars_partial)
 
         cv2.waitKey(1)
 

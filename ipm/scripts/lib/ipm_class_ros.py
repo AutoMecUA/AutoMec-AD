@@ -41,7 +41,19 @@ class IPM:
         cTr = np.vstack(self.XYZ)
 
         # Defining rotation matrix
-        cRr = transf.Rotation.from_rotvec(np.asarray(self.rpy)).as_matrix()
+        # cRr = transf.Rotation.from_rotvec(np.asarray(self.rpy)).as_matrix()
+        cRr = np.array([[np.cos(self.rpy[1]) * np.cos(self.rpy[2]),
+                         np.sin(self.rpy[0]) * np.sin(self.rpy[1]) * np.cos(self.rpy[2]) - np.sin(self.rpy[2]) * np.cos(
+                             self.rpy[0]),
+                         np.sin(self.rpy[1]) * np.cos(self.rpy[0]) * np.cos(self.rpy[2]) + np.sin(self.rpy[0]) * np.sin(
+                             self.rpy[2])],
+                        [np.sin(self.rpy[2]) * np.cos(self.rpy[1]),
+                         np.sin(self.rpy[0]) * np.sin(self.rpy[1]) * np.sin(self.rpy[2]) + np.cos(self.rpy[0]) * np.cos(
+                             self.rpy[2]),
+                         np.sin(self.rpy[1]) * np.sin(self.rpy[2]) * np.cos(self.rpy[0]) - np.sin(self.rpy[0]) * np.cos(
+                             self.rpy[2])],
+                        [-np.sin(self.rpy[1]), np.sin(self.rpy[0]) * np.cos(self.rpy[1]),
+                         np.cos(self.rpy[0]) * np.cos(self.rpy[1])]])
 
         # Multiplying by the intrinsic matrix
         self.P = np.matmul(self.K, cRr)
@@ -128,7 +140,7 @@ class IPM:
         output_image = np.zeros([self.height, self.width])
 
         for i in range(0, len(self.x_array)):
-            output_image[self.x_array[i], self.y_array[i]] = v_array[i]
+            output_image[self.y_array[i], self.x_array[i]] = v_array[i]
 
         print(f"The image writing process takes: {time.time() - _t0}s")
 
