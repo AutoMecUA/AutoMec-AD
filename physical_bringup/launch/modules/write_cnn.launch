@@ -7,6 +7,8 @@
   <arg name="rate" default="30"/>
   <arg name="width" default="320"/>
   <arg name="height" default="160"/>
+  <arg name="env" default="physical"/>
+
 
   <include file="$(find cnn)/launch/write.launch">
     <arg name="image_raw_topic" value="$(arg image_raw_topic)"/>
@@ -16,6 +18,7 @@
     <arg name="rate" value="$(arg rate)"/>
     <arg name="width" value="$(arg width)"/>
     <arg name="height" value="$(arg height)"/>
+    <arg name="env" value="$(arg env)"/>
   </include>
 
 </launch>

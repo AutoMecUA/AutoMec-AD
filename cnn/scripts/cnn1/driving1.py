@@ -2,11 +2,15 @@
 
 # Imports
 import argparse
+import sys
+import time
+
 import cv2
 from csv import writer
 import copy
 import numpy as np
 import rospy
+import yaml
 from geometry_msgs.msg._Twist import Twist
 from sensor_msgs.msg._Image import Image
 from std_msgs.msg import Bool
@@ -80,10 +84,77 @@ def main():
     twist_linear_x = rospy.get_param('~twist_linear_x', 1)
     signal_cmd_topic = rospy.get_param('~signal_cmd_topic', '')
     modelname = rospy.get_param('~modelname', 'model1.h5')
+    urdf = rospy.get_param('~urdf','')
 
     # Defining path to model
     s = str(pathlib.Path(__file__).parent.absolute())
     path = s + '/../../models/cnn1_' + modelname
+
+    if not os.path.isfile(path + '_info.yaml'):
+        have_dataset_yaml = False
+        # we may allow to continue processing with default data
+        print("no yaml info file found. exit.")
+        sys.exit()
+    else:
+        with open(path + '_info.yaml') as file:
+            # The FullLoader parameter handles the conversion from YAML
+            # scalar values to Python the dictionary format
+            info_loaded = yaml.load(file, Loader=yaml.FullLoader)
+            ds_environment = info_loaded['model']['environment']
+
+            if ds_environment == 'gazebo':
+                ds_urdf = info_loaded['model']['urdf']
+
+                if urdf == "":
+                    rospy.logerr(f'You are running a simulation model in real life\n')
+                    while True:
+                        enter_pressed = input("Continue to use this model? [y/N]: ")
+                        if enter_pressed.lower() == "n" or enter_pressed.lower() == "no" or enter_pressed == "":
+                            rospy.loginfo("Shutting down")
+                            sys.exit()
+                        elif enter_pressed.lower() == "yes" or enter_pressed.lower() == "y":
+                            rospy.loginfo("Continuing the script")
+                            break
+                        else:
+                            rospy.loginfo("Please use a valid statement (yes/no)")
+                elif urdf == ds_urdf:
+                    rospy.loginfo(f'You are running with {urdf}')
+                else:
+                    time.sleep(5)
+                    rospy.logerr(f'You are running with {urdf} instead of {ds_urdf} \n')
+                    while True:
+
+                        enter_pressed = input( "Continue to use this model? [y/N]: ")
+
+                        if enter_pressed.lower() == "n" or enter_pressed.lower() == "no" or enter_pressed == "":
+                            rospy.loginfo("Shutting down")
+                            sys.exit()
+                        elif enter_pressed.lower() == "yes" or enter_pressed.lower() == "y":
+                            rospy.loginfo("Continuing the script")
+                            break
+                        else:
+                            rospy.loginfo("Please use a valid statement (yes/no)")
+            elif ds_environment == 'physical':
+
+                if urdf != "":
+                    time.sleep(5)
+                    rospy.logerr(f'You are running a physical model in gazebo\n')
+                    while True:
+                        enter_pressed = input("Continue to use this model? [y/N]: ")
+                        if enter_pressed.lower() == "n" or enter_pressed.lower() == "no" or enter_pressed == "":
+                            rospy.loginfo("Shutting down")
+                            sys.exit()
+                        elif enter_pressed.lower() == "yes" or enter_pressed.lower() == "y":
+                            rospy.loginfo("Continuing the script")
+                            break
+                        else:
+                            rospy.loginfo("Please use a valid statement (yes/no)")
+            else:
+                rospy.logerr("No valid environment, please verify your YAML file")
+                sys.exit()
+
+
+
 
     rospy.loginfo('Using model: %s', path)
     model = load_model(path)

@@ -69,21 +69,23 @@ def main():
     ds_frequency = 0
     ds_image_size = ''
     ds_linear_velocity = 0
+    ds_urdf = ''
 
     if have_dataset_yaml:
         with open(path_data + '/info.yaml') as file:
             # The FullLoader parameter handles the conversion from YAML
             # scalar values to Python the dictionary format
             info_loaded = yaml.load(file, Loader=yaml.FullLoader)
-
-            ds_cam_angle = info_loaded['dataset']['cam_angle']
-            ds_cam_height = info_loaded['dataset']['cam_height']
-            ds_developer = info_loaded['dataset']['developer']
             ds_environment = info_loaded['dataset']['environment']
+            ds_developer = info_loaded['dataset']['developer']
             ds_frequency = info_loaded['dataset']['frequency']
             ds_image_size = info_loaded['dataset']['image_size']
             ds_linear_velocity = info_loaded['dataset']['linear_velocity']
-
+            if ds_environment == 'gazebo':
+                ds_urdf = info_loaded['dataset']['urdf']
+            else:
+                ds_cam_angle = info_loaded['dataset']['cam_angle']
+                ds_cam_height = info_loaded['dataset']['cam_height']
 
     #sys.exit()
 
@@ -110,7 +112,7 @@ def main():
 
     path = s + '/../../models/cnn1_' + modelname
 
-    enter_pressed = input("\n" + "Create a new model from scratch? [Y/N]: ")
+    enter_pressed = input("\n" + "Create a new model from scratch? [Y/n]: ")
 
     if enter_pressed.lower() == "y" or enter_pressed == "":
         model = createModel(image_width, image_height)
@@ -135,6 +137,7 @@ def main():
         model_cam_angle = ds_cam_angle
         model_cam_height = ds_cam_height
         model_cnn_number = '1'
+        model_urdf = ds_urdf
     else:
         with open(path + '_info.yaml') as file:
             # The FullLoader parameter handles the conversion from YAML
@@ -149,7 +152,7 @@ def main():
             model_cam_angle = info_loaded['model']['cam_angle']
             model_cam_height = info_loaded['model']['cam_height']
             model_cnn_number = info_loaded['model']['cnn_number']
-
+            model_urdf = info_loaded['model']['urdf']
 
     model.summary()
 
@@ -173,12 +176,16 @@ def main():
             image_size = model_image_size,
             frequency = model_frequency,
             linear_velocity = model_linear_velocity,
-            environment = model_environment,   
-            cam_height = model_cam_height,
-            cam_angle = model_cam_angle,
-            cnn_number = model_cnn_number
+            environment = model_environment,
+            cnn_number = model_cnn_number,
+            epochs = epochs
         )
     )
+    if ds_environment == "gazebo":
+        info_data["model"]["urdf"] = model_urdf
+    else:
+        info_data["model"]["cam_height"] = model_cam_height
+        info_data["model"]["cam_angle"] = model_cam_angle
 
     with open(path + '_info.yaml', 'w') as outfile:
         yaml.dump(info_data, outfile, default_flow_style=False)
