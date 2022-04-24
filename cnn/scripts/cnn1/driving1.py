@@ -93,8 +93,17 @@ def main():
     if not os.path.isfile(path + '_info.yaml'):
         have_dataset_yaml = False
         # we may allow to continue processing with default data
-        print("no yaml info file found. exit.")
-        sys.exit()
+        rospy.logerr(f'You are running a model with no yaml.\n')
+        while True:
+            enter_pressed = input("Continue to use this model? [y/N]: ")
+            if enter_pressed.lower() == "n" or enter_pressed.lower() == "no" or enter_pressed == "":
+                rospy.loginfo("Shutting down")
+                sys.exit()
+            elif enter_pressed.lower() == "yes" or enter_pressed.lower() == "y":
+                rospy.loginfo("Continuing the script")
+                break
+            else:
+                rospy.loginfo("Please use a valid statement (yes/no)")
     else:
         with open(path + '_info.yaml') as file:
             # The FullLoader parameter handles the conversion from YAML
