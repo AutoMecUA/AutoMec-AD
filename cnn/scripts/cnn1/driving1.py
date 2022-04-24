@@ -93,6 +93,7 @@ def main():
     if not os.path.isfile(path + '_info.yaml'):
         have_dataset_yaml = False
         # we may allow to continue processing with default data
+        time.sleep(5)
         rospy.logerr(f'You are running a model with no yaml.\n')
         while True:
             enter_pressed = input("Continue to use this model? [y/N]: ")
