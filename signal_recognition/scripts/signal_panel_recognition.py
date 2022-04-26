@@ -85,6 +85,7 @@ def createMask(ranges_red, ranges_green, image):
 
     return mask.astype(np.bool)
 
+
 def message_RGB_ReceivedCallback(message):
     global img_rbg
     global bridge
@@ -105,6 +106,7 @@ def signal_handler(sig, frame):
         curr_time.hour) + '_' + str(curr_time.minute)
     signal_log.to_csv(log_path + '/signal_log_' + time_str + '.csv', mode='a', index=False, header=False)
     sys.exit(0)
+
 
 def create_image_dict(dict_images, scale_import, N_red, path):
     # Images Importation and Resizing
@@ -201,7 +203,6 @@ def create_image_dict(dict_images, scale_import, N_red, path):
             dict_images[name]['images'][key] = cv2.GaussianBlur(dict_images[name]['images'][key], (3, 3), 0)
     return dict_images
 
-
 def main():
     global signal_log
     global log_path
@@ -224,7 +225,7 @@ def main():
 
     # Detection Parameters
     scale_cap = 0.4
-    detection_threshold = 0.85
+    detection_threshold = 0.70
 
     # ______________________________________________________________________________
 
@@ -232,9 +233,9 @@ def main():
     dict_images = {
         'pForward': {'title': 'Follow Straight Ahead', 'type': 'Panel', 'color': 'green', 'images': {}},
         'pStop': {'title': 'Stop', 'type': 'Panel', 'color': 'red', 'images': {}},
-        'pLeft': {'title': 'Left', 'type': 'Panel', 'color': 'green', 'images': {}},
-        'pRight': {'title': 'Right', 'type': 'Panel', 'color': 'green', 'images': {}},
-        'pParking': {'title': 'Parking', 'type': 'Panel', 'color': 'yellow', 'images': {}},
+        # 'pLeft': {'title': 'Left', 'type': 'Panel', 'color': 'green', 'images': {}},
+        # 'pRight': {'title': 'Right', 'type': 'Panel', 'color': 'green', 'images': {}},
+        # 'pParking': {'title': 'Parking', 'type': 'Panel', 'color': 'yellow', 'images': {}},
         'pChess': {'title': 'Chess', 'type': 'Panel', 'color': 'red', 'images': {}}
     }
 
@@ -250,7 +251,7 @@ def main():
     segment = True
     count_stop = 0
     count_start = 0
-    count_max = 5
+    count_max = 2
 
     # Init Node
     rospy.init_node('ml_driving', anonymous=False)
@@ -422,7 +423,7 @@ def main():
             curr_time.microsecond)
         # add image, angle and velocity to the signal_log pandas
         max_res_round = round(max_res, 3)
-        rospy.loginfo(max_res_round)
+        # rospy.loginfo(max_res_round)
         row = pd.DataFrame([[time_str, max_name, max_res_round]], columns=['Time', 'Signal', 'Resolution'])
         signal_log = signal_log.append(row, ignore_index=True)
 
@@ -434,17 +435,17 @@ def main():
             for pt in zip(*max_loc[::-1]):
                 pt = tuple(int(pti / scale_cap) for pti in pt)
                 cv2.rectangle(img, pt, (pt[0] + max_width, pt[1] + max_height),
-                            dict_colors.get(dict_images[max_name]['color']), line_thickness)
+                              dict_colors.get(dict_images[max_name]['color']), line_thickness)
                 text = 'Detected: ' + max_name + ' ' + max_key + ' > ' + dict_images[max_name]['type'] + ': ' + \
-                    dict_images[max_name]['title']
+                       dict_images[max_name]['title']
 
                 origin = (pt[0], pt[1] + subtitle_offset)
                 origin_2 = (0, height_frame + subtitle_2_offset)
                 # Using cv2.putText() method
                 subtitle = cv2.putText(img, str(max_name) + '_' + str(max_key) + ' ' + str(round(max_res, 2)), origin,
-                                    font, font_scale, font_color, font_thickness, cv2.LINE_AA)
+                                       font, font_scale, font_color, font_thickness, cv2.LINE_AA)
                 subtitle_2 = cv2.putText(img, text, origin_2, font, font_scale, font_color, font_thickness,
-                                        cv2.LINE_AA)
+                                         cv2.LINE_AA)
 
             # Defining and publishing the velocity of the car in regards to the signal seen
             if max_name == "pForward":
@@ -455,6 +456,11 @@ def main():
                 velbool = False
                 count_stop = count_stop + 1
                 count_start = 0
+            elif max_name == "pChess":
+                velbool = False
+                count_stop = count_stop + 1
+                count_start = 0
+                rospy.loginfo('You have reached the end')
 
             if count_stop >= count_max or count_start >= count_max:
                 pubbool.publish(velbool)

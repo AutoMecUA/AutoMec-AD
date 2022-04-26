@@ -11,13 +11,14 @@
     <arg name="image_raw_topic" default="/camera/rgb/image_color"/>
 
     <arg name="camera_topic" default="/real_camera"/>
-    <arg name="int_camera_id" default="2"/>
-    <arg name="int_camera_id_2" default="2"/>
+    <arg name="int_camera_id0" default="2"/>
+    <arg name="int_camera_id1" default="4"/>
     <arg name="mask_mode" default="False"/>
+    <arg name="mask_master" default="False"/>
 
     <group if="$(eval arg('model') != '')">
 
-        <!-- <include file="$(find physical_bringup)/launch/modules/rosserial.launch" />  -->
+         <include file="$(find physical_bringup)/launch/modules/rosserial.launch" />
 
         <include file="$(find physical_bringup)/launch/modules/driving_cnn1.launch" >
             <arg name="model" value="$(arg model)"/>
@@ -34,26 +35,34 @@
             <arg name="vel_cmd_topic" value="$(arg vel_cmd_topic)"/>
         </include>
 
-        <include file="$(find physical_bringup)/launch/modules/signal_panel_recognition.launch">
+        <include file="$(find physical_bringup)/launch/modules/signal_panel_recognition.launch" ns="cam0">
             <arg name="signal_cmd_topic" value="$(arg signal_cmd_topic)"/>
-            <arg name="image_raw_topic" value="$(arg camera_topic)"/>
+            <arg name="image_raw_topic" value="$(arg camera_topic)0"/>
             <arg name="mask_mode" value="$(arg mask_mode)"/>
+            <arg name="mask_master" value="True"/>
         </include>
 
-        <include file="$(find physical_bringup)/launch/modules/lane_camera.launch" ns="cam1">
-            <arg name="camera_topic" value="$(arg camera_topic)"/>
-            <arg name="int_camera_id" value="$(arg int_camera_id)"/>
+        <include file="$(find physical_bringup)/launch/modules/signal_panel_recognition.launch" ns="cam1">
+            <arg name="signal_cmd_topic" value="$(arg signal_cmd_topic)"/>
+            <arg name="image_raw_topic" value="$(arg camera_topic)1"/>
+            <arg name="mask_mode" value="$(arg mask_mode)"/>
+            <arg name="mask_master" value="$(arg mask_master)"/>
+        </include>
+
+        <include file="$(find physical_bringup)/launch/modules/lane_camera.launch" ns="cam0">
+            <arg name="camera_topic" value="$(arg camera_topic)0"/>
+            <arg name="int_camera_id" value="$(arg int_camera_id0)"/>
         </include>
 
         <!-- Second camera -->
-        <include file="$(find physical_bringup)/launch/modules/lane_camera.launch" ns="cam2">
-            <arg name="camera_topic" value="$(arg camera_topic)"/>
-            <arg name="int_camera_id" value="$(arg int_camera_id_2)"/>
+        <include file="$(find physical_bringup)/launch/modules/lane_camera.launch" ns="cam1">
+            <arg name="camera_topic" value="$(arg camera_topic)1"/>
+            <arg name="int_camera_id" value="$(arg int_camera_id1)"/>
         </include>
 
-        <!-- <include file="$(find freenect_launch)/launch/freenect.launch"> -->
-            <!-- <arg name="depth_registration" value="true"/> -->
-        <!-- </include> -->
+         <include file="$(find freenect_launch)/launch/freenect.launch">
+             <arg name="depth_registration" value="true"/>
+         </include>
 
     </group>
 
