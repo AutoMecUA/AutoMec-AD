@@ -39,14 +39,12 @@
             <arg name="signal_cmd_topic" value="$(arg signal_cmd_topic)"/>
             <arg name="image_raw_topic" value="$(arg camera_topic)0"/>
             <arg name="mask_mode" value="$(arg mask_mode)"/>
-            <arg name="mask_master" value="True"/>
         </include>
 
         <include file="$(find physical_bringup)/launch/modules/signal_panel_recognition.launch" ns="cam1">
             <arg name="signal_cmd_topic" value="$(arg signal_cmd_topic)"/>
             <arg name="image_raw_topic" value="$(arg camera_topic)1"/>
             <arg name="mask_mode" value="$(arg mask_mode)"/>
-            <arg name="mask_master" value="$(arg mask_master)"/>
         </include>
 
         <include file="$(find physical_bringup)/launch/modules/lane_camera.launch" ns="cam0">
