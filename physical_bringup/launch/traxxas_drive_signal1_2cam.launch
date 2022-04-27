@@ -14,8 +14,7 @@
     <arg name="int_camera_id0" default="2"/>
     <arg name="int_camera_id1" default="4"/>
     <arg name="mask_mode" default="False"/>
-    <arg name="mask_master" default="False"/>
-
+    
     <group if="$(eval arg('model') != '')">
 
          <include file="$(find physical_bringup)/launch/modules/rosserial.launch" />
