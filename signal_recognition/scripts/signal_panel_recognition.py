@@ -33,9 +33,9 @@ def largestArea(mask_original):
 
     mask_original = mask_original.astype(np.uint8) * 255
 
+
     # Defining maximum area and mask label
-    maxArea = 0
-    maxLabel = 0
+    maxArea = 150
 
     # You need to choose 4 or 8 for connectivity type
     connectivity = 4
@@ -56,6 +56,9 @@ def largestArea(mask_original):
     # The fourth cell is the centroid matrix
     centroids = output[3]
 
+    # Create mask
+    mask = labels == -1
+
     # For each blob, find their area and compare it to the largest one
     for label in range(1, num_labels):
         # Find area
@@ -63,18 +66,8 @@ def largestArea(mask_original):
 
         # If the area is larger then the max area to date, replace it
         if area > maxArea:
-            maxArea = area
-            maxLabel = label
-
-    # If there are blobs, the label is different than zero
-    if maxLabel != 0:
-        # Create a new mask and find its centroid
-        mask = labels == maxLabel
-        centroid = centroids[maxLabel]
-    else:
-        # If there are no blobs, the mask stays the same, and there are no centroids
-        mask = mask_original
-        centroid = None
+            mask_temp = labels == label
+            mask = np.bitwise_or(mask, mask_temp)
 
     return mask
 
@@ -289,11 +282,13 @@ def main():
     # Images to import and Images Info
     dict_images = {
         'pForward': {'title': 'Follow Straight Ahead', 'type': 'Panel', 'color': 'green', 'images': {}},
-        'pStop': {'title': 'Stop', 'type': 'Panel', 'color': 'red', 'images': {}},
+        # 'pStop': {'title': 'Stop', 'type': 'Panel', 'color': 'red', 'images': {}},
         # 'pLeft': {'title': 'Left', 'type': 'Panel', 'color': 'green', 'images': {}},
         # 'pRight': {'title': 'Right', 'type': 'Panel', 'color': 'green', 'images': {}},
         # 'pParking': {'title': 'Parking', 'type': 'Panel', 'color': 'yellow', 'images': {}},
-        'pChess': {'title': 'Chess', 'type': 'Panel', 'color': 'red', 'images': {}}
+        'pChess': {'title': 'Chess', 'type': 'Panel', 'color': 'red', 'images': {}},
+        'pChessBlack': {'title': 'ChessBlack', 'type': 'Panel', 'color': 'red', 'images': {}},
+        'pChessBlackInv': {'title': 'ChessBlack', 'type': 'Panel', 'color': 'red', 'images': {}}
     }
 
     # Colors dictionary
@@ -515,7 +510,7 @@ def main():
                 velbool = False
                 count_stop = count_stop + 1
                 count_start = 0
-            elif max_name == "pChess":
+            elif max_name == "pChessBlack" or "pChessBlackInv":
                 velbool = False
                 count_stop = count_stop + 1
                 count_start = 0
