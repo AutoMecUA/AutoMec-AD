@@ -85,9 +85,7 @@ def main():
     twist_linear_x = rospy.get_param('~twist_linear_x', 1)
     signal_cmd_topic = rospy.get_param('~signal_cmd_topic', '')
     modelname = rospy.get_param('~modelname', 'model1.h5')
-    modelname_park = rospy.get_param('~modelname_park', 'model_park.h5')
     urdf = rospy.get_param('~urdf','')
-    signal_rec_value = rospy.get_param('signal_cmd_topic', 'stop')
 
     # Defining path to model
     s = str(pathlib.Path(__file__).parent.absolute())
@@ -205,7 +203,9 @@ def main():
 
         if begin_img == False:
             continue
-
+        
+        if waiting and velbool:
+            start_time = time.time()
         
         resized_ = preProcess(img_rbg)
 
