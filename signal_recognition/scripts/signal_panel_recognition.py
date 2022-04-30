@@ -275,7 +275,7 @@ def main():
 
     # Detection Parameters
     scale_cap = 0.4
-    detection_threshold = 0.60
+    detection_threshold = 0.7
 
     # ______________________________________________________________________________
 
@@ -285,7 +285,7 @@ def main():
         # 'pStop': {'title': 'Stop', 'type': 'Panel', 'color': 'red', 'images': {}},
         # 'pLeft': {'title': 'Left', 'type': 'Panel', 'color': 'green', 'images': {}},
         # 'pRight': {'title': 'Right', 'type': 'Panel', 'color': 'green', 'images': {}},
-        'pParking': {'title': 'Parking', 'type': 'Panel', 'color': 'yellow', 'images': {}},
+        #'pParking': {'title': 'Parking', 'type': 'Panel', 'color': 'yellow', 'images': {}},
         # 'pChess': {'title': 'Chess', 'type': 'Panel', 'color': 'red', 'images': {}},
         'pChessBlack': {'title': 'ChessBlack', 'type': 'Panel', 'color': 'red', 'images': {}},
         'pChessBlackInv': {'title': 'ChessBlack', 'type': 'Panel', 'color': 'red', 'images': {}}
