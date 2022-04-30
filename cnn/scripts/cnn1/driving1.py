@@ -198,45 +198,25 @@ def main():
     rate = rospy.Rate(30)
 
     # Timeout
-    start_time = time.time()
     timeout_time = 6
-    start_timer = None
-    counter_timer = 0
+    waiting = True
 
     while not rospy.is_shutdown():
 
         if begin_img == False:
             continue
 
+        
         resized_ = preProcess(img_rbg)
 
         cv2.imshow('Robot View Processed', resized_)
         cv2.imshow('Robot View', img_rbg)
         cv2.waitKey(1)
 
-        if (signal_rec_value == "P"):
-            
-            if (counter_timer == 0):
-                start_timer = timer.time()
-            
-            if (timer.time() - start_timer > 5): # 5 seconds, example...
-                 #STOP!!!!
-                 counter_timer = 0
-                 start_timer = None
-                 vel = 0
-                 velbool = False
-            else:
-                image_park = np.array([resized_])
-                steering_park = float(model_park.predict(image_park))
-                angle = steering_park
-            
-            counter_timer = counter_timer + 1
-            # meter contadores, outras cenas, wtv...
-        else:
-            # Predict angle
-            image = np.array([resized_])
-            steering = float(model.predict(image))
-            angle = steering
+        # Predict angle
+        image = np.array([resized_])
+        steering = float(model.predict(image))
+        angle = steering
 
         # Send twist
         twist.linear.x = vel
@@ -252,8 +232,8 @@ def main():
         rospy.loginfo(f'elapsed: {time_elapsed}')
 
         #if current_time - start_time > timeout_time:
-         #   pub_velocity.publish(False) 
-          #  sys.exit()
+        #    pub_velocity.publish(False) 
+        #    sys.exit()
 
         # To avoid any errors
         if twist_cmd_topic != '':
