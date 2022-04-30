@@ -198,6 +198,7 @@ def main():
     # Timeout
     timeout_time = 6
     waiting = True
+    start_time = None
 
     while not rospy.is_shutdown():
 
@@ -206,6 +207,7 @@ def main():
         
         if waiting and velbool:
             start_time = time.time()
+            #waiting = False
         
         resized_ = preProcess(img_rbg)
 
@@ -227,13 +229,14 @@ def main():
         twist.angular.z = angle
 
         # Current time
-        current_time = time.time()
-        time_elapsed = current_time - start_time
-        rospy.loginfo(f'elapsed: {time_elapsed}')
+        if not waiting:
+            current_time = time.time()
+            time_elapsed = current_time - start_time
+            rospy.loginfo(f'elapsed: {time_elapsed}')
 
-        #if current_time - start_time > timeout_time:
-        #    pub_velocity.publish(False) 
-        #    sys.exit()
+            if current_time - start_time > timeout_time:
+                pub_velocity.publish(False) 
+                sys.exit()
 
         # To avoid any errors
         if twist_cmd_topic != '':
