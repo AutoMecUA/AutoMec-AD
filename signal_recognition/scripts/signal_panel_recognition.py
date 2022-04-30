@@ -259,7 +259,7 @@ def main():
     # PARAMETERS__________________________________________________________________
 
     # Import Parameters
-    scale_import = 0.1  # The scale of the first image, related to the imported one.
+    scale_import = 0.2  # The scale of the first image, related to the imported one.
     N_red = 2  # Number of piramidizations to apply to each image.
 
     # Font Parameters
@@ -275,7 +275,7 @@ def main():
 
     # Detection Parameters
     scale_cap = 0.4
-    detection_threshold = 0.70
+    detection_threshold = 0.60
 
     # ______________________________________________________________________________
 
