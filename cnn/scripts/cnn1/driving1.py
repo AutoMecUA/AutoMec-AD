@@ -195,6 +195,10 @@ def main():
     #Frames per second
     rate = rospy.Rate(30)
 
+    # Timeout
+    start_time = time.time()
+    timeout_time = 6
+
     while not rospy.is_shutdown():
 
         if begin_img == False:
@@ -218,6 +222,15 @@ def main():
         twist.angular.x = 0
         twist.angular.y = 0
         twist.angular.z = angle
+
+        # Current time
+        current_time = time.time()
+        time_elapsed = current_time - start_time
+        rospy.loginfo(f'elapsed: {time_elapsed}')
+
+        #if current_time - start_time > timeout_time:
+         #   pub_velocity.publish(False) 
+          #  sys.exit()
 
         # To avoid any errors
         if twist_cmd_topic != '':
