@@ -85,7 +85,9 @@ def main():
     twist_linear_x = rospy.get_param('~twist_linear_x', 1)
     signal_cmd_topic = rospy.get_param('~signal_cmd_topic', '')
     modelname = rospy.get_param('~modelname', 'model1.h5')
+    modelname_park = rospy.get_param('~modelname_park', 'model_park.h5')
     urdf = rospy.get_param('~urdf','')
+    signal_rec_value = rospy.get_param('signal_cmd_topic', 'stop')
 
     # Defining path to model
     s = str(pathlib.Path(__file__).parent.absolute())
@@ -195,6 +197,9 @@ def main():
     #Frames per second
     rate = rospy.Rate(30)
 
+    start_timer = None
+    counter_timer = 0
+
     while not rospy.is_shutdown():
 
         if begin_img == False:
@@ -206,10 +211,29 @@ def main():
         cv2.imshow('Robot View', img_rbg)
         cv2.waitKey(1)
 
-        # Predict angle
-        image = np.array([resized_])
-        steering = float(model.predict(image))
-        angle = steering
+        if (signal_rec_value == "P"):
+            
+            if (counter_timer == 0):
+                start_timer = timer.time()
+            
+            if (timer.time() - start_timer > 5): # 5 seconds, example...
+                 #STOP!!!!
+                 counter_timer = 0
+                 start_timer = None
+                 vel = 0
+                 velbool = False
+            else:
+                image_park = np.array([resized_])
+                steering_park = float(model_park.predict(image_park))
+                angle = steering_park
+            
+            counter_timer = counter_timer + 1
+            # meter contadores, outras cenas, wtv...
+        else:
+            # Predict angle
+            image = np.array([resized_])
+            steering = float(model.predict(image))
+            angle = steering
 
         # Send twist
         twist.linear.x = vel
