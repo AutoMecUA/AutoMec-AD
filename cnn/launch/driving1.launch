@@ -6,6 +6,7 @@
   <arg name="signal_cmd_topic" default=""/>
   <arg name="vel_cmd_topic" default="" /> <!-- /android_input_vel -->
   <arg name="model" default=""/>
+  <arg name="model_park" default=""/>
   <arg name="urdf" default=""/>
 
 
@@ -17,6 +18,7 @@
       <param name="vel_cmd_topic" value="$(arg vel_cmd_topic)" />
       <param name="signal_cmd_topic" value="$(arg signal_cmd_topic)"/>
       <param name="modelname" value="$(arg model)" />
+      <param name="modelname_park" value="$(arg model_park)" />
       <param name="urdf" value="$(arg urdf)" />
     </node>
   </group>
