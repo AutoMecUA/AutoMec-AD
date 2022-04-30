@@ -285,8 +285,8 @@ def main():
         # 'pStop': {'title': 'Stop', 'type': 'Panel', 'color': 'red', 'images': {}},
         # 'pLeft': {'title': 'Left', 'type': 'Panel', 'color': 'green', 'images': {}},
         # 'pRight': {'title': 'Right', 'type': 'Panel', 'color': 'green', 'images': {}},
-        # 'pParking': {'title': 'Parking', 'type': 'Panel', 'color': 'yellow', 'images': {}},
-        'pChess': {'title': 'Chess', 'type': 'Panel', 'color': 'red', 'images': {}},
+        'pParking': {'title': 'Parking', 'type': 'Panel', 'color': 'yellow', 'images': {}},
+        # 'pChess': {'title': 'Chess', 'type': 'Panel', 'color': 'red', 'images': {}},
         'pChessBlack': {'title': 'ChessBlack', 'type': 'Panel', 'color': 'red', 'images': {}},
         'pChessBlackInv': {'title': 'ChessBlack', 'type': 'Panel', 'color': 'red', 'images': {}}
     }
@@ -502,7 +502,7 @@ def main():
                                          cv2.LINE_AA)
 
             # Defining and publishing the velocity of the car in regards to the signal seen
-            if max_name == "pForward":
+            if max_name == "pForward" or max_name == "pParking":
                 velbool = True
                 count_start = count_start + 1
                 count_stop = 0
@@ -510,7 +510,7 @@ def main():
                 velbool = False
                 count_stop = count_stop + 1
                 count_start = 0
-            elif max_name == "pChessBlack" or "pChessBlackInv":
+            elif max_name == "pChessBlack" or max_name == "pChessBlackInv":
                 velbool = False
                 count_stop = count_stop + 1
                 count_start = 0
