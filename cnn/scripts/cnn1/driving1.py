@@ -196,7 +196,7 @@ def main():
     rate = rospy.Rate(30)
 
     # Timeout
-    timeout_time = 6
+    timeout_time = 4*28
     waiting = True
     start_time = None
 
@@ -207,7 +207,7 @@ def main():
         
         if waiting and velbool:
             start_time = time.time()
-            #waiting = False
+            waiting = False
         
         resized_ = preProcess(img_rbg)
 
