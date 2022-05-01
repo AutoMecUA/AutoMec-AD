@@ -133,9 +133,10 @@ dmypy.json
 .vscode
 
 
-# databases and models
+# databases and models and logs
 cnn/data/**
 cnn/models/**
+signal_recognition/scripts/**
 
 # csv
 *.csv
