@@ -1,5 +1,7 @@
 <launch>
 
+    <arg name="port" default="/dev/ttyUSB0"/>
+
     <arg name="folder" default="set1"/>
     <arg name="twist_cmd_topic" default="/android_input_dir"/>
     <arg name="twist_dir_topic" default="/android_input_dir"/>
@@ -12,7 +14,9 @@
     <arg name="camera_topic" default="/camera/rgb/image_color"/>
     <arg name="int_camera_id" default="2"/> 
 
-    <include file="$(find physical_bringup)/launch/modules/rosserial.launch" /> 
+    <include file="$(find physical_bringup)/launch/rosserial.launch">
+        <arg name="port" value="$(arg port)"/>
+    </include>
 
     <include file="$(find physical_bringup)/launch/modules/android_conversor.launch">
         <arg name="twist_dir_topic" value="$(arg twist_dir_topic)"/>
@@ -23,7 +27,6 @@
         <arg name="bool_btn_topic" value="$(arg bool_btn_topic)"/>
     </include>
 
-    <!--<include file="$(find physical_bringup)/launch/modules/usb_cam.launch" />-->
 
     <include file="$(find freenect_launch)/launch/freenect.launch">
         <arg name="depth_registration" value="true"/>
