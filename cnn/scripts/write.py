@@ -16,9 +16,7 @@ from sensor_msgs.msg._Image import Image
 from cv_bridge.core import CvBridge
 from datetime import datetime
 import pandas as pd
-import datetime
 from PIL import Image as Image_pil
-
 import pathlib
 
 import yaml
@@ -82,6 +80,17 @@ def signal_handler(sig, frame):
 
     rospy.loginfo('You pressed Ctrl+C!')
     driving_log.to_csv(data_path + '/driving_log.csv', mode='a', index=False, header=False)
+    print("::::::::::::::::PRINT LIST:::::::::::" )
+    print([file for file in os.listdir(data_path + "/IMG")])
+    #print([file for file in os.listdir(data_path + "/IMG") if os.path.isfile(file)])
+    info_data['dataset']['image_number'] = len([file for file in os.listdir(data_path + "/IMG/")])
+    info_data['dataset']['date'] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    #comments = input("comments about the dataset: ")
+    #info_data['dataset']['comments'] = comments
+
+    with open(data_path+'/info.yaml', 'w') as outfile:
+        yaml.dump(info_data, outfile, default_flow_style=False)
+    
     sys.exit(0)
 
 
@@ -94,7 +103,7 @@ def main():
     global begin_cmd
     global begin_img
     global driving_log
-
+    global info_data
     global data_path
 
     # Initial Value
@@ -114,11 +123,12 @@ def main():
     image_height = rospy.get_param('~height', 160)
 
     # params only used in yaml file
-    cam_height = rospy.get_param('~cam_height', '')
-    cam_angle = rospy.get_param('~cam_angle', '')
+    cam_pose = rospy.get_param('~cam_pose', '')
     env = rospy.get_param('~env', '')
     vel = rospy.get_param('~vel', '0')
     urdf = rospy.get_param('~urdf', '')
+    challenge = "driving" #rospy.get_param('~challenge', 'driving') # TODO: add this to launch files...
+    
 
     
 
@@ -145,22 +155,22 @@ def main():
 
         dataset = dict(
             developer = os.getenv('automec_developer'),
-            image_size = imgsize_str,
+            cam_pose = cam_pose if env != 'gazebo' else urdf,
+            environment = env,   
             frequency = rate_hz,
+            image_size = imgsize_str,
+            image_number = 0,
             linear_velocity = vel,
-            environment = env   
+            challenge = challenge
         )
     )
 
-    if env == "gazebo":
-        info_data["dataset"]["urdf"] = urdf
-    else:
-        info_data["dataset"]["cam_height"] = cam_height
-        info_data["dataset"]["cam_angle"] = cam_angle
+    #if env == "gazebo":
+    #    info_data["dataset"]["urdf"] = urdf
+    #else:
+    #    info_data["dataset"]["cam_pose"] = cam_pose
 
 
-    with open(data_path+'/info.yaml', 'w') as outfile:
-        yaml.dump(info_data, outfile, default_flow_style=False)
 
     # Subscribe topics
     # If we have a bool topic, we are recording the linear variable as the boolean.
@@ -204,7 +214,7 @@ def main():
         if linear == 0:
             continue
 
-        curr_time = datetime.datetime.now()
+        curr_time = datetime.now()
         image_name = str(curr_time.year) + '_' + str(curr_time.month) + '_' + str(curr_time.day) + '__' + str(
             curr_time.hour) + '_' + str(curr_time.minute) + '_' + str(curr_time.second) + '__' + str(
             curr_time.microsecond) + str('.jpg')

@@ -6,8 +6,6 @@
     <arg name="vel" default="0.5"/>
     <arg name="image_raw_topic" default="/3d_image/image_raw"/>
 
-    <arg name="cam_height" default=""/>
-    <arg name="cam_angle" default=""/>
 
     <include file="$(find simulation_bringup)/launch/modules/arena.launch" >
         <arg name="world" value="$(arg world)"/>
@@ -25,8 +23,6 @@
         <arg name="folder" value="$(arg folder)"/>
         <!-- only for yaml file -->
         <arg name="vel" value="$(arg vel)"/>
-        <arg name="cam_height" value="$(arg cam_height)"/>
-        <arg name="cam_angle" value="$(arg cam_angle)"/>
         <arg name="image_raw_topic" value="$(arg image_raw_topic)"/>
         <arg name="urdf" value="$(arg urdf)"/>
     </include>
