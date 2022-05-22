@@ -1,0 +1,13 @@
+material Signal/Park
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture park.png
+      }
+    }
+  }
+}

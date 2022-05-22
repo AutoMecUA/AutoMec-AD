@@ -1,0 +1,13 @@
+material Signal/RoundAbout
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture round_about.png
+      }
+    }
+  }
+}

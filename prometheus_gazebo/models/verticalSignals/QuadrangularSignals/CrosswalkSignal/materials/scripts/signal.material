@@ -1,0 +1,13 @@
+material Signal/Crosswalk
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture crosswalk.png
+      }
+    }
+  }
+}
