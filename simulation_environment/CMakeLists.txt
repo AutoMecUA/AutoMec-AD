@@ -22,8 +22,8 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(gazebo_signal_panel src/gazebo_signalling_panel_controller.cpp)
-add_dependencies(gazebo_signal_panel ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(gazebo_signal_panel
-   ${catkin_LIBRARIES}
- )
+# add_executable(gazebo_signal_panel src/gazebo_signalling_panel_controller.cpp)
+# add_dependencies(gazebo_signal_panel ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# target_link_libraries(gazebo_signal_panel
+  #  ${catkin_LIBRARIES}
+#  )
