@@ -80,8 +80,8 @@ def signal_handler(sig, frame):
 
     rospy.loginfo('You pressed Ctrl+C!')
     driving_log.to_csv(data_path + '/driving_log.csv', mode='a', index=False, header=False)
-    print("::::::::::::::::PRINT LIST:::::::::::" )
-    print([file for file in os.listdir(data_path + "/IMG")])
+#    print("::::::::::::::::PRINT LIST:::::::::::" )
+#    print([file for file in os.listdir(data_path + "/IMG")])
     #print([file for file in os.listdir(data_path + "/IMG") if os.path.isfile(file)])
     info_data['dataset']['image_number'] = len([file for file in os.listdir(data_path + "/IMG/")])
     info_data['dataset']['date'] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
@@ -117,7 +117,6 @@ def main():
     image_raw_topic = rospy.get_param('~image_raw_topic', '/ackermann_vehicle/camera/rgb/image_raw')
     twist_cmd_topic = rospy.get_param('~twist_cmd_topic', '/cmd_vel')
     vel_cmd_topic = rospy.get_param('~vel_cmd_topic', '')
-    base_folder = rospy.get_param('~folder', 'set1')
     rate_hz = rospy.get_param('~rate', 30)
     image_width = rospy.get_param('~width', 320)
     image_height = rospy.get_param('~height', 160)
@@ -133,15 +132,16 @@ def main():
     
 
     s = str(pathlib.Path(__file__).parent.absolute())
-    data_path = s + '/../data/' + base_folder
+    date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    data_path = s + '/../data/' + env + "-" + datetime.now().strftime("%d-%m-%Hh%Mm%Ss")
 
     rospy.loginfo(data_path)
 
     # If the path does not exist, create it
     if not os.path.exists(data_path):
         os.makedirs(data_path)
-        data_path2 = data_path + '/IMG'
-        os.makedirs(data_path2)
+        data_path_imgs = data_path + '/IMG'
+        os.makedirs(data_path_imgs)
     else:
         rospy.logerr('Folder already exists, please try again with a different folder!')
         os._exit(os.EX_OK)

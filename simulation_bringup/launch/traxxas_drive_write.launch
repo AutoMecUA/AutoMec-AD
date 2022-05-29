@@ -1,6 +1,6 @@
 <launch>
 
-    <arg name="folder" default="set1"/>
+    <arg name="env" default="gazebo"/>
     <arg name="urdf" default="robot05"/>
     <arg name="world" default="arena1"/>
     <arg name="vel" default="0.5"/>
@@ -20,7 +20,7 @@
     </include>
 
     <include file="$(find simulation_bringup)/launch/modules/write_cnn.launch" >
-        <arg name="folder" value="$(arg folder)"/>
+        <arg name="env" value="$(arg env)"/>
         <!-- only for yaml file -->
         <arg name="vel" value="$(arg vel)"/>
         <arg name="image_raw_topic" value="$(arg image_raw_topic)"/>
