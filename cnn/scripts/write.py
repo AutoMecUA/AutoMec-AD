@@ -18,6 +18,7 @@ from datetime import datetime
 import pandas as pd
 from PIL import Image as Image_pil
 import pathlib
+from pynput import keyboard
 
 import yaml
 
@@ -72,26 +73,6 @@ def message_RGB_ReceivedCallback(message):
     img_rbg = bridge.imgmsg_to_cv2(message, "bgr8")
 
     begin_img = True
-
-
-def signal_handler(sig, frame):
-    global driving_log
-    global data_path
-
-    rospy.loginfo('You pressed Ctrl+C!')
-    driving_log.to_csv(data_path + '/driving_log.csv', mode='a', index=False, header=False)
-#    print("::::::::::::::::PRINT LIST:::::::::::" )
-#    print([file for file in os.listdir(data_path + "/IMG")])
-    #print([file for file in os.listdir(data_path + "/IMG") if os.path.isfile(file)])
-    info_data['dataset']['image_number'] = len([file for file in os.listdir(data_path + "/IMG/")])
-    info_data['dataset']['date'] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-    #comments = input("comments about the dataset: ")
-    #info_data['dataset']['comments'] = comments
-
-    with open(data_path+'/info.yaml', 'w') as outfile:
-        yaml.dump(info_data, outfile, default_flow_style=False)
-    
-    sys.exit(0)
 
 
 def main():
@@ -194,19 +175,20 @@ def main():
     # set loop rate 
     rate = rospy.Rate(rate_hz)
 
-    # set handler on termination
-    signal.signal(signal.SIGINT, signal_handler)
-
     # only to display saved image counter
     counter = 0
 
-    while not rospy.is_shutdown():
+    # read opencv key
+    key = -1
 
+    #while not rospy.is_shutdown():
+    while key != ord('q'):
         if not begin_img:
             continue
 
         cv2.imshow('Robot View', img_rbg)
-        cv2.waitKey(1)
+        key = cv2.waitKey(1)
+        #on_press(key)
 
         if not begin_cmd:
             continue
@@ -231,6 +213,15 @@ def main():
         rospy.loginfo('Image Saved: %s', counter)
         rate.sleep()
 
+        # save on shutdown...
+        if key == ord('q'):  
+            rospy.loginfo('You pressed "q"')
+            driving_log.to_csv(data_path + '/driving_log.csv', mode='a', index=False, header=False)
+            info_data['dataset']['image_number'] = len([file for file in os.listdir(data_path + "/IMG/")])
+            info_data['dataset']['date'] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+            with open(data_path+'/info.yaml', 'w') as outfile:
+                yaml.dump(info_data, outfile, default_flow_style=False)
+            rospy.signal_shutdown("All done, exiting ROS...")
 
 if __name__ == '__main__':
     main()
