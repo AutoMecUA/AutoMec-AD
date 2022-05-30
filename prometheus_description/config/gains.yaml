@@ -1,0 +1,3 @@
+gains:
+  rear_left_wheel_joint: { p: 1.0, d: 0.0, i: 0.00, i_clamp: 0.0 }
+  rear_right_wheel_joint: { p: 1.0, d: 0.0, i: 0.00, i_clamp: 0.0 }
