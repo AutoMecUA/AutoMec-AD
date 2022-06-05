@@ -213,15 +213,17 @@ def main():
         rospy.loginfo('Image Saved: %s', counter)
         rate.sleep()
 
-        # save on shutdown...
-        if key == ord('q'):  
-            rospy.loginfo('You pressed "q"')
-            driving_log.to_csv(data_path + '/driving_log.csv', mode='a', index=False, header=False)
-            info_data['dataset']['image_number'] = len([file for file in os.listdir(data_path + "/IMG/")])
-            info_data['dataset']['date'] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-            with open(data_path+'/info.yaml', 'w') as outfile:
-                yaml.dump(info_data, outfile, default_flow_style=False)
-            rospy.signal_shutdown("All done, exiting ROS...")
+    # save on shutdown...
+    if key == ord('q'):  
+        rospy.loginfo('You pressed "q"')
+        driving_log.to_csv(data_path + '/driving_log.csv', mode='a', index=False, header=False)
+        info_data['dataset']['image_number'] = len([file for file in os.listdir(data_path + "/IMG/")])
+        info_data['dataset']['date'] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        comments = str(input("[info.yaml] Additional comments about the dataset: "))
+        info_data['dataset']['comments'] = comments
+        with open(data_path+'/info.yaml', 'w') as outfile:
+            yaml.dump(info_data, outfile, default_flow_style=False)
+        rospy.signal_shutdown("All done, exiting ROS...")
 
 if __name__ == '__main__':
     main()
