@@ -3,6 +3,7 @@
 # Imports
 import os
 import signal
+import socket
 import sys
 import cv2
 from csv import writer
@@ -146,7 +147,7 @@ def main():
     info_data = dict(
 
         dataset = dict(
-            developer = os.getenv('automec_developer'),
+            developer = os.getenv('automec_developer') if os.getenv('automec_developer') else socket.gethostname(), 
             cam_pose = cam_pose if env != 'gazebo' else urdf,
             environment = env,   
             frequency = rate_hz,
