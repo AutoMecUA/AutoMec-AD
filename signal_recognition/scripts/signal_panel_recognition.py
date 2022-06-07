@@ -3,7 +3,7 @@
 # Imports
 import copy
 from functools import partial
-from typing import Tuple
+from typing import Tuple, List
 
 import cv2
 import numpy as np
@@ -18,10 +18,6 @@ import signal
 import sys
 import os
 import json
-
-global img_rbg
-global bridge
-global begin_img
 
 
 def largestArea(mask_original):
@@ -135,19 +131,14 @@ def _color_mask(image, color_ranges):
     return mask_red
 
 
-def message_RGB_ReceivedCallback(message):
-    global img_rbg
-    global bridge
-    global begin_img
+def message_RGB_ReceivedCallback(img_rgb_, bridge, begin_img_, message):
 
-    img_rbg = bridge.imgmsg_to_cv2(message, "bgr8")
+    img_rbg_ = bridge.imgmsg_to_cv2(message, "bgr8")
 
-    begin_img = True
+    begin_img_[0] = True
 
 
-def signal_handler():
-    global signal_log
-    global log_path
+def signal_handler(signal_log, log_path):
 
     rospy.loginfo('You pressed Ctrl+C!')
     curr_time = datetime.now()
@@ -244,8 +235,6 @@ def create_image_dict(dict_images, scale_import, n_red, path):
 
 
 def main():
-    global signal_log
-    global log_path
     # PARAMETERS__________________________________________________________________
 
     # Import Parameters
@@ -285,10 +274,8 @@ def main():
     dict_colors = dict(red=(0, 0, 255), green=(0, 255, 0), blue=(255, 0, 0), yellow=(0, 255, 255))
 
     # Defining variables
-    global img_rbg
-    global bridge
-    global begin_img
-    begin_img = False
+    img_rbg = None
+    begin_img: List[bool] = [False]
     vel_bool = False
     segment = True
     count_stop = 0
@@ -347,7 +334,8 @@ def main():
     signal_log = pd.DataFrame(columns=['Time', 'Signal', 'Resolution'])
 
     # set handler on termination
-    signal.signal(signal.SIGINT, signal_handler)
+    signal_handler_part = partial(signal_handler, signal_log, log_path)
+    signal.signal(signal.SIGINT, signal_handler_part)
 
     # ______________________________________________________________________________
 
@@ -360,14 +348,15 @@ def main():
     bridge = CvBridge()
 
     # Subscribe and publish topics (only after CvBridge)
+    message_RGB_ReceivedCallback_part = partial(message_RGB_ReceivedCallback, img_rbg, bridge, begin_img)
     rospy.Subscriber(image_raw_topic,
-                     Image, message_RGB_ReceivedCallback)
+                     Image, message_RGB_ReceivedCallback_part)
 
     rate = rospy.Rate(30)
 
     while not rospy.is_shutdown():
 
-        if begin_img is False:
+        if begin_img[0] is False:
             continue
 
         # Defining image shape
