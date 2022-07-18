@@ -4,7 +4,8 @@
     Robot model taken from http://wiki.ros.org/pr2_mechanism/Tutorials/SImple%20URDF-Controller%20Example
     -->
     <xacro:include filename="$(find prometheus_description)/urdf/prometheus_wheel.urdf.xacro"/>
-    <xacro:include filename="$(find prometheus_description)/urdf/prometheus_ackermann.macro.urdf.xacro"/>
+    <xacro:include filename="$(find prometheus_description)/urdf/prometheus_ackermann_macro.urdf.xacro"/>
+    <xacro:include filename="$(find prometheus_description)/urdf/sensors_macro.urdf.xacro"/>
     <xacro:property name="deg_to_rad" value="0.01745329251994329577"/>
     <!-- Constants for robot dimensions -->
     <xacro:property name="length" value="0.6" />
@@ -19,10 +20,19 @@
     <xacro:property name="axel_offset_y" value="0" /> <!-- Space btw top of beam and the each joint -->
     <xacro:property name="steer_offset" value="0.02" /> <!-- Link 1 -->
 
+
     <!-- Add car macro -->
     <xacro:prometheus length="${length}" width="${width}" height="${height}" wheel_radius="${wheel_radius}"/>
 
-    <!--    Add sensors-->
+    <!-- Add sensors-->
+    <xacro:kinect name="top_front_camera" x="0.3" y="0" z="0.6" roll="0" pitch="0.4" yaw="0"/>
+    <xacro:kinect name="bottom_front_camera" x="0.3" y="0" z="0.2" roll="0" pitch="0" yaw="0"/>
+    <xacro:usb_cam name="top_left_camera" x="0.3" y="0.1" z="0.8" roll="0" pitch="0" yaw="0"/>
+    <xacro:usb_cam name="top_right_camera" x="0.3" y="-0.1" z="0.8" roll="0" pitch="0" yaw="-1.5708"/>
+
+    <!-- Add gazebo functionalities-->
+    <xacro:include filename="$(find prometheus_description)/urdf/prometheus.gazebo.macro.xacro"/>
+
 
     <!-- joints for ackermann_steering_controller -->
     <xacro:front_steer name="front" parent="base" radius="${wheel_radius}" thickness="${thickness}"

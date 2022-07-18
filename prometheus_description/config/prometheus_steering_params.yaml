@@ -12,7 +12,7 @@ ackermann_steering_controller:
   pose_covariance_diagonal: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 1000.0]
   twist_covariance_diagonal: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 1000.0]
 
-  wheel_separation_h : 2.55
+  wheel_separation_h : 0.3
   wheel_radius : 0.285
   wheel_separation_h_multiplier: 1.0 # calibration parameter for odometry, needed for test.
   wheel_radius_multiplier    : 1.0 # default: 1.0
