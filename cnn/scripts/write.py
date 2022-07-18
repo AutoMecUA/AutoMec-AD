@@ -3,6 +3,7 @@
 # Imports
 import os
 import signal
+import socket
 import sys
 import cv2
 from csv import writer
@@ -16,11 +17,10 @@ from sensor_msgs.msg._Image import Image
 from cv_bridge.core import CvBridge
 from datetime import datetime
 import pandas as pd
-import datetime
 from PIL import Image as Image_pil
-
 import pathlib
-
+from pynput import keyboard
+import shutil
 import yaml
 
 # Global Variables
@@ -75,14 +75,16 @@ def message_RGB_ReceivedCallback(message):
 
     begin_img = True
 
-
-def signal_handler(sig, frame):
-    global driving_log
-    global data_path
-
-    rospy.loginfo('You pressed Ctrl+C!')
+def save_dataset(date):
+    rospy.loginfo('EXITING...')
     driving_log.to_csv(data_path + '/driving_log.csv', mode='a', index=False, header=False)
-    sys.exit(0)
+    info_data['dataset']['image_number'] = len([file for file in os.listdir(data_path + "/IMG/")])
+    info_data['dataset']['date'] = date + " until " + datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    comments = str(input("[info.yaml] Additional comments about the dataset: "))
+    info_data['dataset']['comments'] = comments
+    with open(data_path+'/info.yaml', 'w') as outfile:
+        yaml.dump(info_data, outfile, default_flow_style=False)
+    rospy.signal_shutdown("All done, exiting ROS...")
 
 
 def main():
@@ -94,7 +96,7 @@ def main():
     global begin_cmd
     global begin_img
     global driving_log
-
+    global info_data
     global data_path
 
     # Initial Value
@@ -108,30 +110,31 @@ def main():
     image_raw_topic = rospy.get_param('~image_raw_topic', '/ackermann_vehicle/camera/rgb/image_raw')
     twist_cmd_topic = rospy.get_param('~twist_cmd_topic', '/cmd_vel')
     vel_cmd_topic = rospy.get_param('~vel_cmd_topic', '')
-    base_folder = rospy.get_param('~folder', 'set1')
     rate_hz = rospy.get_param('~rate', 30)
     image_width = rospy.get_param('~width', 320)
     image_height = rospy.get_param('~height', 160)
 
     # params only used in yaml file
-    cam_height = rospy.get_param('~cam_height', '')
-    cam_angle = rospy.get_param('~cam_angle', '')
+    cam_pose = rospy.get_param('~cam_pose', '')
     env = rospy.get_param('~env', '')
     vel = rospy.get_param('~vel', '0')
     urdf = rospy.get_param('~urdf', '')
+    challenge = "driving" #rospy.get_param('~challenge', 'driving') # TODO: add this to launch files...
+    
 
     
 
     s = str(pathlib.Path(__file__).parent.absolute())
-    data_path = s + '/../data/' + base_folder
+    date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    data_path = s + '/../data/' + env + "-" + datetime.now().strftime("%d-%m-%Hh%Mm%Ss")
 
     rospy.loginfo(data_path)
 
     # If the path does not exist, create it
     if not os.path.exists(data_path):
         os.makedirs(data_path)
-        data_path2 = data_path + '/IMG'
-        os.makedirs(data_path2)
+        data_path_imgs = data_path + '/IMG'
+        os.makedirs(data_path_imgs)
     else:
         rospy.logerr('Folder already exists, please try again with a different folder!')
         os._exit(os.EX_OK)
@@ -144,23 +147,23 @@ def main():
     info_data = dict(
 
         dataset = dict(
-            developer = os.getenv('automec_developer'),
-            image_size = imgsize_str,
+            developer = os.getenv('automec_developer') if os.getenv('automec_developer') else socket.gethostname(), 
+            cam_pose = cam_pose if env != 'gazebo' else urdf,
+            environment = env,   
             frequency = rate_hz,
+            image_size = imgsize_str,
+            image_number = 0,
             linear_velocity = vel,
-            environment = env   
+            challenge = challenge
         )
     )
 
-    if env == "gazebo":
-        info_data["dataset"]["urdf"] = urdf
-    else:
-        info_data["dataset"]["cam_height"] = cam_height
-        info_data["dataset"]["cam_angle"] = cam_angle
+    #if env == "gazebo":
+    #    info_data["dataset"]["urdf"] = urdf
+    #else:
+    #    info_data["dataset"]["cam_pose"] = cam_pose
 
 
-    with open(data_path+'/info.yaml', 'w') as outfile:
-        yaml.dump(info_data, outfile, default_flow_style=False)
 
     # Subscribe topics
     # If we have a bool topic, we are recording the linear variable as the boolean.
@@ -184,19 +187,20 @@ def main():
     # set loop rate 
     rate = rospy.Rate(rate_hz)
 
-    # set handler on termination
-    signal.signal(signal.SIGINT, signal_handler)
-
     # only to display saved image counter
     counter = 0
 
-    while not rospy.is_shutdown():
+    # read opencv key
+    key = -1
 
+    #while not rospy.is_shutdown():
+    while key != ord('q') and key != ord('s'):
         if not begin_img:
             continue
 
         cv2.imshow('Robot View', img_rbg)
-        cv2.waitKey(1)
+        key = cv2.waitKey(1)
+        #on_press(key)
 
         if not begin_cmd:
             continue
@@ -204,7 +208,7 @@ def main():
         if linear == 0:
             continue
 
-        curr_time = datetime.datetime.now()
+        curr_time = datetime.now()
         image_name = str(curr_time.year) + '_' + str(curr_time.month) + '_' + str(curr_time.day) + '__' + str(
             curr_time.hour) + '_' + str(curr_time.minute) + '_' + str(curr_time.second) + '__' + str(
             curr_time.microsecond) + str('.jpg')
@@ -221,6 +225,17 @@ def main():
         rospy.loginfo('Image Saved: %s', counter)
         rate.sleep()
 
+    # save on shutdown...
+    if key == ord('s'):  
+        save_dataset(date)
+
+    if key == ord('q'):
+        confirmation = str(input("\n\nYou have pressed q[uit]: are you sure you want to close WITHOUT saving the dataset? (type 'yes' TO DISCARD the dataset, type 'no' or 'save' to SAVE the dataset): "))
+        if confirmation == "yes":
+            shutil.rmtree(data_path)
+            rospy.signal_shutdown("All done, exiting ROS...")
+        else:
+            save_dataset(date)
 
 if __name__ == '__main__':
     main()

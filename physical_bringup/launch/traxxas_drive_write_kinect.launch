@@ -13,6 +13,7 @@
 
     <arg name="camera_topic" default="/camera/rgb/image_color"/>
     <arg name="int_camera_id" default="2"/> 
+    <arg name="cam_pose" default=""/>
 
     <include file="$(find physical_bringup)/launch/rosserial.launch">
         <arg name="port" value="$(arg port)"/>
@@ -36,6 +37,7 @@
         <arg name="twist_cmd_topic" value="$(arg twist_cmd_topic)"/>
         <arg name="image_raw_topic" value="$(arg camera_topic)"/>
         <arg name="folder" value="$(arg folder)"/>
+      <param name="cam_pose" value="$(arg cam_pose)"/>
         <arg name="vel_cmd_topic" value="$(arg vel_cmd_topic)"/>
     </include>
 

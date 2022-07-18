@@ -7,6 +7,7 @@
     <arg name="int_vel_topic" default="/pub_vel"/>
     <arg name="int_vel_max" default="102"/>
     <arg name="bool_btn_topic" default="/android_input_velin"/>
+    <arg name="cam_pose" default=""/>
 
     <arg name="camera_topic" default="/real_camera"/>
     <arg name="int_camera_id" default="2"/> 
@@ -34,6 +35,7 @@
         <arg name="vel_cmd_topic" value="$(arg vel_cmd_topic)"/>
         <arg name="image_raw_topic" value="$(arg camera_topic)"/>
         <arg name="folder" value="$(arg folder)"/>
+        <arg name="cam_pose" value="$(arg cam_pose)"/>
     </include>
 
 </launch>

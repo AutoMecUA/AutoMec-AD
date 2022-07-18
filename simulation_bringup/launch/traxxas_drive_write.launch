@@ -1,13 +1,11 @@
 <launch>
 
-    <arg name="folder" default="set1"/>
+    <arg name="env" default="gazebo"/>
     <arg name="urdf" default="robot05"/>
     <arg name="world" default="arena1"/>
     <arg name="vel" default="0.5"/>
     <arg name="image_raw_topic" default="/3d_image/image_raw"/>
 
-    <arg name="cam_height" default=""/>
-    <arg name="cam_angle" default=""/>
 
     <include file="$(find simulation_bringup)/launch/modules/arena.launch" >
         <arg name="world" value="$(arg world)"/>
@@ -22,11 +20,9 @@
     </include>
 
     <include file="$(find simulation_bringup)/launch/modules/write_cnn.launch" >
-        <arg name="folder" value="$(arg folder)"/>
+        <arg name="env" value="$(arg env)"/>
         <!-- only for yaml file -->
         <arg name="vel" value="$(arg vel)"/>
-        <arg name="cam_height" value="$(arg cam_height)"/>
-        <arg name="cam_angle" value="$(arg cam_angle)"/>
         <arg name="image_raw_topic" value="$(arg image_raw_topic)"/>
         <arg name="urdf" value="$(arg urdf)"/>
     </include>
