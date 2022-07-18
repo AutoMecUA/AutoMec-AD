@@ -4,6 +4,8 @@
 import argparse
 import sys
 import time
+from functools import partial
+from typing import Any
 
 import cv2
 from csv import writer
@@ -22,57 +24,46 @@ import os
 import string
 from std_msgs.msg import Float32
 
-global img_rbg
-global bridge
-global begin_img
 
 def preProcess(img):
     # Define Region of interest
     #img = img[60:135, :, :]
     img = cv2.cvtColor(img, cv2.COLOR_RGB2YUV)
     img = cv2.GaussianBlur(img,  (3, 3), 0)
-    img = img[40:, :] #cut the 40 first lines 
+    img = img[40:, :]  #cut the 40 first lines
     img = cv2.resize(img, (320, 160))
     img = img/255
     return img
 
-def message_RGB_ReceivedCallback(message):
-    global img_rbg
-    global bridge
-    global begin_img
 
-    img_rbg = bridge.imgmsg_to_cv2(message, "bgr8")
+def message_RGB_ReceivedCallback(message, **kwargs):
 
-    begin_img = True
+    kwargs["img_rbg"] = kwargs["bridge"].imgmsg_to_cv2(message, "bgr8")
+
+    kwargs["begin_img"] = True
 
 
-def signalCallback(message):
-    global vel
-    global velbool
-    global twist_linear_x
+def signalCallback(message, **kwargs):
 
     # If we receive a positive message from the signal topic, we should go. If not, we should stop.
     if message.data:
-        vel = twist_linear_x
-        velbool = True
+        kwargs["vel"] = kwargs["twist_linear_x"]
+        kwargs["velbool"] = True
     else:
-        vel = 0
-        velbool = False
+        kwargs["vel"] = 0
+        kwargs["velbool"] = False
 
 
 def main():
 
     # Global variables
-    global vel, velbool
-    global img_rbg
-    global bridge
-    global begin_img
-    global twist_linear_x
+    kwargs: dict[str, Any] = dict(vel=None, velbool=None, img_rbg=None,
+                                  bridge=None, begin_img=None, twist_linear_x=None)
 
     # Defining starting values
-    begin_img = False
-    vel = 0
-    velbool = False
+    kwargs["begin_img"] = False
+    kwargs["vel"] = 0
+    kwargs["velbool"] = False
     twist = Twist()
 
     # Init Node
@@ -82,7 +73,7 @@ def main():
     image_raw_topic = rospy.get_param('~image_raw_topic', '/ackermann_vehicle/camera/rgb/image_raw')
     twist_cmd_topic = rospy.get_param('~twist_cmd_topic', '')
     vel_cmd_topic = rospy.get_param('~vel_cmd_topic', '')
-    twist_linear_x = rospy.get_param('~twist_linear_x', 1)
+    kwargs["twist_linear_x"] = rospy.get_param('~twist_linear_x', 1)
     signal_cmd_topic = rospy.get_param('~signal_cmd_topic', '')
     modelname = rospy.get_param('~modelname', 'model1.h5')
     urdf = rospy.get_param('~urdf','')
@@ -164,22 +155,23 @@ def main():
                 rospy.logerr("No valid environment, please verify your YAML file")
                 sys.exit()
 
-
-
-
     rospy.loginfo('Using model: %s', path)
     model = load_model(path)
 
+    # Partials
+    message_RGB_ReceivedCallback_part = partial(message_RGB_ReceivedCallback, **kwargs)
+    signalCallback_part = partial(signalCallback, **kwargs)
+
     # Subscribe and publish topics
-    rospy.Subscriber(image_raw_topic, Image, message_RGB_ReceivedCallback)
+    rospy.Subscriber(image_raw_topic, Image, message_RGB_ReceivedCallback_part)
 
     # If there is the signal topic, it should subscribe to it and act accordingly.
     # If not, the velocity should be max.
     if signal_cmd_topic == '':
-        vel = twist_linear_x
-        velbool = True
+        kwargs["vel"] = kwargs["twist_linear_x"]
+        kwargs["velbool"] = True
     else:
-        rospy.Subscriber(signal_cmd_topic, Bool, signalCallback)
+        rospy.Subscriber(signal_cmd_topic, Bool, signalCallback_part)
 
     # Differentiation between gazebo and real car
     if twist_cmd_topic != '':
@@ -188,11 +180,10 @@ def main():
     if vel_cmd_topic != '':
         pub_velocity = rospy.Publisher(vel_cmd_topic, Bool, queue_size=10)
 
-
     # Create an object of the CvBridge class
-    bridge = CvBridge()
+    kwargs["bridge"] = CvBridge()
 
-    #Frames per second
+    # Frames per second
     rate = rospy.Rate(30)
 
     # Timeout
@@ -202,17 +193,17 @@ def main():
 
     while not rospy.is_shutdown():
 
-        if begin_img == False:
+        if kwargs["begin_img"] is False:
             continue
         
-        if waiting and velbool:
+        if waiting and kwargs["velbool"]:
             start_time = time.time()
             waiting = False
         
-        resized_ = preProcess(img_rbg)
+        resized_ = preProcess(kwargs["img_rbg"])
 
         cv2.imshow('Robot View Processed', resized_)
-        cv2.imshow('Robot View', img_rbg)
+        cv2.imshow('Robot View', kwargs["img_rbg"])
         cv2.waitKey(1)
 
         # Predict angle
@@ -221,7 +212,7 @@ def main():
         angle = steering
 
         # Send twist
-        twist.linear.x = vel
+        twist.linear.x = kwargs["vel"]
         twist.linear.y = 0
         twist.linear.z = 0
         twist.angular.x = 0
@@ -243,9 +234,10 @@ def main():
             pub.publish(twist)
 
         if vel_cmd_topic != '':
-            pub_velocity.publish(velbool)
+            pub_velocity.publish(kwargs["velbool"])
 
         rate.sleep()
+
 
 if __name__ == '__main__':
     main()
