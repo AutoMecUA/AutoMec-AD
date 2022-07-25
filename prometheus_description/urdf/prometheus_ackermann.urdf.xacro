@@ -14,6 +14,7 @@
     <xacro:property name="length_offset" value="0"/>
     <xacro:property name="height_offset" value="0"/>
     <xacro:property name="wheel_radius" value="0.06" /> <!-- Link 1 -->
+    <xacro:property name="board_height" value="0.15" /> <!-- Link 1 -->
     <xacro:property name="thickness" value="0.032" /> <!-- Link 2 -->
     <!--  we need two because the car isn't a square-->
     <xacro:property name="axel_offset_x" value="0.5" /> <!-- Space btw top of beam and the each joint -->
@@ -22,13 +23,13 @@
 
 
     <!-- Add car macro -->
-    <xacro:prometheus length="${length}" width="${width}" height="${height}" wheel_radius="${wheel_radius}"/>
+    <xacro:prometheus length="${length}" width="${width}" height="${height}" board_height="${board_height}" wheel_radius="${wheel_radius}"/>
 
     <!-- Add sensors-->
-    <xacro:kinect name="top_front_camera" x="0.3" y="0" z="0.6" roll="0" pitch="0.4" yaw="0"/>
+    <xacro:kinect name="top_front_camera" x= "-0.22" y="0" z="0.6" roll="0" pitch="0.4" yaw="0"/>
     <xacro:kinect name="bottom_front_camera" x="0.3" y="0" z="0.2" roll="0" pitch="0" yaw="0"/>
-    <xacro:usb_cam name="top_left_camera" x="0.3" y="0.1" z="0.8" roll="0" pitch="0" yaw="0"/>
-    <xacro:usb_cam name="top_right_camera" x="0.3" y="-0.1" z="0.8" roll="0" pitch="0" yaw="-1.5708"/>
+    <xacro:usb_cam name="top_left_camera" x="-0.28" y="0.025" z="0.7" roll="0" pitch="-0.3" yaw="0"/>
+    <xacro:usb_cam name="top_right_camera" x="-0.28" y="-0.025" z="0.7" roll="0" pitch="-0.3" yaw="-1.5708"/>
 
     <!-- Add gazebo functionalities-->
     <xacro:include filename="$(find prometheus_description)/urdf/prometheus.gazebo.macro.xacro"/>

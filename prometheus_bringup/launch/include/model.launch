@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="urdf" default="prometheus_ackermann"/>
+
+    <!-- Load ackermann_steering_bot model -->
+    <param name="robot_description"
+            command="$(find xacro)/xacro $(find prometheus_description)/urdf/$(arg urdf).urdf.xacro"/>
+
+    <!-- Read joint positions from joint_states, then publish the vehicle's
+    state to tf. -->
+    
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
+        <param name="publish_frequency" value="30.0"/>
+    </node>
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher"/>
+
+</launch>

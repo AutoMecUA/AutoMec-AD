@@ -1,0 +1,31 @@
+
+<launch>
+    <arg name="urdf" default="prometheus_ackermann" doc="urdf used for robot description"/>
+    <arg name="visualize" default="false" doc="launches rviz to visualize sensor data"/>
+    <arg name="sim" default="false" doc="launch a simulated environment"/>
+    <arg name="moveit" default="false" doc="use moveit for motion planning"/>
+    <arg name="rviz" default="true" doc="launch rviz with movit planner plugin"/>
+    <arg name="launch_sensors" default="false" doc="launch sensors"/>
+    <arg name="launch_robot" default="true" doc="launch robot"/>
+    <arg name="use_dummy_frames" default="true"/>
+
+    <!-- Initialize car model -->
+    <include file="$(find prometheus_bringup)/launch/include/model.launch">
+        <arg name="urdf" value="$(arg urdf)"/>
+    </include>
+
+    <!-- start gazebo if sim mode-->
+    <include if="$(arg sim)" file="$(find prometheus_gazebo)/launch/simulation_bringup.launch">
+    </include>
+    
+    <!-- start visualization with rviz-->
+    <group if="$(arg visualize)">
+        <include file="$(find prometheus_bringup)/launch/include/visualize.launch">
+        </include>
+    </group>
+
+    <group unless="$(arg sim)">
+        <!-- Include sensor and arduino launch here -->
+    </group>
+
+</launch>
