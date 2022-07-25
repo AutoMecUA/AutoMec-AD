@@ -80,25 +80,13 @@ def main():
 
     # Defining path to model
     s = str(pathlib.Path(__file__).parent.absolute())
-    path = s + '/../../models/cnn1_' + modelname
+    path = f'{s}/../../models/cnn1_{modelname}'
 
-    if not os.path.isfile(path + '_info.yaml'):
+    if not os.path.isfile(f'{path}_info.yaml'):
         have_dataset_yaml = False
-        # we may allow to continue processing with default data
-        time.sleep(5)
-        rospy.logerr(f'You are running a model with no yaml.\n')
-        while True:
-            enter_pressed = input("Continue to use this model? [y/N]: ")
-            if enter_pressed.lower() == "n" or enter_pressed.lower() == "no" or enter_pressed == "":
-                rospy.loginfo("Shutting down")
-                sys.exit()
-            elif enter_pressed.lower() == "yes" or enter_pressed.lower() == "y":
-                rospy.loginfo("Continuing the script")
-                break
-            else:
-                rospy.loginfo("Please use a valid statement (yes/no)")
+        _extracted_from_main_32('You are running a model with no yaml.\n')
     else:
-        with open(path + '_info.yaml') as file:
+        with open(f'{path}_info.yaml') as file:
             # The FullLoader parameter handles the conversion from YAML
             # scalar values to Python the dictionary format
             info_loaded = yaml.load(file, Loader=yaml.FullLoader)
@@ -114,7 +102,7 @@ def main():
                         if enter_pressed.lower() == "n" or enter_pressed.lower() == "no" or enter_pressed == "":
                             rospy.loginfo("Shutting down")
                             sys.exit()
-                        elif enter_pressed.lower() == "yes" or enter_pressed.lower() == "y":
+                        elif enter_pressed.lower() in ["yes", "y"]:
                             rospy.loginfo("Continuing the script")
                             break
                         else:
@@ -131,7 +119,7 @@ def main():
                         if enter_pressed.lower() == "n" or enter_pressed.lower() == "no" or enter_pressed == "":
                             rospy.loginfo("Shutting down")
                             sys.exit()
-                        elif enter_pressed.lower() == "yes" or enter_pressed.lower() == "y":
+                        elif enter_pressed.lower() in ["yes", "y"]:
                             rospy.loginfo("Continuing the script")
                             break
                         else:
@@ -139,18 +127,7 @@ def main():
             elif ds_environment == 'physical':
 
                 if urdf != "":
-                    time.sleep(5)
-                    rospy.logerr(f'You are running a physical model in gazebo\n')
-                    while True:
-                        enter_pressed = input("Continue to use this model? [y/N]: ")
-                        if enter_pressed.lower() == "n" or enter_pressed.lower() == "no" or enter_pressed == "":
-                            rospy.loginfo("Shutting down")
-                            sys.exit()
-                        elif enter_pressed.lower() == "yes" or enter_pressed.lower() == "y":
-                            rospy.loginfo("Continuing the script")
-                            break
-                        else:
-                            rospy.loginfo("Please use a valid statement (yes/no)")
+                    _extracted_from_main_32('You are running a physical model in gazebo\n')
             else:
                 rospy.logerr("No valid environment, please verify your YAML file")
                 sys.exit()
@@ -195,11 +172,11 @@ def main():
 
         if kwargs["begin_img"] is False:
             continue
-        
+
         if waiting and kwargs["velbool"]:
             start_time = time.time()
             waiting = False
-        
+
         resized_ = preProcess(kwargs["img_rbg"])
 
         cv2.imshow('Robot View Processed', resized_)
@@ -237,6 +214,23 @@ def main():
             pub_velocity.publish(kwargs["velbool"])
 
         rate.sleep()
+
+
+# TODO Rename this here and in `main`
+def _extracted_from_main_32(arg0):
+    # we may allow to continue processing with default data
+    time.sleep(5)
+    rospy.logerr(f'{arg0}')
+    while True:
+        enter_pressed = input("Continue to use this model? [y/N]: ")
+        if enter_pressed.lower() == "n" or enter_pressed.lower() == "no" or enter_pressed == "":
+            rospy.loginfo("Shutting down")
+            sys.exit()
+        elif enter_pressed.lower() in ["yes", "y"]:
+            rospy.loginfo("Continuing the script")
+            break
+        else:
+            rospy.loginfo("Please use a valid statement (yes/no)")
 
 
 if __name__ == '__main__':
