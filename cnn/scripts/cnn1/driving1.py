@@ -36,14 +36,14 @@ def preProcess(img):
     return img
 
 
-def message_RGB_ReceivedCallback(message, **kwargs):
+def message_RGB_ReceivedCallback(message, kwargs):
 
     kwargs["img_rbg"] = kwargs["bridge"].imgmsg_to_cv2(message, "bgr8")
 
     kwargs["begin_img"] = True
 
 
-def signalCallback(message, **kwargs):
+def signalCallback(message, kwargs):
 
     # If we receive a positive message from the signal topic, we should go. If not, we should stop.
     if message.data:
@@ -136,8 +136,8 @@ def main():
     model = load_model(path)
 
     # Partials
-    message_RGB_ReceivedCallback_part = partial(message_RGB_ReceivedCallback, **kwargs)
-    signalCallback_part = partial(signalCallback, **kwargs)
+    message_RGB_ReceivedCallback_part = partial(message_RGB_ReceivedCallback, kwargs)
+    signalCallback_part = partial(signalCallback, kwargs)
 
     # Subscribe and publish topics
     rospy.Subscriber(image_raw_topic, Image, message_RGB_ReceivedCallback_part)
