@@ -3,8 +3,8 @@
 <launch>
     <!-- Launch file arguments -->
     <arg name="vehicle_name" default="prometheus"/>
-    <arg name="x_pos" default="10.0"/>
-    <arg name="y_pos" default="10.0"/>
+    <arg name="x_pos" default="0.0"/>
+    <arg name="y_pos" default="0.0"/>
     <arg name="z_pos" default="0.0"/>
     <arg name="roll" default="0.0"/>
     <arg name="pitch" default="0.0"/>

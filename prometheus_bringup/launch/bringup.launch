@@ -3,11 +3,6 @@
     <arg name="urdf" default="prometheus_ackermann" doc="urdf used for robot description"/>
     <arg name="visualize" default="false" doc="launches rviz to visualize sensor data"/>
     <arg name="sim" default="false" doc="launch a simulated environment"/>
-    <arg name="moveit" default="false" doc="use moveit for motion planning"/>
-    <arg name="rviz" default="true" doc="launch rviz with movit planner plugin"/>
-    <arg name="launch_sensors" default="false" doc="launch sensors"/>
-    <arg name="launch_robot" default="true" doc="launch robot"/>
-    <arg name="use_dummy_frames" default="true"/>
 
     <!-- Initialize car model -->
     <include file="$(find prometheus_bringup)/launch/include/model.launch">
@@ -15,17 +10,55 @@
     </include>
 
     <!-- start gazebo if sim mode-->
-    <include if="$(arg sim)" file="$(find prometheus_gazebo)/launch/simulation_bringup.launch">
-    </include>
+    <!-- <include if="$(arg sim)" file="$(find prometheus_gazebo)/launch/simulation_bringup.launch"> -->
+    <!-- </include> -->
     
     <!-- start visualization with rviz-->
     <group if="$(arg visualize)">
-        <include file="$(find prometheus_bringup)/launch/include/visualize.launch">
-        </include>
+        <include file="$(find prometheus_bringup)/launch/include/visualize.launch"/>
+    </group>
+
+
+    <group if="$(arg sim)">
+        <!-- Load Controller -->
+        <node name="controller_spawner" pkg="controller_manager" type="spawner"
+            args="$(find prometheus_description)/config/prometheus_steering_params.yaml">
+        </node>
+        <rosparam command="load" file="$(find prometheus_description)/config/gains.yaml"/>
+        <rosparam command="load" file="$(find prometheus_description)/config/prometheus_hw_sim.yaml" />
+
+        <!-- Including robots spawn -->
+        <include file="$(find prometheus_bringup)/launch/include/spawn.launch"/>
     </group>
 
     <group unless="$(arg sim)">
-        <!-- Include sensor and arduino launch here -->
+        <!-- RGB sensors -->
+        <include file="$(find prometheus_bringup)/launch/include/rgb.launch">
+            <arg name="frame_id" value="top_left_camera"/>
+            <arg name="camera_id" value="2"/>
+        </include>
+
+        <include file="$(find prometheus_bringup)/launch/include/rgb.launch">
+            <arg name="frame_id" value="top_right_camera"/>
+            <arg name="camera_id" value="4"/>
+        </include>
+       
+        <!-- Kinect sensors -->
+        <include file="$(find prometheus_bringup)/launch/include/kinect.launch">
+            <arg name="frame_id" value="top_front_camera"/>
+        </include>
+
+        <!-- <include file="$(find prometheus_bringup)/launch/include/kinect.launch">
+            <arg name="frame_id" value="bottom_front_camera"/>
+        </include> -->
+
+        <!-- Connect with microcontroller -->
+        <include file="$(find prometheus_bringup)/launch/include/rosserial.launch"/>
+      
+        <!-- Convert twist inputs to int outputs -->
+        <include file="$(find prometheus_bringup)/launch/include/twist_to_int_conversor.launch"/>
+
+        
     </group>
 
 </launch>

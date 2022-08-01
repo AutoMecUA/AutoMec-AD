@@ -31,7 +31,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: Top Front Camera RGB
+    SyncSource: Top Left Camera RGB
 Preferences:
   PromptSaveOnExit: true
 Toolbars:
@@ -224,7 +224,7 @@ Visualization Manager:
       Value: true
     - Class: rviz/Image
       Enabled: true
-      Image Topic: /top_left_camera/top_left_camera/image_raw
+      Image Topic: /top_left_camera/image_raw
       Max Value: 1
       Median window: 5
       Min Value: 0
@@ -236,7 +236,7 @@ Visualization Manager:
       Value: true
     - Class: rviz/Image
       Enabled: true
-      Image Topic: /top_right_camera/top_right_camera/image_raw
+      Image Topic: /top_right_camera/image_raw
       Max Value: 1
       Median window: 5
       Min Value: 0
