@@ -9,10 +9,6 @@
         <arg name="urdf" value="$(arg urdf)"/>
     </include>
 
-    <!-- start gazebo if sim mode-->
-    <!-- <include if="$(arg sim)" file="$(find prometheus_gazebo)/launch/simulation_bringup.launch"> -->
-    <!-- </include> -->
-    
     <!-- start visualization with rviz-->
     <group if="$(arg visualize)">
         <include file="$(find prometheus_bringup)/launch/include/visualize.launch"/>
