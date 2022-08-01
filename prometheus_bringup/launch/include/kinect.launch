@@ -1,0 +1,8 @@
+<launch>
+
+  <include file="$(find openni_launch)/launch/openni.launch">
+      <arg name="depth_registration" value="true"/>
+      <remap from="rgb" to="test"/>
+  </include>
+
+</launch>
