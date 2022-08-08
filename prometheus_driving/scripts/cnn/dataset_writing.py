@@ -4,7 +4,6 @@
 import os
 import pathlib
 import shutil
-import socket
 from datetime import datetime
 from functools import partial
 from typing import Any
@@ -47,7 +46,7 @@ def boolReceivedCallback(message, config: dict):
 # Callback function to receive image
 def message_RGB_ReceivedCallback(message, config: dict):
 
-    config['img_rbg'] = config['bridge'].imgmsg_to_cv2(message, "bgr8")
+    config['img_rgb'] = config['bridge'].imgmsg_to_cv2(message, "bgr8")
 
     config['begin_img'] = True
 
@@ -71,7 +70,7 @@ def main():
         angular=None,
         linear=None,
         bridge=None,
-        img_rbg=None,
+        img_rgb=None,
         begin_img=False,
         begin_cmd=False,
     )
@@ -79,7 +78,8 @@ def main():
     # Init Node
     rospy.init_node('write_data', anonymous=False)
 
-    image_raw_topic = rospy.get_param('~image_raw_topic', '/ackermann_vehicle/camera/rgb/image_raw')
+    # Retrieving parameters
+    image_raw_topic = rospy.get_param('~image_raw_topic', '/top_front_camera/rgb/image_raw')
     twist_cmd_topic = rospy.get_param('~twist_cmd_topic', '/cmd_vel')
     vel_cmd_topic = rospy.get_param('~vel_cmd_topic', '')
     rate_hz = rospy.get_param('~rate', 30)
@@ -87,15 +87,18 @@ def main():
     image_height = rospy.get_param('~height', 160)
 
     # params only used in yaml file
-    cam_pose = rospy.get_param('~cam_pose', '')
-    env = rospy.get_param('~env', '')
+    simulated_environment = rospy.get_param('/simulated_environment', '')
+    if simulated_environment:
+        env = "gazebo"
+    else:
+        env = "real"
     vel = rospy.get_param('~vel', '0')
-    urdf = rospy.get_param('~urdf', '')
-    challenge = "driving"  # rospy.get_param('~challenge', 'driving') # TODO: add this to launch files...
+    urdf = rospy.get_param('/used_urdf', '') + ".urdf.xacro"
+    challenge = rospy.get_param('~challenge', 'driving') 
 
     s = str(pathlib.Path(__file__).parent.absolute())
     date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-    data_path = f'{s}/../data/' + env + "-" + datetime.now().strftime("%d-%m-%Hh%Mm%Ss")
+    data_path = f'{s}/data/' + env + "-" + datetime.now().strftime("%d-%m-%Hh%Mm%Ss")
 
     rospy.loginfo(data_path)
 
@@ -115,8 +118,8 @@ def main():
 
     info_data = dict(
         dataset=dict(
-            developer=os.getenv('automec_developer') or socket.gethostname(),
-            cam_pose=cam_pose if env != 'gazebo' else urdf,
+            developer=os.getenv('automec_developer') or os.getlogin(),
+            urdf = urdf,
             environment=env,
             frequency=rate_hz,
             image_size=imgsize_str,
@@ -163,7 +166,7 @@ def main():
         if not config['begin_img']:
             continue
 
-        cv2.imshow('Robot View', config['img_rbg'])
+        cv2.imshow('Robot View', config['img_rgb'])
         key = cv2.waitKey(1)
 
         if not config['begin_cmd']:
@@ -184,29 +187,30 @@ def main():
 
         # save image
         dim = (image_width, image_height)
-        img_rbg_resize = cv2.resize(config['img_rbg'], dim, interpolation=cv2.INTER_AREA)
-        image_saved = Image_pil.fromarray(img_rbg_resize)
+        img_rgb_resize = cv2.resize(config['img_rgb'], dim, interpolation=cv2.INTER_AREA)
+        image_saved = Image_pil.fromarray(img_rgb_resize)
         image_saved.save(data_path + '/IMG/' + image_name)
         counter += 1
-        rospy.loginfo('Image Saved: %s', counter)
-        rate.sleep()
+        print(f'Image Saved: {counter}', end="\r")
 
-    # save on shutdown...
-    if key == ord('s'):  
-        save_dataset(date, info_data, data_path, driving_log)
-        exit(0)
-
-    if key == ord('q'):
-        confirmation = input("\n\nYou have pressed q[uit]: are you sure you want to close"
-                             " WITHOUT saving the dataset? (type 'yes' TO DISCARD the dataset,"
-                             " type 'no' or 'save' to SAVE the dataset): ")
-        if confirmation == "yes":
-            shutil.rmtree(data_path)
-            rospy.signal_shutdown("All done, exiting ROS...")
-        elif confirmation in {'no', 'save'}:
+         # save on shutdown...
+        if key == ord('s'):  
             save_dataset(date, info_data, data_path, driving_log)
             exit(0)
 
+        if key == ord('q'):
+            confirmation = input("\n\nYou have pressed q[uit]: are you sure you want to close"
+                                " WITHOUT saving the dataset? (type 'yes' TO DISCARD the dataset,"
+                                " type 'no' or 'save' to SAVE the dataset): ")
+            if confirmation == "yes":
+                shutil.rmtree(data_path)
+                rospy.signal_shutdown("All done, exiting ROS...")
+            elif confirmation in {'no', 'save'}:
+                save_dataset(date, info_data, data_path, driving_log)
+                exit(0)
 
+        rate.sleep()
+
+   
 if __name__ == '__main__':
     main()

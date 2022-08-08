@@ -4,6 +4,10 @@
     <arg name="visualize" default="false" doc="launches rviz to visualize sensor data"/>
     <arg name="sim" default="false" doc="launch a simulated environment"/>
 
+    <!-- Set parameter for environment and urdf -->
+    <param name="simulated_environment" type="bool" value="$(arg sim)" />
+    <param name="used_urdf" type="string" value="$(arg urdf)" />
+
     <!-- Initialize car model -->
     <include file="$(find prometheus_bringup)/launch/include/model.launch">
         <arg name="urdf" value="$(arg urdf)"/>
