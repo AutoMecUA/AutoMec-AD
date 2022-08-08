@@ -4,7 +4,7 @@
     <gazebo reference="top_front_camera_optical_frame">
         <sensor name="kinect" type="depth">
             <!-- openni plugin has the x pointing towards the scene, so rotate to have z -->
-            <pose frame="world">0.0 0.0 0.0 0.0 0.0 0.0</pose>
+            <pose frame="world">0.0 0.0 0.0 -1.5708 0.0 1.5708</pose>
             <camera>
                 <horizontal_fov>0.74839718</horizontal_fov>
                 <image>
@@ -28,12 +28,12 @@
                 <!-- Keep this zero, update_rate in the parent <sensor> tag
                 will control the frame rate. -->
                 <updateRate>0.0</updateRate>
-                <cameraName>kinect_test</cameraName>
-                <imageTopicName>/top_front_camera/image_raw</imageTopicName>
-                <cameraInfoTopicName>/top_front_camera/camera_info</cameraInfoTopicName>
-                <depthImageTopicName>/top_front_camera/image_raw_depth</depthImageTopicName>
-                <depthImageInfoTopicName>/top_front_camera/camera_info</depthImageInfoTopicName>
-                <pointCloudTopicName>/top_front_camera/3d_cloud</pointCloudTopicName>
+                <cameraName>top_front_camera</cameraName>
+                <imageTopicName>/top_front_camera/rgb/image_color</imageTopicName>
+                <cameraInfoTopicName>/top_front_camera/rgb/camera_info</cameraInfoTopicName>
+                <depthImageTopicName>/top_front_camera/depth_registered/image</depthImageTopicName>
+                <depthImageInfoTopicName>/top_front_camera/depth_registered/camera_info</depthImageInfoTopicName>
+                <pointCloudTopicName>/top_front_camera/depth_registered/points</pointCloudTopicName>
                 <frameName>top_front_camera_optical_frame</frameName>
                 <pointCloudCutoff>0.5</pointCloudCutoff>
                 <pointCloudCutoffMax>2.0</pointCloudCutoffMax>
@@ -46,7 +46,7 @@
     <gazebo reference="bottom_front_camera_optical_frame">
         <sensor name="kinect" type="depth">
             <!-- openni plugin has the x pointing towards the scene, so rotate to have z -->
-            <pose frame="world">0.0 0.0 0.0 0.0 0.0 0.0</pose>
+            <pose frame="world">0.0 0.0 0.0 -1.5708 0.0 1.5708</pose>
             <camera>
                 <horizontal_fov>0.74839718</horizontal_fov>
                 <image>
@@ -70,12 +70,12 @@
                 <!-- Keep this zero, update_rate in the parent <sensor> tag
                 will control the frame rate. -->
                 <updateRate>0.0</updateRate>
-                <cameraName>kinect_test</cameraName>
-                <imageTopicName>/bottom_front_camera/image_raw</imageTopicName>
-                <cameraInfoTopicName>/bottom_front_camera/camera_info</cameraInfoTopicName>
-                <depthImageTopicName>/bottom_front_camera/image_raw_depth</depthImageTopicName>
-                <depthImageInfoTopicName>/bottom_front_camera/camera_info</depthImageInfoTopicName>
-                <pointCloudTopicName>/bottom_front_camera/3d_cloud</pointCloudTopicName>
+                <cameraName>bottom_front_camera</cameraName>
+                <imageTopicName>/bottom_front_camera/rgb/image_color</imageTopicName>
+                <cameraInfoTopicName>/bottom_front_camera/rgb/camera_info</cameraInfoTopicName>
+                <depthImageTopicName>/bottom_front_camera/depth_registered/image</depthImageTopicName>
+                <depthImageInfoTopicName>/bottom_front_camera/depth_registered/camera_info</depthImageInfoTopicName>
+                <pointCloudTopicName>/bottom_front_camera/depth_registered/points</pointCloudTopicName>
                 <frameName>bottom_front_camera_optical_frame</frameName>
                 <pointCloudCutoff>0.5</pointCloudCutoff>
                 <pointCloudCutoffMax>2.0</pointCloudCutoffMax>
@@ -106,8 +106,8 @@
             <updateRate>30.0</updateRate>
             <cameraName>top_left_camera</cameraName>
             <frameName>top_left_camera_rgb_optical_frame</frameName>
-            <imageTopicName>top_left_camera/image_raw</imageTopicName>
-            <cameraInfoTopicName>top_left_camera/camera_info</cameraInfoTopicName>
+            <imageTopicName>image_raw</imageTopicName>
+            <cameraInfoTopicName>camera_info</cameraInfoTopicName>
             <hackBaseline>0.07</hackBaseline>
             <distortionK1>0.0</distortionK1>
             <distortionK2>0.0</distortionK2>
@@ -139,8 +139,8 @@
             <updateRate>30.0</updateRate>
             <cameraName>top_right_camera</cameraName>
             <frameName>top_right_camera_rgb_optical_frame</frameName>
-            <imageTopicName>top_right_camera/image_raw</imageTopicName>
-            <cameraInfoTopicName>top_right_camera/camera_info</cameraInfoTopicName>
+            <imageTopicName>image_raw</imageTopicName>
+            <cameraInfoTopicName>camera_info</cameraInfoTopicName>
             <hackBaseline>0.07</hackBaseline>
             <distortionK1>0.0</distortionK1>
             <distortionK2>0.0</distortionK2>
