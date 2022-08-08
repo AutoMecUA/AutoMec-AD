@@ -98,7 +98,7 @@ def main():
 
     s = str(pathlib.Path(__file__).parent.absolute())
     date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-    data_path = f'{s}/data/' + env + "-" + datetime.now().strftime("%d-%m-%Hh%Mm%Ss")
+    data_path = f'{s}/../../data/' + env + "-" + datetime.now().strftime("%d-%m-%Hh%Mm%Ss")
 
     rospy.loginfo(data_path)
 
