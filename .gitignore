@@ -135,8 +135,7 @@ dmypy.json
 
 # databases and models and logs
 prometheus_driving/data/**
-cnn/data/**
-cnn/models/**
+prometheus_driving/models/**
 signal_recognition/scripts/**
 
 # csv

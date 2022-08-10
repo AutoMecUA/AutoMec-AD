@@ -20,27 +20,12 @@ from std_msgs.msg import Bool
 
 
 # Calback Function to receive the cmd values
-def messageReceivedCallback(message, config: dict):
+def twistMsgCallback(message, config: dict):
 
     config['angular'] = float(message.angular.z)
     config['linear'] = float(message.linear.x)
 
     config['begin_cmd'] = True
-
-
-def messageRealReceivedCallback(message, config: dict):
-
-    config['angular'] = float(message.angular.z)
-
-
-def boolReceivedCallback(message, config: dict):
-
-    if message.data:
-        config['linear'] = 1
-        config['begin_cmd'] = True
-    else:
-        config['linear'] = 0
-        config['begin_cmd'] = False
 
 
 # Callback function to receive image
@@ -52,6 +37,14 @@ def message_RGB_ReceivedCallback(message, config: dict):
 
 
 def save_dataset(date, info_data, data_path, driving_log):
+    """Saves dataset on a .csv file and a metadata file in YAML
+
+    Args:
+        date (string): starting date of dataset
+        info_data (dict): dictionary with metadata
+        data_path (string): dataset path
+        driving_log (pandas dataset): dataset with twist and image info
+    """
     rospy.loginfo('EXITING...')
     driving_log.to_csv(data_path + '/driving_log.csv', mode='a', index=False, header=False)
     info_data['dataset']['image_number'] = len(list(os.listdir(data_path + "/IMG/")))
@@ -81,7 +74,6 @@ def main():
     # Retrieving parameters
     image_raw_topic = rospy.get_param('~image_raw_topic', '/top_front_camera/rgb/image_raw')
     twist_cmd_topic = rospy.get_param('~twist_cmd_topic', '/cmd_vel')
-    vel_cmd_topic = rospy.get_param('~vel_cmd_topic', '')
     rate_hz = rospy.get_param('~rate', 30)
     image_width = rospy.get_param('~width', 320)
     image_height = rospy.get_param('~height', 160)
@@ -92,7 +84,7 @@ def main():
         env = "gazebo"
     else:
         env = "real"
-    vel = rospy.get_param('~vel', '0')
+    vel = float(rospy.get_param('/linear_velocity', '1'))
     urdf = rospy.get_param('/used_urdf', '') + ".urdf.xacro"
     challenge = rospy.get_param('~challenge', 'driving') 
 
@@ -130,19 +122,9 @@ def main():
     )
 
     # Subscribe topics
-    # If we have a bool topic, we are recording the linear variable as the boolean.
-    # If not, we are recording the linear velocity from the twist
-    if vel_cmd_topic != "":
-        # Define angular as 0 to prevent errors when we give velocity first instead of angle
-        config['angular'] = 0
-        messageRealReceivedCallback_part = partial(messageRealReceivedCallback, config)
-        boolReceivedCallback_part = partial(boolReceivedCallback, config=config)
-
-        rospy.Subscriber(twist_cmd_topic, Twist, messageRealReceivedCallback_part)
-        rospy.Subscriber(vel_cmd_topic, Bool, boolReceivedCallback_part)
-    else:
-        messageReceivedCallback_part = partial(messageReceivedCallback, config=config)
-        rospy.Subscriber(twist_cmd_topic, Twist, messageReceivedCallback_part)
+    # Recording the linear velocity from the twist
+    messageReceivedCallback_part = partial(twistMsgCallback, config=config)
+    rospy.Subscriber(twist_cmd_topic, Twist, messageReceivedCallback_part)
 
     message_RGB_ReceivedCallback_part = partial(message_RGB_ReceivedCallback, config=config)
     rospy.Subscriber(image_raw_topic, Image, message_RGB_ReceivedCallback_part)
@@ -162,12 +144,28 @@ def main():
     # read opencv key
     key = -1
 
-    while True:
+    while not rospy.is_shutdown():
         if not config['begin_img']:
             continue
 
         cv2.imshow('Robot View', config['img_rgb'])
         key = cv2.waitKey(1)
+        
+        # save on shutdown...
+        if key == ord('s'):  
+            save_dataset(date, info_data, data_path, driving_log)
+            exit(0)
+
+        if key == ord('q'):
+            confirmation = input("\n\nYou have pressed q[uit]: are you sure you want to close"
+                                " WITHOUT saving the dataset? (type 'yes' TO DISCARD the dataset,"
+                                " type 'no' or 'save' to SAVE the dataset): ")
+            if confirmation == "yes":
+                shutil.rmtree(data_path)
+                rospy.signal_shutdown("All done, exiting ROS...")
+            elif confirmation in {'no', 'save'}:
+                save_dataset(date, info_data, data_path, driving_log)
+                exit(0)
 
         if not config['begin_cmd']:
             continue
@@ -192,22 +190,6 @@ def main():
         image_saved.save(data_path + '/IMG/' + image_name)
         counter += 1
         print(f'Image Saved: {counter}', end="\r")
-
-         # save on shutdown...
-        if key == ord('s'):  
-            save_dataset(date, info_data, data_path, driving_log)
-            exit(0)
-
-        if key == ord('q'):
-            confirmation = input("\n\nYou have pressed q[uit]: are you sure you want to close"
-                                " WITHOUT saving the dataset? (type 'yes' TO DISCARD the dataset,"
-                                " type 'no' or 'save' to SAVE the dataset): ")
-            if confirmation == "yes":
-                shutil.rmtree(data_path)
-                rospy.signal_shutdown("All done, exiting ROS...")
-            elif confirmation in {'no', 'save'}:
-                save_dataset(date, info_data, data_path, driving_log)
-                exit(0)
 
         rate.sleep()
 

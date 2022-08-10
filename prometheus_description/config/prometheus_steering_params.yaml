@@ -13,13 +13,13 @@ ackermann_steering_controller:
   twist_covariance_diagonal: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 1000.0]
 
   wheel_separation_h : 0.3
-  wheel_radius : 0.285
+  wheel_radius : 0.06
   wheel_separation_h_multiplier: 1.0 # calibration parameter for odometry, needed for test.
   wheel_radius_multiplier    : 1.0 # default: 1.0
   steer_pos_multiplier: 1.0
 
   # Velocity commands timeout [s], default 0.5
-  cmd_vel_timeout: 0.5
+  cmd_vel_timeout: 100
 
   # publish ackermann steering angle and speed
   publish_ackermann_drive: true
@@ -36,7 +36,8 @@ ackermann_steering_controller:
   # Whenever a min_* is unspecified, default to -max_*
   linear:
     x:
-      has_velocity_limits: true
+      has_velocity_limits: false
+      # has_velocity_limits: true
       max_velocity: 1.0  # m/s
       min_velocity: -1.0 # m/s
       has_acceleration_limits: false

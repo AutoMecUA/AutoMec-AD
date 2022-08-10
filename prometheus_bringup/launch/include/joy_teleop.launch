@@ -1,6 +1,5 @@
 <launch>
-  <arg name="twist_dir_topic" default="/android_input_dir"/>
-  <arg name="bool_btn_topic" default="/android_input_velin"/>
+  <arg name="twist_cmd_topic" default="/cmd_vel"/>
   <arg name="joy_topic" default="/joy"/>
   <arg name="joy_number" default="0"/>
   <arg name="deadzone" default="0"/>
@@ -10,9 +9,8 @@
     <param name="deadzone" value="$(arg deadzone)"/>
   </node>
 
-  <node name="robot_joy" pkg="robot_driving" type="joy_teleop.py" output="screen">
-    <param name="twist_dir_topic" value="$(arg twist_dir_topic)"/>
-    <param name="bool_btn_topic" value="$(arg bool_btn_topic)"/>
+  <node name="joy_teleop" pkg="prometheus_bringup" type="joy_teleop.py" output="screen">
+    <param name="twist_cmd_topic" value="$(arg twist_cmd_topic)"/>
     <param name="joy_topic" value="$(arg joy_topic)"/>
   </node>
 
