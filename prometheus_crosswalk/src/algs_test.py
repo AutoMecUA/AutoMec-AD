@@ -9,10 +9,7 @@ import time
 import cv2
 from PIL.ImageSequence import Iterator
 
-try:
-    from prometheus_crosswalk.src import stateless_lib
-except ImportError:
-    import stateless_lib
+import stateless_lib
 
 # Toggle debug mode - features random frame skip
 DEBUG_MODE: bool = False

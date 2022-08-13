@@ -1,6 +1,6 @@
 import numpy as np
 
-from prometheus_crosswalk.src.util import _blurred_brightness_rate
+from util import _blurred_brightness_rate
 
 # Tune these constants - Base the tuning upon the characteristics of an image with vs without crosswalk
 BINARY_THRESHOLD = 128

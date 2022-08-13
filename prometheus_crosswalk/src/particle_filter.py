@@ -1,6 +1,6 @@
 import numpy as np
 
-from prometheus_crosswalk.src.stateful_abc import CrosswalkAlgorithm
+from stateful_abc import CrosswalkAlgorithm
 
 
 class ParticleFilter(CrosswalkAlgorithm):
