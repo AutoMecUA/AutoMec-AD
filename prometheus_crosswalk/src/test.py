@@ -42,20 +42,44 @@ def read_video(video_file_path: str) -> Iterator:
 
 
 def stateless_test(func: callable):
-    for frame in read_video(video_file_path=VIDEO_FILE_PATH):
+    fps_average, fps_max, fps_min = 0, 0, float("inf")
+
+    for frame_count, frame in enumerate(iterable=read_video(video_file_path=VIDEO_FILE_PATH), start=1):
+
         start_time = time.time()
         sureness = func(frame)
         frames_per_second = 1 / (time.time() - start_time)
 
-        print(f"Current frame - {int(frames_per_second)} fps: ", end="")
-        if sureness > 0.5:
-            print(f"IS crosswalk ({int(sureness*100)}% sure)")
-        else:
-            print(f"NOT crosswalk (only {int(sureness * 100)}% sure)")
+        # Calculate stats
+        fps_average = (fps_average * (frame_count - 1) + frames_per_second) / frame_count
+        fps_min = min(fps_min, frames_per_second)
+        fps_max = max(fps_max, frames_per_second)
+
+        print_frame_stats(frames_per_second, sureness)
 
         cv2.namedWindow(winname="Frame", flags=cv2.WINDOW_KEEPRATIO)
         cv2.imshow("Frame", frame)
-        cv2.waitKey(1)
+        if cv2.waitKey(1) == ord("q"):
+            # Cast stats to int
+            fps_min, fps_max, fps_average = int(fps_min), int(fps_max), int(fps_average)
+
+            print(f"fps statistics: min/max/avg: {fps_min}/{fps_max}/{fps_average}")
+            exit(0)
+
+
+def print_frame_stats(frames_per_second, sureness):
+    """Displays the statistics regarding a frame's processing
+
+    :param frames_per_second:
+    :param sureness:
+    :return:
+    """
+
+    print(f"Current frame - {int(frames_per_second)} fps: ", end="")
+    if sureness > 0.5:
+        print(f"IS crosswalk ({int(sureness * 100)}% sure)")
+    else:
+        print(f"NOT crosswalk (only {int(sureness * 100)}% sure)")
 
 
 if __name__ == '__main__':

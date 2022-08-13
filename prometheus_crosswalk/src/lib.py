@@ -14,7 +14,7 @@ def crosswalk_sureness(frame: np.ndarray) -> float:
     :return: How sure the function is that there is a crosswalk in front of the car based on the frame image
     """
 
-    actual_whiteness = image_brightness_rate(frame, threshold=BINARY_THRESHOLD)
+    actual_whiteness = _image_brightness_rate(frame, threshold=BINARY_THRESHOLD)
 
     # Threshold for maximum whiteness - because an image whill never be 100% white
     actual_whiteness = min(actual_whiteness, MAX_WHITENESS)
@@ -29,7 +29,7 @@ def crosswalk_sureness(frame: np.ndarray) -> float:
     return normalized
 
 
-def image_brightness_rate(img: np.ndarray, threshold: int) -> float:
+def _image_brightness_rate(img: np.ndarray, threshold: int) -> float:
     """Counts the rate of the pixels that surpass the threshold provided
 
     :param img: Image
@@ -43,4 +43,3 @@ def image_brightness_rate(img: np.ndarray, threshold: int) -> float:
     img = cv2.GaussianBlur(img, ksize=(5, 5), sigmaX=0)
 
     return (img > threshold).sum() / img.size
-
