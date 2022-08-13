@@ -1,8 +1,8 @@
 import numpy as np
 
-# Tune these constants - Base the tuning upon the characteristics of an image with vs without crosswalk
 from prometheus_crosswalk.src.util import _blurred_brightness_rate
 
+# Tune these constants - Base the tuning upon the characteristics of an image with vs without crosswalk
 BINARY_THRESHOLD = 128
 MIN_WHITENESS = 0.05
 MAX_WHITENESS = 0.15
@@ -10,6 +10,8 @@ MAX_WHITENESS = 0.15
 
 def basic_sureness(frame: np.ndarray) -> float:
     """Calculates the probability based solely on the (normalized) count of bright pixels
+
+    Probability, that is, that there is a crosswalk right in the front of the car whose camera recorded the frame
 
     :param frame: Image of the camera of the robot
     :return: How sure the function is that there is a crosswalk in front of the car based on the frame image
