@@ -1,3 +1,7 @@
+"""Tests out stateless or stateful (soon) algorithms
+
+"""
+
 import logging
 import random
 import time
@@ -6,9 +10,9 @@ import cv2
 from PIL.ImageSequence import Iterator
 
 try:
-    from prometheus_crosswalk.src import lib
+    from prometheus_crosswalk.src import stateless_lib
 except ImportError:
-    import lib
+    import stateless_lib
 
 # Toggle debug mode - features random frame skip
 DEBUG_MODE: bool = False
@@ -42,6 +46,12 @@ def read_video(video_file_path: str) -> Iterator:
 
 
 def stateless_test(func: callable):
+    """Test crosswalk
+
+    :param func:
+    :return:
+    """
+
     fps_average, fps_max, fps_min = 0, 0, float("inf")
 
     for frame_count, frame in enumerate(iterable=read_video(video_file_path=VIDEO_FILE_PATH), start=1):
@@ -83,4 +93,4 @@ def print_frame_stats(frames_per_second, sureness):
 
 
 if __name__ == '__main__':
-    stateless_test(lib.crosswalk_sureness)
+    stateless_test(stateless_lib.basic_sureness)
