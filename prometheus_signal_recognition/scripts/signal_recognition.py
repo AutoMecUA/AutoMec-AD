@@ -8,7 +8,7 @@ from typing import Tuple, List
 import cv2
 import numpy as np
 import rospy
-from std_msgs.msg import Bool
+from std_msgs.msg import String
 from sensor_msgs.msg._Image import Image
 from cv_bridge.core import CvBridge
 import pathlib
@@ -95,8 +95,8 @@ def onTrackBars(_, window_name) -> Tuple[dict, np.ndarray, np.ndarray]:
     )
 
     # Convert the dict structure created before to numpy arrays, because is the structure that opencv uses it.
-    mins: np.ndarray = np.array([limits[channel]['min'] for channel in ("R", "G", "B")])
-    maxs: np.ndarray = np.array([limits[channel]['max'] for channel in ("R", "G", "B")])
+    mins: np.ndarray = np.array([limits[channel]['min'] for channel in ("B", "G", "R")])
+    maxs: np.ndarray = np.array([limits[channel]['max'] for channel in ("B", "G", "R")])
 
     return limits, mins, maxs
 
@@ -110,19 +110,19 @@ def createMask(ranges_red, ranges_green, image) -> np.ndarray:
     :return mask: Cv2 image - UInt8
     """
 
-    mask_red = _color_mask(image, ranges_red)
+    mask_red = colorMask(image, ranges_red)
 
-    mask_green = _color_mask(image, ranges_green)
+    mask_green = colorMask(image, ranges_green)
 
     # Unite the mask
     mask = np.zeros((image.shape[0], image.shape[1]))
-    mask[mask_green.astype(np.bool)] = 1
-    mask[mask_red.astype(np.bool)] = 1
+    mask[mask_green.astype(bool)] = 1
+    mask[mask_red.astype(bool)] = 1
 
-    return mask.astype(np.bool)
+    return mask.astype(bool)
 
 
-def _color_mask(image, color_ranges):
+def colorMask(image, color_ranges):
     # Create an array for minimum and maximum values
     mins_red = np.array([color_ranges['B']['min'], color_ranges['G']['min'], color_ranges['R']['min']])
     maxs_red = np.array([color_ranges['B']['max'], color_ranges['G']['max'], color_ranges['R']['max']])
@@ -131,20 +131,18 @@ def _color_mask(image, color_ranges):
     return mask_red
 
 
-def message_RGB_ReceivedCallback(img_rgb_, bridge, begin_img_, message):
+def rgbMsgCallback(message, img_args):
+    """Receive image
 
-    img_rbg_ = bridge.imgmsg_to_cv2(message, "bgr8")
+    Args:
+        message (rgb msg): image in ros msg format
+        img_args (dict): input and output arguments
+    """
 
-    begin_img_[0] = True
+    img_args['img_rgb'] = img_args['bridge'].imgmsg_to_cv2(message, "bgr8")
 
+    img_args['begin_img'] = True
 
-def signal_handler(signal_log, log_path):
-
-    rospy.loginfo('You pressed Ctrl+C!')
-    curr_time = datetime.now()
-    time_str = f"{curr_time.year}_{curr_time.month}_{curr_time.day}__{curr_time.hour}_{curr_time.minute}"
-    signal_log.to_csv(f"{log_path}/signal_log_{time_str}.csv", mode='a', index=False, header=False)
-    sys.exit(0)
 
 
 def create_image_dict(dict_images, scale_import, n_red, path):
@@ -274,24 +272,23 @@ def main():
     dict_colors = dict(red=(0, 0, 255), green=(0, 255, 0), blue=(255, 0, 0), yellow=(0, 255, 255))
 
     # Defining variables
-    img_rbg = None
-    begin_img: List[bool] = [False]
-    vel_bool = False
+    img_args = dict(img_rgb = None, begin_img = False, bridge = None)
     segment = True
     count_stop = 0
     count_start = 0
     count_max = 2
+    N_red = 2
 
     # Init Node
     rospy.init_node('ml_driving', anonymous=False)
 
     # Get parameters
-    image_raw_topic = rospy.get_param('~image_raw_topic', '/ackermann_vehicle/camera2/rgb/image_raw')
-    signal_cmd_topic = rospy.get_param('~signal_cmd_topic', '/signal_vel')
-    mask_mode = rospy.get_param('~mask_mode', 'False')
+    image_raw_topic = rospy.get_param('~image_raw_topic', '/top_left_camera/image_raw')
+    signal_cmd_topic = rospy.get_param('~signal_cmd_topic', '/signal_detected')
+    mask_mode = rospy.get_param('~mask_mode', 'True')
 
     # Create publishers
-    pubbool = rospy.Publisher(signal_cmd_topic, Bool, queue_size=10)
+    signal_pub = rospy.Publisher(signal_cmd_topic, String, queue_size=10)
 
     # Define path for .csv
     s = str(pathlib.Path(__file__).parent.absolute())
@@ -305,23 +302,23 @@ def main():
     # Defining variables for mask mode
     if mask_mode:
         # Create windows
-        window_name_1 = 'Webcam'
+        window_name_1 = image_raw_topic
         cv2.namedWindow(window_name_1, cv2.WINDOW_NORMAL)
-        window_name_2 = 'Segmented image'
+        window_name_2 = 'Image to segment'
         cv2.namedWindow(window_name_2, cv2.WINDOW_NORMAL)
 
         # Use partial function for the trackbars
         onTrackBars_partial = partial(onTrackBars, window_name=window_name_2)
 
         # Create trackbars to control the threshold of the binarization
-        createTrackbar_partial = partial(
-            cv2.createTrackbar, windowName=window_name_2, value=0, count=255, onChange=onTrackBars_partial
-        )
-        map(createTrackbar_partial, ("min B", "max B", "min G", "max G", "min R", "max R"))  # Map the trackbarName
+        create_track_list = ["min B", "max B", "min G", "max G", "min R", "max R"]
 
-        # Set the trackbar position to 255 for maximum trackbars
-        setTrackbarPos_partial = partial(cv2.setTrackbarPos, winname=window_name_2, pos=255)
-        map(setTrackbarPos_partial, ("max B", "max G", "max R"))  # Map the trackbarName
+        for idx, param in enumerate(create_track_list):
+            cv2.createTrackbar(param, window_name_2, 0, 255, onTrackBars_partial)
+            
+           # Set the trackbar position to 255 for maximum trackbars
+            if idx % 2 == 1:
+                cv2.setTrackbarPos(param, window_name_2, 255)
 
         # Prints to make the program user-friendly. Present to the user the hotkeys
         rospy.loginfo('Use the trackbars to define the threshold limits as you wish.')
@@ -329,44 +326,41 @@ def main():
         rospy.loginfo('Press "g" to save the threshold limits to green')
         rospy.loginfo('Press "r" to save the threshold limits to red')
         rospy.loginfo('Press "q" to exit without saving the threshold limits')
+    else:
+        rospy.loginfo('Press "s" to exit, saving the log')
+        rospy.loginfo('Press "q" to exit without saving the log')
 
     # Create pandas dataframe
     signal_log = pd.DataFrame(columns=['Time', 'Signal', 'Resolution'])
 
-    # set handler on termination
-    signal_handler_part = partial(signal_handler, signal_log, log_path)
-    signal.signal(signal.SIGINT, signal_handler_part)
 
-    # ______________________________________________________________________________
 
     path = str(pathlib.Path(__file__).parent.absolute())
-    dict_images = create_image_dict(dict_images, scale_import, n_red, path)
-
+    dict_images = create_image_dict(dict_images, scale_import, N_red, path)
     # ______________________________________________________________________________
 
     # Create an object of the CvBridge class
-    bridge = CvBridge()
+    img_args['bridge'] = CvBridge()
 
     # Subscribe and publish topics (only after CvBridge)
-    message_RGB_ReceivedCallback_part = partial(message_RGB_ReceivedCallback, img_rbg, bridge, begin_img)
+    rgbMsgCallback_part = partial(rgbMsgCallback, img_args=img_args)
     rospy.Subscriber(image_raw_topic,
-                     Image, message_RGB_ReceivedCallback_part)
+                     Image, rgbMsgCallback_part)
 
     rate = rospy.Rate(30)
 
     while not rospy.is_shutdown():
-
-        if begin_img[0] is False:
+        if img_args['begin_img'] is False:
             continue
 
         # Defining image shape
-        height_frame, width_frame = [img_rbg.shape[dim_id] for dim_id in (0, 1)]
+        img_rgb = img_args['img_rgb']
+        height_frame, width_frame = [img_rgb.shape[dim_id] for dim_id in (0, 1)]
         reduced_dim = (int(width_frame * scale_cap), int(height_frame * scale_cap))
 
         if mask_mode:
             if segment:
-                # Get an image from the camera (a frame) and show
-                frame = img_rbg
+                frame = img_rgb
                 cv2.imshow(window_name_1, frame)
 
                 # Get ranges from trackbars in dict and numpy data structures
@@ -382,9 +376,11 @@ def main():
 
                 # Keyboard inputs to finish the cycle
                 if key == ord('q'):
-                    rospy.loginfo('Letter "q" pressed, exiting the program without saving limits')
+                    rospy.loginfo('Letter "q" pressed, exiting the program')
                     segment = False
                     cv2.destroyAllWindows()
+                    rospy.loginfo('Press "s" to exit, saving the log')
+                    rospy.loginfo('Press "q" to exit without saving the log')
                 elif key == ord('g'):
                     rospy.loginfo('Letter "g" pressed, saving green limits')
                     file_name = log_path + 'limits_green.json'
@@ -408,16 +404,16 @@ def main():
                 limits_red = json.load(file_handle)
 
             # Creating mask
-            mask_frame = createMask(limits_red, limits_green, img_rbg)
+            mask_frame = createMask(limits_red, limits_green, img_rgb)
             mask_frame = largestArea(mask_frame)
 
 
             # Creating masked image
-            img_rbg_masked = copy.deepcopy(img_rbg)
-            img_rbg_masked[~mask_frame] = 0
-            img = copy.deepcopy(img_rbg_masked)
+            img_rgb_masked = copy.deepcopy(img_rgb)
+            img_rgb_masked[~mask_frame] = 0
+            img = copy.deepcopy(img_rgb_masked)
         else:
-            img = copy.deepcopy(img_rbg)
+            img = copy.deepcopy(img_rgb)
 
         # Resizing the image
         frame = cv2.resize(img, reduced_dim)
@@ -453,8 +449,7 @@ def main():
         max_res_round = round(max_res, 3)
         # rospy.loginfo(max_res_round)
         row = pd.DataFrame([[time_str, max_name, max_res_round]], columns=['Time', 'Signal', 'Resolution'])
-        signal_log = signal_log.append(row, ignore_index=True)
-
+        signal_log = pd.concat([signal_log, row])
         if max_res > detection_threshold:
 
             max_height, max_width = [
@@ -478,30 +473,39 @@ def main():
 
             # Defining and publishing the velocity of the car in regards to the signal seen
             if max_name == "pForward" or max_name == "pParking":
-                vel_bool = True
                 count_start = count_start + 1
                 count_stop = 0
             elif max_name == "pStop":
-                vel_bool = False
                 count_stop = count_stop + 1
                 count_start = 0
             elif max_name == "pChessBlack" or max_name == "pChessBlackInv":
-                vel_bool = False
                 count_stop += 1
                 count_start = 0
                 rospy.loginfo('You have reached the end')
 
             if count_stop >= count_max or count_start >= count_max:
-                pubbool.publish(vel_bool)
+                signal_pub.publish(max_name)
 
         else:
             count_stop = 0
             count_start = 0
 
         # Show image
-        cv2.imshow("Frame", img_rbg)
+        cv2.imshow("Frame", img_rgb)
         cv2.imshow("Frame Detections", img)
-        cv2.waitKey(1)
+        key = cv2.waitKey(1)
+
+        if key == ord('s'):
+            rospy.loginfo('Letter "s" pressed, exiting the program while saving the log')
+            cv2.destroyAllWindows()
+            curr_time = datetime.now()
+            time_str = f"{curr_time.year}_{curr_time.month}_{curr_time.day}__{curr_time.hour}_{curr_time.minute}"
+            signal_log.to_csv(f"{log_path}/signal_log_{time_str}.csv", mode='a', index=False, header=False)
+            rospy.signal_shutdown('Manual shutdown')
+        elif key == ord('q'):
+            rospy.loginfo('Letter "q" pressed, exiting the program')
+            cv2.destroyAllWindows()
+            rospy.signal_shutdown('Manual shutdown')
 
         rate.sleep()
 

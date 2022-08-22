@@ -181,7 +181,7 @@ def main():
         # add image, angle and velocity to the driving_log pandas
         row = pd.DataFrame(data=[[image_name, config['angular'], config['linear']]],
                            columns=['Center', 'Steering', 'Velocity'])
-        driving_log = driving_log.append(row, ignore_index=True)
+        driving_log = pd.concat(driving_log, row)
 
         # save image
         dim = (image_width, image_height)

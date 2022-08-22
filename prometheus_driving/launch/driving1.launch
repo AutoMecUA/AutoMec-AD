@@ -1,0 +1,19 @@
+<launch>
+
+  <arg name="image_raw_topic" default="/ackermann_vehicle/camera/rgb/image_raw" />
+  <arg name="twist_cmd_topic" default="/cmd_vel" />
+  <arg name="signal_cmd_topic" default=""/>
+  <arg name="model_park" default=""/>
+
+
+  <group if="$(eval arg('model') != '')">
+    <node name="driving" pkg="cnn" type="driving1.py" output="screen" required="true" >
+      <param name="image_raw_topic" value="$(arg image_raw_topic)" />
+      <param name="twist_cmd_topic" value="$(arg twist_cmd_topic)" />
+      <param name="signal_cmd_topic" value="$(arg signal_cmd_topic)"/>
+      <param name="modelname" value="$(arg model)" />
+      <param name="modelname_park" value="$(arg model_park)" />
+    </node>
+  </group>
+  
+</launch>

@@ -1,15 +1,12 @@
 #!/usr/bin/env python3
 
 # Imports
-import argparse
 import sys
 import time
 from functools import partial
 from typing import Any
 
 import cv2
-from csv import writer
-import copy
 import numpy as np
 import rospy
 import yaml
@@ -17,12 +14,9 @@ from geometry_msgs.msg._Twist import Twist
 from sensor_msgs.msg._Image import Image
 from std_msgs.msg import Bool
 from cv_bridge.core import CvBridge
-from datetime import datetime
 from tensorflow.keras.models import load_model
 import pathlib
 import os
-import string
-from std_msgs.msg import Float32
 
 
 def preProcess(img):
@@ -38,7 +32,7 @@ def preProcess(img):
 
 def message_RGB_ReceivedCallback(message, kwargs):
 
-    kwargs["img_rbg"] = kwargs["bridge"].imgmsg_to_cv2(message, "bgr8")
+    kwargs["img_rgb"] = kwargs["bridge"].imgmsg_to_cv2(message, "bgr8")
 
     kwargs["begin_img"] = True
 
@@ -56,8 +50,7 @@ def signalCallback(message, kwargs):
 
 def main():
 
-    # Global variables
-    kwargs: dict[str, Any] = dict(vel=None, velbool=None, img_rbg=None,
+    kwargs: dict[str, Any] = dict(vel=None, velbool=None, img_rgb=None,
                                   bridge=None, begin_img=None, twist_linear_x=None)
 
     # Defining starting values
@@ -177,10 +170,10 @@ def main():
             start_time = time.time()
             waiting = False
 
-        resized_ = preProcess(kwargs["img_rbg"])
+        resized_ = preProcess(kwargs["img_rgb"])
 
         cv2.imshow('Robot View Processed', resized_)
-        cv2.imshow('Robot View', kwargs["img_rbg"])
+        cv2.imshow('Robot View', kwargs["img_rgb"])
         cv2.waitKey(1)
 
         # Predict angle
