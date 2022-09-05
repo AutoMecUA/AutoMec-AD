@@ -3,6 +3,7 @@
 # Imports
 import copy
 from functools import partial
+from re import I
 from typing import Tuple, List
 
 import cv2
@@ -235,10 +236,6 @@ def create_image_dict(dict_images, scale_import, n_red, path):
 def main():
     # PARAMETERS__________________________________________________________________
 
-    # Import Parameters
-    scale_import = 0.2  # The scale of the first image, related to the imported one.
-    n_red = 2  # Number of piramidizations to apply to each image.
-
     # Font Parameters
     subtitle_offset = -10
     subtitle_2_offset = -10
@@ -274,10 +271,11 @@ def main():
     # Defining variables
     img_args = dict(img_rgb = None, begin_img = False, bridge = None)
     segment = True
-    count_stop = 0
-    count_start = 0
-    count_max = 2
+    detection_num_in = 4
+    detection_num_out = 5
+    max_name_list = [None] * detection_num_out
     N_red = 2
+    scale_import = 0.2  # The scale of the first image, related to the imported one.
 
     # Init Node
     rospy.init_node('ml_driving', anonymous=False)
@@ -451,7 +449,6 @@ def main():
         row = pd.DataFrame([[time_str, max_name, max_res_round]], columns=['Time', 'Signal', 'Resolution'])
         signal_log = pd.concat([signal_log, row])
         if max_res > detection_threshold:
-
             max_height, max_width = [
                 int(dict_images[max_name]['images'][max_key].shape[dim_id] / scale_cap) for dim_id in (0, 1)
             ]
@@ -470,25 +467,22 @@ def main():
                                        font, font_scale, font_color, font_thickness, cv2.LINE_AA)
                 subtitle_2 = cv2.putText(img, text, origin_2, font, font_scale, font_color, font_thickness,
                                          cv2.LINE_AA)
-
-            # Defining and publishing the velocity of the car in regards to the signal seen
-            if max_name == "pForward" or max_name == "pParking":
-                count_start = count_start + 1
-                count_stop = 0
-            elif max_name == "pStop":
-                count_stop = count_stop + 1
-                count_start = 0
-            elif max_name == "pChessBlack" or max_name == "pChessBlackInv":
-                count_stop += 1
-                count_start = 0
-                rospy.loginfo('You have reached the end')
-
-            if count_stop >= count_max or count_start >= count_max:
-                signal_pub.publish(max_name)
-
+            
+            # Append name of detected signal to the list
+            max_name_list.append(max_name)
+            
         else:
-            count_stop = 0
-            count_start = 0
+            max_name_list.append(None)
+
+        # If the length of the list is larger than the predetermined one, erase the oldest element of said list
+        while len(max_name_list) > detection_num_out:
+            max_name_list.pop(0)
+
+        # If the number of detections of a certain signal is larger than predetermined, publish
+        for name in dict_images.keys():
+            mask_list = [int(detection == name) for detection in max_name_list]
+            if sum(mask_list) >= detection_num_in:
+                signal_pub.publish(name)
 
         # Show image
         cv2.imshow("Frame", img_rgb)

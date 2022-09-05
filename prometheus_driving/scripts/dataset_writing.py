@@ -52,7 +52,7 @@ def save_dataset(date, info_data, data_path, driving_log):
     info_data['dataset']['date'] = date + " until " + datetime.now().strftime("%d/%m/%Y %H:%M:%S")
     comments = input("[info.yaml] Additional comments about the dataset: ")
     info_data['dataset']['comments'] = comments
-    with open(data_path+'/info.yaml', 'w') as outfile:
+    with open(data_path + '/info.yaml', 'w') as outfile:
         yaml.dump(info_data, outfile, default_flow_style=False)
     rospy.signal_shutdown("All done, exiting ROS...")
 
@@ -90,7 +90,7 @@ def main():
 
     s = str(pathlib.Path(__file__).parent.absolute())
     date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-    data_path = f'{s}/../../data/' + env + "-" + datetime.now().strftime("%d-%m-%Hh%Mm%Ss")
+    data_path = f'{s}/../data/' + env + "-" + datetime.now().strftime("%d-%m-%Hh%Mm%Ss")
 
     rospy.loginfo(data_path)
 
