@@ -1,6 +1,6 @@
 # AutoMec-AD
 
-This repository serves as the main repository for the autonomous RC car team of Automec. The repository consist of ML code
+This repository serves as the main repository for the autonomous RC car team of AutoMec. The repository consist of ML code
 for the lane detection, template matching code for signal recognition, all incorporated in a ROS framework.
 
 ![alt text](https://raw.githubusercontent.com/AutomecUA/AutoMec-AD/main/images/car.jpeg)
@@ -11,9 +11,32 @@ feel free to use the Issues or [send us an email](mailto:dem-automec@ua.pt)!
 
 ## Quick cheat-sheet
 
+To correctly run this code, please insert in your .bashrc/.zshrc:
+
+```
+export GAZEBO_MODEL_PATH="`rospack find prometheus_gazebo`/models:${GAZEBO_MODEL_PATH}"
+export automec_developer="*place your name here"
+```
+
+And please install the following dependencies:
+
+```
+sudo apt-get install ros-noetic-ros-controllers ros-noetic-ackermann-msgs ros-noetic-navigation
+```
+
+And place the following package inside your workspace:
+
+https://github.com/CIR-KIT/steer_drive_ros (on the `melodic-devel`)
+
 To run the gazebo arena:
 ```
 roslaunch prometheus_gazebo arena.launch
+```
+
+To run the signal panel:
+
+```
+roslaunch prometheus_gazebo signal_panel.launch
 ```
 
 To launch the car in simulation:
@@ -25,6 +48,12 @@ Optionally, you can also add some visualization, and control with a game console
 
 ```
 roslaunch prometheus_bringup bringup.launch sim:=true visualize:=true controller:=true
+```
+
+You can also change the linear velocity:
+
+```
+roslaunch prometheus_bringup bringup.launch sim:=true linear_velocity:=0.5
 ```
 
 To write the dataset:

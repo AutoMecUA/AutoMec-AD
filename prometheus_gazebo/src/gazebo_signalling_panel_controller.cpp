@@ -38,7 +38,7 @@ int main(int argc, char** argv)
     nh2.param<std::string>("topic_monitor2", topic_monitor2, "/monitor2/image2");
 
     std::string source_package;
-    nh2.param<std::string>("source_package", source_package, "simspace");
+    nh2.param<std::string>("source_package", source_package, "prometheus_gazebo");
     
     std::string source_folder;
     nh2.param<std::string>("source_folder", source_folder, "semaphores_pics");      

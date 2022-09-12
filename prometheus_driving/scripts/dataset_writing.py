@@ -144,6 +144,10 @@ def main():
     # read opencv key
     key = -1
 
+    # Info
+    rospy.loginfo('To save the dataset, press "s" on the image window')
+    rospy.loginfo('To quit, press "q" on the image window')
+
     while not rospy.is_shutdown():
         if not config['begin_img']:
             continue
@@ -181,7 +185,7 @@ def main():
         # add image, angle and velocity to the driving_log pandas
         row = pd.DataFrame(data=[[image_name, config['angular'], config['linear']]],
                            columns=['Center', 'Steering', 'Velocity'])
-        driving_log = pd.concat(driving_log, row)
+        driving_log = pd.concat([driving_log, row])
 
         # save image
         dim = (image_width, image_height)
