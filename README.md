@@ -35,4 +35,20 @@ roslaunch prometheus_driving dataset_writing.launch
 
 To train the model, run the script `ml_training.ipynb`, from package `prometheus_driving` in a jupyter notebook. 
 
-The model running and the signal recognition will soon be ported. 
+To run the dataset:
+
+```
+roslaunch prometheus_driving ml_driving.launch model:=*insert model name*
+```
+
+And to launch the signal detection:
+
+```
+roslaunch prometheus_signal_recognition signal_recognition.launch 
+```
+
+If you want to run the model without using the signal detection, please launch the following command to start the driving:
+
+```
+rostopic pub /signal_detected std_msgs/String "pForward"
+```
