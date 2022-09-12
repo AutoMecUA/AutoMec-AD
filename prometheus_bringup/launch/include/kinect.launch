@@ -1,0 +1,9 @@
+<launch>
+  <arg name="frame_id" default="top_front_camera"/>
+
+  <include file="$(find openni_launch)/launch/openni.launch">
+      <arg name="depth_registration" value="true"/>
+      <arg name="camera" value="$(arg frame_id)"/>
+  </include>
+
+</launch>

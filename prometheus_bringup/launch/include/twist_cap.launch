@@ -1,0 +1,10 @@
+<launch>
+  <arg name="twist_cmd_topic" default="/ackermann_steering_controller/cmd_vel"/>
+  <arg name="twist_input_topic" default="/cmd_vel"/>
+
+  <node name="twist_cap" pkg="prometheus_bringup" type="twist_cap.py" output="screen">
+    <param name="twist_cmd_topic" value="$(arg twist_cmd_topic)"/>
+    <param name="twist_input_topic" value="$(arg twist_input_topic)"/>
+  </node>
+
+</launch>

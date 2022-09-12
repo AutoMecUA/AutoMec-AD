@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <xacro:property name="deg_to_rad" value="0.01745329251994329577"/>
+    <!-- Adding other macros -->
+    <xacro:include filename="$(find pointgrey_camera_description)/urdf/pointgrey_flea3.urdf.xacro"/>
+    <xacro:include filename="$(find lms1xx)/urdf/sick_lms1xx.urdf.xacro"/>
+
+    <xacro:macro name="prometheus" params="length width wheel_radius board_height height">
+        <!-- Links: inertial,visual,collision -->
+        <link name="base_link">
+            <inertial>
+                <!-- origin is relative -->
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <mass value="2"/>
+                <inertia ixx="1" ixy="0" ixz="0"
+                        iyy="1" iyz="0"
+                        izz="1"/>
+            </inertial>
+            <visual>
+                <!-- <origin xyz="${length/2} ${-width/2-0.15} ${-wheel_radius+0.05}" rpy="0 0 0"/> -->
+                <origin xyz="${length/2} ${-width/2} ${board_height}" rpy="${90 * deg_to_rad} 0 ${180 * deg_to_rad}"/>
+                <geometry>
+                    <mesh filename="file:///$(find prometheus_description)/meshes/chassis.dae"/>
+                </geometry>
+            </visual>
+            <collision>
+                <!-- origin is relative -->
+                <origin xyz=" 0 0 ${-wheel_radius + height/2}"/>
+                <geometry>
+                    <box size="${length} ${width} ${height/2}"/>
+                </geometry>
+            </collision>
+        </link>
+
+        <link name="base_footprint">
+            <collision>
+                <origin xyz="0 0 0"/>
+                <geometry>
+                    <sphere radius="0.00000001"/>
+                </geometry>
+            </collision>
+        </link>
+        <joint name="base_footprint_joint" type="fixed">
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <child link="base_link"/>
+            <parent link="base_footprint"/>
+        </joint>
+    </xacro:macro>
+
+</robot>

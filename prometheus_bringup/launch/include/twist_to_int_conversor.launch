@@ -1,0 +1,14 @@
+<launch>
+  <arg name="twist_cmd_topic" default="/ackermann_steering_controller/cmd_vel"/>
+  <arg name="int_dir_topic" default="/pub_dir"/>
+  <arg name="int_vel_topic" default="/pub_vel"/>
+  <arg name="int_vel_max" default="108"/>
+
+  <node name="twist_to_int" pkg="prometheus_bringup" type="twist_to_int.py" output="screen">
+    <param name="twist_cmd_topic" value="$(arg twist_cmd_topic)"/>
+    <param name="int_dir_topic" value="$(arg int_dir_topic)"/>
+    <param name="int_vel_topic" value="$(arg int_vel_topic)"/>
+    <param name="int_vel_max" value="$(arg int_vel_max)"/>
+  </node>
+
+</launch>

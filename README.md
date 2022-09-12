@@ -8,3 +8,47 @@ for the lane detection, template matching code for signal recognition, all incor
 All the setup, commands and methods used are described in the [wiki](https://github.com/AutomecUA/AutoMec-AD/wiki). <br>
 This is still a WIP. Some errors are to be expected. If you have any doubts or want to report a bug,
 feel free to use the Issues or [send us an email](mailto:dem-automec@ua.pt)!
+
+## Quick cheat-sheet
+
+To run the gazebo arena:
+```
+roslaunch prometheus_gazebo arena.launch
+```
+
+To launch the car in simulation:
+```
+roslaunch prometheus_bringup bringup.launch sim:=true
+```
+
+Optionally, you can also add some visualization, and control with a game console controller:
+
+```
+roslaunch prometheus_bringup bringup.launch sim:=true visualize:=true controller:=true
+```
+
+To write the dataset:
+
+```
+roslaunch prometheus_driving dataset_writing.launch
+```
+
+To train the model, run the script `ml_training.ipynb`, from package `prometheus_driving` in a jupyter notebook. 
+
+To run the dataset:
+
+```
+roslaunch prometheus_driving ml_driving.launch model:=*insert model name*
+```
+
+And to launch the signal detection:
+
+```
+roslaunch prometheus_signal_recognition signal_recognition.launch 
+```
+
+If you want to run the model without using the signal detection, please launch the following command to start the driving:
+
+```
+rostopic pub /signal_detected std_msgs/String "pForward"
+```

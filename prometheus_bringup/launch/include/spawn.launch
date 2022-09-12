@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+
+<launch>
+    <!-- Launch file arguments -->
+    <arg name="vehicle_name" default="prometheus"/>
+    <arg name="x_pos" default="0.0"/>
+    <arg name="y_pos" default="0.0"/>
+    <arg name="z_pos" default="0.0"/>
+    <arg name="roll" default="0.0"/>
+    <arg name="pitch" default="0.0"/>
+    <arg name="yaw" default="0.0"/>
+
+    <!-- Spawning (instant creation) of the robot defined by the description previously loaded for the robot_description, to a specific position in the arena -->
+    <node name="spawn_vehicle" pkg="gazebo_ros" type="spawn_model" args="-urdf -param robot_description
+                  -model $(arg vehicle_name)
+                  -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos)
+                  -R $(arg roll) -P $(arg pitch) -Y $(arg yaw)"/>
+
+</launch>
