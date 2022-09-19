@@ -16,7 +16,6 @@ from PIL import Image as Image_pil
 from cv_bridge.core import CvBridge
 from geometry_msgs.msg._Twist import Twist
 from sensor_msgs.msg._Image import Image
-from std_msgs.msg import Bool
 
 
 # Calback Function to receive the cmd values

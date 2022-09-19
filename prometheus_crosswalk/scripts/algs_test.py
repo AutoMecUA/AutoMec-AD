@@ -146,6 +146,9 @@ def frame_stats(frames_per_second, sureness, do_print: bool = False) -> Union[st
         print(res)
     return res
 
+def main():
+    stateless_test(stateless_lib.basic_sureness)
+
 
 if __name__ == '__main__':
-    stateless_test(stateless_lib.basic_sureness)
+    main()
