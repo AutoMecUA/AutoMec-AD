@@ -1,0 +1,12 @@
+<launch>
+  <arg name="image_raw_topic" default="/top_left_camera/image_raw"/>
+  <arg name="signal_cmd_topic" default="/signal_detected"/>
+  <arg name="mask_mode" default="True"/>
+
+    <node name="signal_recognition" pkg="prometheus_signal_recognition" type="signal_recognition.py" output="screen">
+      <param name="image_raw_topic" value="$(arg image_raw_topic)"/>
+      <param name="signal_cmd_topic" value="$(arg signal_cmd_topic)"/>
+      <param name="mask_mode" value="$(arg mask_mode)"/>
+    </node>
+
+</launch>

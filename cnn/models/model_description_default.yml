@@ -1,9 +1,0 @@
-model:
-  developer: name_of_person
-  image_size: 360,120
-  frequency: 30
-  linear_velocity: 0.5
-  environment: gazebo
-  camera_position: ...
-  cnn_number: 2a_tf
-  

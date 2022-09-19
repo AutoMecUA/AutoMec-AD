@@ -1,8 +1,0 @@
-<launch>
-  <arg name="namespace" default="ackermann_vehicle"/>
-  <arg name="source_package" default="simulation_environment"/>
-  <include file="$(find simulation_environment)/launch/signal_panel.launch">
-      <arg name="namespace" value="$(arg namespace)"/>
-      <arg name="source_package" value="$(arg source_package)"/>-->
-  </include>
-</launch>
