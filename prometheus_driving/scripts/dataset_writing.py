@@ -28,7 +28,7 @@ def twistMsgCallback(message, config: dict):
 
 
 # Callback function to receive image
-def message_RGB_ReceivedCallback(message, config: dict):
+def imgRgbCallback(message, config: dict):
 
     config['img_rgb'] = config['bridge'].imgmsg_to_cv2(message, "bgr8")
 
@@ -125,8 +125,8 @@ def main():
     messageReceivedCallback_part = partial(twistMsgCallback, config=config)
     rospy.Subscriber(twist_cmd_topic, Twist, messageReceivedCallback_part)
 
-    message_RGB_ReceivedCallback_part = partial(message_RGB_ReceivedCallback, config=config)
-    rospy.Subscriber(image_raw_topic, Image, message_RGB_ReceivedCallback_part)
+    imgRgbCallback_part = partial(imgRgbCallback, config=config)
+    rospy.Subscriber(image_raw_topic, Image, imgRgbCallback_part)
 
     # Create an object of the CvBridge class
     config['bridge'] = CvBridge()
