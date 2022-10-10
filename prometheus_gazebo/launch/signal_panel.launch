@@ -4,8 +4,8 @@
   <group ns="$(arg namespace)">
     <node pkg="prometheus_gazebo" type="gazebo_signal_panel" name="semaphore_node" output="screen">
       <param name="source_package" value="$(arg source_package)"/>
-      <param name="topic_monitor1" value="/ackermann_vehicle/monitor1/image1"/>
-      <param name="topic_monitor2" value="/ackermann_vehicle/monitor2/image2"/>
+      <param name="topic_monitor1" value="/monitor1/image1"/>
+      <param name="topic_monitor2" value="/monitor2/image2"/>
     </node>
   </group>
 </launch>

@@ -63,6 +63,9 @@
   <!-- The export tag contains other, unspecified, tags -->
   <export>
     <!-- Other tools can request additional information be placed here -->
-
+  <gazebo_ros gazebo_model_path="${prefix}/models"/>
+  <!--  prefix: is the path to package.xml -->
+  <!--  <gazebo_ros gazebo_plugin_path="${prefix}/plugins"/>  -->
+  <gazebo_ros gazebo_plugin_path="${prefix}/plugins"/>
   </export>
 </package>
