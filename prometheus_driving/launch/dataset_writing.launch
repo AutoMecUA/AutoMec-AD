@@ -11,6 +11,7 @@
   <arg name="env" default=""/>
   <arg name="vel" default="0"/>
   <arg name="urdf" default=""/>
+  <arg name="challenge" default="D1"/>
 
 
     <node name="write_dataset" pkg="prometheus_driving" type="dataset_writing.py" output="screen" required="true">
@@ -24,6 +25,7 @@
       <param name="env" value="$(arg env)"/>
       <param name="vel" value="$(arg vel)"/>
       <param name="urdf" value="$(arg urdf)"/>
+      <param name="challenge" value="$(arg challenge)"/>
     </node>
 
 </launch>

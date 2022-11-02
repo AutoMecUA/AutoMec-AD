@@ -86,7 +86,7 @@ def main():
         env = "real"
     vel = float(rospy.get_param('/linear_velocity', '1'))
     urdf = rospy.get_param('/used_urdf', '') + ".urdf.xacro"
-    challenge = rospy.get_param('~challenge', 'driving') 
+    challenge = rospy.get_param('~challenge', 'D1') 
 
     s = str(pathlib.Path(__file__).parent.absolute())
     date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")

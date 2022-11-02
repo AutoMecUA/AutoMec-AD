@@ -67,7 +67,7 @@ To train the model, run the script `ml_training.ipynb`, from package `prometheus
 To run the dataset:
 
 ```
-roslaunch prometheus_driving ml_driving.launch model:=*insert model name*
+roslaunch prometheus_driving ml_driving.launch model_name:=*insert model name*
 ```
 
 And to launch the signal detection:
