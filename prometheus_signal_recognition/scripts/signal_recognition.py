@@ -19,6 +19,7 @@ import signal
 import sys
 import os
 import json
+from colorsys import hsv_to_rgb
 
 
 def largestArea(mask_original):
@@ -85,19 +86,34 @@ def onTrackBars(_, window_name) -> Tuple[dict, np.ndarray, np.ndarray]:
     'maxs' Datatype: Numpy Array object
     """
     # Get ranges for each channel from trackbar and assign to a dictionary
-    min_b, min_g, min_r, max_b, max_g, max_r = [
-        cv2.getTrackbarPos(val, window_name) for val in ("min B", "min G", "min R", "max B", "max G", "max R")
+    min_h, min_s, min_v, max_h, max_s, max_v = [
+        cv2.getTrackbarPos(val, window_name) for val in ("min H", "min S", "min V", "max H", "max S", "max V")
     ]
 
+    # # Convert HSV limits to RGB limits
+    # # Note: hsv_to_rgb receives and returns normalized values
+    # min_r, min_g, min_b = hsv_to_rgb(min_h/360, min_s/100, min_v/100)
+    # max_r, max_g, max_b = hsv_to_rgb(max_h/360, max_s/100, max_v/100)
+
+    # limits = dict(
+    #     B=dict(min=int(min_b*255), max=int(max_b*255)),
+    #     G=dict(min=int(min_g*255), max=int(max_g*255)),
+    #     R=dict(min=int(min_r*255), max=int(max_r*255))
+    # )
+
+    # # Convert the dict structure created before to numpy arrays, because is the structure that opencv uses it.
+    # mins: np.ndarray = np.array([limits[channel]['min'] for channel in ("B", "G", "R")])
+    # maxs: np.ndarray = np.array([limits[channel]['max'] for channel in ("B", "G", "R")])
+
     limits = dict(
-        B=dict(min=min_b, max=max_b),
-        G=dict(min=min_g, max=max_g),
-        R=dict(min=min_r, max=max_r)
+        H=dict(min=min_h, max=max_h),
+        S=dict(min=min_s, max=max_s),
+        V=dict(min=min_v, max=max_v)
     )
 
     # Convert the dict structure created before to numpy arrays, because is the structure that opencv uses it.
-    mins: np.ndarray = np.array([limits[channel]['min'] for channel in ("B", "G", "R")])
-    maxs: np.ndarray = np.array([limits[channel]['max'] for channel in ("B", "G", "R")])
+    mins: np.ndarray = np.array([limits[channel]['min'] for channel in ("H", "S", "V")])
+    maxs: np.ndarray = np.array([limits[channel]['max'] for channel in ("H", "S", "V")])
 
     return limits, mins, maxs
 
@@ -125,11 +141,13 @@ def createMask(ranges_red, ranges_green, image) -> np.ndarray:
 
 def colorMask(image, color_ranges):
     # Create an array for minimum and maximum values
-    mins_red = np.array([color_ranges['B']['min'], color_ranges['G']['min'], color_ranges['R']['min']])
-    maxs_red = np.array([color_ranges['B']['max'], color_ranges['G']['max'], color_ranges['R']['max']])
+    mins = np.array([color_ranges['H']['min'], color_ranges['S']['min'], color_ranges['V']['min']])
+    maxs = np.array([color_ranges['H']['max'], color_ranges['S']['max'], color_ranges['V']['max']])
     # Create a mask using the previously created array
-    mask_red = cv2.inRange(image, mins_red, maxs_red)
-    return mask_red
+    image_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    mask = cv2.inRange(image_hsv, mins, maxs)
+
+    return mask
 
 
 def rgbMsgCallback(message, img_args):
@@ -143,7 +161,6 @@ def rgbMsgCallback(message, img_args):
     img_args['img_rgb'] = img_args['bridge'].imgmsg_to_cv2(message, "bgr8")
 
     img_args['begin_img'] = True
-
 
 
 def create_image_dict(dict_images, scale_import, n_red, path):
@@ -267,7 +284,7 @@ def main():
 
     # Colors dictionary
     dict_colors = dict(red=(0, 0, 255), green=(0, 255, 0), blue=(255, 0, 0), yellow=(0, 255, 255))
-
+    
     # Defining variables
     img_args = dict(img_rgb = None, begin_img = False, bridge = None)
     segment = True
@@ -309,14 +326,16 @@ def main():
         onTrackBars_partial = partial(onTrackBars, window_name=window_name_2)
 
         # Create trackbars to control the threshold of the binarization
-        create_track_list = ["min B", "max B", "min G", "max G", "min R", "max R"]
+        create_track_list = ["min H", "max H", "min S", "max S", "min V", "max V"]
+        # Maximum H, maximum S and maximum V
+        max_param_values = [179, 255, 255]
 
         for idx, param in enumerate(create_track_list):
-            cv2.createTrackbar(param, window_name_2, 0, 255, onTrackBars_partial)
+            cv2.createTrackbar(param, window_name_2, 0, max_param_values[idx//2], onTrackBars_partial)
             
-           # Set the trackbar position to 255 for maximum trackbars
+           # Set the trackbar position to 360 or 100 (depending on the parameter) for maximum trackbars
             if idx % 2 == 1:
-                cv2.setTrackbarPos(param, window_name_2, 255)
+                cv2.setTrackbarPos(param, window_name_2, max_param_values[idx//2])
 
         # Prints to make the program user-friendly. Present to the user the hotkeys
         rospy.loginfo('Use the trackbars to define the threshold limits as you wish.')
@@ -365,7 +384,8 @@ def main():
                 limits, mins, maxs = onTrackBars_partial(0)
 
                 # Create mask using cv2.inRange. The output is still in uint8
-                segmented_frame = cv2.inRange(frame, mins, maxs)
+                frame_hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+                segmented_frame = cv2.inRange(frame_hsv, mins, maxs)
 
                 # Show segmented image
                 cv2.imshow(window_name_2, segmented_frame)  # Display the image
