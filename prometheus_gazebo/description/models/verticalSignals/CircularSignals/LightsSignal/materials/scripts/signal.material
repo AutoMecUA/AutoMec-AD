@@ -1,0 +1,13 @@
+material Signal/Lights
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture lights.png
+      }
+    }
+  }
+}

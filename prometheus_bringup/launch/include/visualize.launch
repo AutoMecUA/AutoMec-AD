@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<launch>
+    <node pkg="rviz" type="rviz" name="rviz" required="false" args="-d $(find prometheus_bringup)/config/rviz.rviz"/>
+</launch>

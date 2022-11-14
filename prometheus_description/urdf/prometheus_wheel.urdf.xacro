@@ -1,0 +1,241 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:property name="steer_radius" value="0.05" /> <!-- Link 1 -->
+  <xacro:property name="steer_thickness" value="0.02" /> <!-- Link 1 -->
+  <xacro:property name="steer_effort"   value="15.0"/>
+  <xacro:property name="steer_velocity" value="5.0"/>
+  <xacro:property name="mass" value="0.50"/>
+  <xacro:property name="damping" value="0"/>
+  <xacro:property name="friction" value="0" />
+
+  <xacro:macro name="front_steer" params="name parent radius thickness length width axel_offset steer_height *origin">
+    <link name="${name}_steer_link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="${mass}"/>
+<!--        <inertia ixx="${inertia}" ixy="0" ixz="0" iyy="${inertia_yy}" iyz="0" izz="${inertia}"/>-->
+        <inertia  ixx="${(mass*((3*wheel_radius*wheel_radius)+(thickness*thickness)))/12}" ixy = "0" ixz = "0"
+                  iyy="${(mass*((3*wheel_radius*wheel_radius)+(thickness*thickness)))/12}" iyz = "0"
+                  izz="${(mass*wheel_radius*wheel_radius)/2}" />
+      </inertial>
+<!--      <visual>-->
+<!--        <origin xyz="0 0 0" rpy="0 0 0"/>-->
+<!--      </visual>-->
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="${steer_radius}" length="${steer_thickness}"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="${name}_steer_joint" type="revolute">
+      <parent link="${parent}_link"/>
+      <child link="${name}_steer_link"/>
+      <origin xyz="${length/2-axel_offset} 0 ${steer_height}" rpy="0 0 0"/>
+      <axis xyz="0 0 1"/>
+      <limit effort="${steer_effort}"
+             lower="${-180.0 * deg_to_rad}" upper="${180.0 * deg_to_rad}"
+             velocity="${steer_velocity}"/>
+      <dynamics damping="${damping}" friction="${friction}"/>
+     </joint>
+
+           <!-- Transmission is important to link the joints and the controller -->
+    <transmission name="${name}_steer_joint_trans">
+      <type>transmission_interface/SimpleTransmission</type>
+      <actuator name="${name}_steer_joint_motor"/>
+      <joint name="${name}_steer_joint">
+        <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+        <dynamics damping="${damping}" friction="0.0"/>
+      </joint>
+      <mechanicalReduction>1</mechanicalReduction>
+      <motorTorqueConstant>1</motorTorqueConstant>
+    </transmission>
+    <gazebo reference="${name}_steer_link">
+      <material>Gazebo/Yellow</material>
+    </gazebo>
+  </xacro:macro>
+
+  <xacro:macro name="front_wheel_lr" params="name parent radius thickness length width axel_offset right_left steer_height *origin">
+    <link name="${name}_steer_link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="${mass}"/>
+<!--        <inertia ixx="${inertia}" ixy="0" ixz="0" iyy="${inertia_yy}" iyz="0" izz="${inertia}"/>-->
+        <inertia  ixx="${(mass*((3*wheel_radius*wheel_radius)+(thickness*thickness)))/12}" ixy = "0" ixz = "0"
+                  iyy="${(mass*((3*wheel_radius*wheel_radius)+(thickness*thickness)))/12}" iyz = "0"
+                  izz="${(mass*wheel_radius*wheel_radius)/2}" />
+      </inertial>
+<!--      <visual>-->
+<!--        <origin xyz="0 0 0" rpy="0 0 0"/>-->
+<!--      </visual>-->
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <axis xyz="${right_left * -1} 0 0"/>
+        <geometry>
+          <cylinder radius="${steer_radius}" length="${steer_thickness}"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="${name}_steer_joint" type="revolute">
+      <parent link="${parent}_link"/>
+<!--      <parent link="front_steer_link"/>-->
+      <child link="${name}_steer_link"/>
+      <origin xyz="${length/2-axel_offset_x} ${right_left*(width/2+axel_offset_y)} ${steer_height}" rpy="0 0 0"/>
+<!--      <origin xyz="0 ${right_left*(width/2+axel_offset)} 0" rpy="0 0 0"/>-->
+      <!--xacro:insert_block name="origin"/-->
+      <axis xyz="0 0 1"/>
+      <dynamics damping="${damping}" friction="${friction}"/>
+      <limit effort="${steer_effort}"
+             lower="${-180.0 * deg_to_rad}" upper="${180.0 * deg_to_rad}"
+             velocity="${steer_velocity}"/>
+     </joint>
+
+    <link name="${name}_wheel_link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="${mass}"/>
+<!--        <inertia ixx="${inertia}" ixy="0" ixz="0" iyy="${inertia_yy}" iyz="0" izz="${inertia}"/>-->
+        <inertia  ixx="${(mass*((3*wheel_radius*wheel_radius)+(thickness*thickness)))/12}" ixy = "0" ixz = "0"
+                  iyy="${(mass*((3*wheel_radius*wheel_radius)+(thickness*thickness)))/12}" iyz = "0"
+                  izz="${(mass*wheel_radius*wheel_radius)/2}" />
+      </inertial>
+      <visual>
+        <origin xyz="0 ${wheel_radius} ${wheel_radius}" rpy=" ${90 * deg_to_rad} ${90 * deg_to_rad} 0"/>
+        <geometry>
+          <mesh filename="file:///$(find prometheus_description)/meshes/wheel.dae"/>
+        </geometry>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="${-90 * deg_to_rad} 0 ${right_left * -90 * deg_to_rad}"/>-->
+        <geometry>
+          <cylinder radius="${wheel_radius}" length="${thickness}"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="${name}_wheel_joint" type="continuous">
+<!--      <parent link="front_steer_link"/>-->
+      <parent link="${name}_steer_link"/>
+      <child link="${name}_wheel_link"/>
+<!--      <origin xyz="0 ${right_left*(width/2+axel_offset)} ${-steer_height}" rpy="${-90 * deg_to_rad} 0 0"/>-->
+      <origin xyz="0 0 ${-steer_height}" rpy="${-90 * deg_to_rad} 0 ${right_left * -90 * deg_to_rad}"/>-->
+      <axis xyz="${right_left * -1} 0 0"/>
+      <dynamics damping="${damping}" friction="${friction}"/>
+    </joint>
+
+    <!-- Transmission is important to link the joints and the controller -->
+    <transmission name="${name}_steer_joint_trans">
+      <type>transmission_interface/SimpleTransmission</type>
+      <actuator name="${name}_steer_joint_motor"/>
+      <joint name="${name}_steer_joint">
+        <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        <dynamics damping="${damping}" friction="${friction}"/>
+      </joint>
+      <mechanicalReduction>1</mechanicalReduction>
+      <motorTorqueConstant>1</motorTorqueConstant>
+    </transmission>
+    <transmission name="${name}_wheel_joint_trans" >
+      <type>transmission_interface/SimpleTransmission</type>
+      <actuator name="${name}_wheel_joint_motor"/>
+      <joint name="${name}_wheel_joint">
+        <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        <dynamics damping="${damping}" friction="${friction}"/>
+      </joint>
+      <mechanicalReduction>1</mechanicalReduction>
+      <motorTorqueConstant>1</motorTorqueConstant>
+    </transmission>
+
+  </xacro:macro>
+
+  <xacro:macro name="rear_wheel" params="name parent radius thickness *origin">
+    <link name="${name}_wheel_link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="${mass}"/>
+<!--        <inertia ixx="${inertia}" ixy="0" ixz="0" iyy="${inertia_yy}" iyz="0" izz="${inertia}"/>-->
+        <inertia  ixx="${(mass*((3*wheel_radius*wheel_radius)+(thickness*thickness)))/12}" ixy = "0" ixz = "0"
+                  iyy="${(mass*((3*wheel_radius*wheel_radius)+(thickness*thickness)))/12}" iyz = "0"
+                  izz="${(mass*wheel_radius*wheel_radius)/2}" />
+      </inertial>
+<!--      <visual>-->
+<!--        <origin xyz="0 0 0" rpy="0 0 0"/>-->
+<!--        <geometry>-->
+<!--          <cylinder radius="${wheel_radius}" length="${thickness}"/>-->
+<!--        </geometry>-->
+<!--      </visual>-->
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="${wheel_radius/100}" length="${thickness/100}"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="${name}_wheel_joint" type="continuous">
+      <parent link="${parent}_link"/>
+      <child link="${name}_wheel_link"/>
+      <xacro:insert_block name="origin"/>
+      <axis xyz="1 0 0"/>
+      <dynamics damping="${damping}" friction="${friction}"/>
+    </joint>
+
+    <!-- Transmission is important to link the joints and the controller -->
+    <transmission name="${name}_wheel_joint_trans" >
+      <type>transmission_interface/SimpleTransmission</type>
+      <actuator name="${name}_wheel_joint_motor"/>
+      <joint name="${name}_wheel_joint">
+          <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+          <dynamics damping="${damping}" friction="${friction}"/>
+      </joint>
+      <mechanicalReduction>1</mechanicalReduction>
+      <motorTorqueConstant>1</motorTorqueConstant>
+    </transmission>
+  </xacro:macro>
+
+  <xacro:macro name="rear_wheel_lr" params="name parent radius right_left thickness *origin">
+    <link name="${name}_wheel_link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="${mass}"/>
+<!--        <inertia ixx="${inertia}" ixy="0" ixz="0" iyy="${inertia_yy}" iyz="0" izz="${inertia}"/>-->
+        <inertia  ixx="${(mass*((3*wheel_radius*wheel_radius)+(thickness*thickness)))/12}" ixy = "0" ixz = "0"
+                  iyy="${(mass*((3*wheel_radius*wheel_radius)+(thickness*thickness)))/12}" iyz = "0"
+                  izz="${(mass*wheel_radius*wheel_radius)/2}" />
+      </inertial>
+      <visual>
+        <origin xyz="0 ${wheel_radius} ${wheel_radius}" rpy=" ${90 * deg_to_rad} ${90 * deg_to_rad} 0"/>
+        <geometry>
+            <mesh filename="file:///$(find prometheus_description)/meshes/wheel.dae"/>
+        </geometry>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="${-90 * deg_to_rad} 0 ${right_left * -90 * deg_to_rad}"/>-->
+        <geometry>
+          <cylinder radius="${wheel_radius}" length="${thickness}"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="${name}_wheel_joint" type="continuous">
+      <parent link="${parent}_link"/>
+      <child link="${name}_wheel_link"/>
+      <xacro:insert_block name="origin"/>
+      <axis xyz="${right_left * -1} 0 0"/>
+      <dynamics damping="${damping}" friction="${friction}"/>
+    </joint>
+
+    <!-- Transmission is important to link the joints and the controller -->
+    <transmission name="${name}_wheel_joint_trans" >
+      <type>transmission_interface/SimpleTransmission</type>
+      <actuator name="${name}_wheel_joint_motor"/>
+      <joint name="${name}_wheel_joint">
+          <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+          <dynamics damping="${damping}" friction="${friction}"/>
+      </joint>
+      <mechanicalReduction>1</mechanicalReduction>
+      <motorTorqueConstant>1</motorTorqueConstant>
+    </transmission>
+  </xacro:macro>
+</robot>

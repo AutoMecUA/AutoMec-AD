@@ -33,7 +33,7 @@ MANIFEST
 *.manifest
 *.spec
 
-# Installer logs
+# Installer log
 pip-log.txt
 pip-delete-this-directory.txt
 
@@ -133,9 +133,10 @@ dmypy.json
 .vscode
 
 
-# databases and models
-cnn/data/**
-cnn/models/**
+# databases and models and logs
+prometheus_driving/data/**
+prometheus_driving/models/**
+signal_recognition/scripts/**
 
 # csv
 *.csv

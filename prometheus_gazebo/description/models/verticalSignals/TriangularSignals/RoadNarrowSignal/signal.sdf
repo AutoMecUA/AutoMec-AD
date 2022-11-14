@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<sdf version="1.4">
+<model name="Road_Narrow_signal">
+  <link name="support_structure">
+    <pose>0 0 0 0 0 0</pose>
+    <visual name="base">
+      <geometry>
+        <box>
+          <size>0.305 0.2 0.05</size>
+        </box>
+      </geometry>
+    </visual>
+    <collision name="base">
+      <geometry>
+        <box>
+          <size>0.305 0.2 0.05</size>
+        </box>
+      </geometry>
+    </collision>
+    <visual name="vertical_post">
+    <pose>0 0 0.385 0 0 0</pose>
+      <geometry>
+        <box>
+          <size>0.0305 0.0305 0.82</size>
+        </box>
+      </geometry>
+    </visual>
+    <collision name="vertical_post">
+    <pose>0 0 0.385 0 0 0</pose>
+      <geometry>
+        <box>
+          <size>0.0305 0.0305 0.82</size>
+        </box>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="postAndPictogram" type="revolute">
+      <parent>support_structure</parent>
+      <child>pictogram</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+            <upper>0</upper>
+            <lower>0</lower>
+        </limit>
+      </axis>
+    </joint>
+  <link name="pictogram">
+    <pose>0 -0.0225 0.75 0 0 0</pose>
+    <visual name="pictogram">
+        <geometry>
+            <mesh>
+                <uri>model://RoadNarrowSignal/signal.dae</uri>
+            </mesh>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://RoadNarrowSignal/materials/scripts</uri>
+            <uri>model://RoadNarrowSignal/materials/textures</uri>
+            <name>Signal/RoadNarrow</name>
+          </script>
+        </material>
+    </visual>
+  </link>
+</model>
+</sdf>

@@ -1,0 +1,16 @@
+<launch>
+
+  <arg name="image_raw_topic" default="/top_front_camera/rgb/image_color"/>
+  <arg name="twist_cmd_topic" default="/cmd_vel" />
+  <arg name="signal_cmd_topic" default="/signal_detected"/>
+  <arg name="model_name" default=""/>
+
+
+  <node name="ml_driving" pkg="prometheus_driving" type="ml_driving.py" output="screen" required="true" >
+    <param name="image_raw_topic" value="$(arg image_raw_topic)" />
+    <param name="twist_cmd_topic" value="$(arg twist_cmd_topic)" />
+    <param name="signal_cmd_topic" value="$(arg signal_cmd_topic)"/>
+    <param name="model_name" value="$(arg model_name)" />
+  </node>
+  
+</launch>
