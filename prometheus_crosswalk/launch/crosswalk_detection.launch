@@ -1,0 +1,12 @@
+<launch>
+
+  <arg name="image_raw_topic" default="/top_front_camera/rgb/image_raw"/>
+  <arg name="crosswalk_sureness_topic" default="/crosswalk_sureness"/>
+
+  
+  <node name="crosswalk_detection" pkg="prometheus_crosswalk" type="crosswalk_detection.py" output="screen" required="true" >
+    <param name="image_raw_topic" value="$(arg image_raw_topic)" />
+    <param name="crosswalk_sureness_topic" value="$(arg crosswalk_sureness_topic)"/>
+  </node>
+  
+</launch>

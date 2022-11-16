@@ -29,7 +29,7 @@
                 will control the frame rate. -->
                 <updateRate>0.0</updateRate>
                 <cameraName>top_front_camera</cameraName>
-                <imageTopicName>/top_front_camera/rgb/image_color</imageTopicName>
+                <imageTopicName>/top_front_camera/rgb/image_raw</imageTopicName>
                 <cameraInfoTopicName>/top_front_camera/rgb/camera_info</cameraInfoTopicName>
                 <depthImageTopicName>/top_front_camera/depth_registered/image</depthImageTopicName>
                 <depthImageInfoTopicName>/top_front_camera/depth_registered/camera_info</depthImageInfoTopicName>
