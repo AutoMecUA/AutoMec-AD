@@ -14,7 +14,6 @@ from cv_bridge.core import CvBridge
 from tensorflow.keras.models import load_model
 import pathlib
 
-
 def preProcess(img):
     # Define Region of interest
     #img = img[60:135, :, :]
@@ -26,6 +25,7 @@ def preProcess(img):
     return img
 
 
+
 def imgRgbCallback(message, config):
 
     config['img_rgb'] = config['bridge'].imgmsg_to_cv2(message, "bgr8")
@@ -33,16 +33,13 @@ def imgRgbCallback(message, config):
     config["begin_img"] = True
 
 
-
 def main():
     config: dict[str, Any] = dict(vel=None, img_rgb=None,
                                   bridge=None, begin_img=None)
-
     # Defining starting values
     config["begin_img"] = False
     config["vel"] = 0
     config["bridge"] = CvBridge()
-    
     # Define cv2 windows
     win_name = 'Robot View'
     cv2.namedWindow(winname=win_name)
@@ -62,7 +59,7 @@ def main():
     # Retrieving info from yaml
     with open(f'{s}/../models/{model_name}.yaml') as file:
         info_loaded = yaml.load(file, Loader=yaml.FullLoader)
-    
+
     rospy.loginfo('Using model: %s', path)
     model = load_model(path)
 

@@ -29,7 +29,6 @@ def twistMsgCallback(message, config: dict):
 
 # Callback function to receive image
 def imgRgbCallback(message, config: dict):
-
     config['img_rgb'] = config['bridge'].imgmsg_to_cv2(message, "bgr8")
 
     config['begin_img'] = True
@@ -124,7 +123,6 @@ def main():
     # Recording the linear velocity from the twist
     messageReceivedCallback_part = partial(twistMsgCallback, config=config)
     rospy.Subscriber(twist_cmd_topic, Twist, messageReceivedCallback_part)
-
     imgRgbCallback_part = partial(imgRgbCallback, config=config)
     rospy.Subscriber(image_raw_topic, Image, imgRgbCallback_part)
 
