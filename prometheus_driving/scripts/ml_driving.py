@@ -40,9 +40,6 @@ def main():
     config["begin_img"] = False
     config["vel"] = 0
     config["bridge"] = CvBridge()
-    # Define cv2 windows
-    win_name = 'Robot View'
-    cv2.namedWindow(winname=win_name)
 
     # Init Node
     rospy.init_node('ml_driving', anonymous=False)

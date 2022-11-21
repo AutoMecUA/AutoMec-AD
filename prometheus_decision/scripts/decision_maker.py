@@ -96,7 +96,7 @@ def main():
     
     # Define cv2 windows
     win_name = 'Robot View'
-    cv2.namedWindow(winname=win_name)
+    cv2.namedWindow(winname=win_name,flags=cv2.WINDOW_NORMAL)
 
     # Retrieving info from yaml
     rospack = rospkg.RosPack()
