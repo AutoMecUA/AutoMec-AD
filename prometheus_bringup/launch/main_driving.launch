@@ -3,6 +3,7 @@
   <arg name="image_raw_topic" default="/top_front_camera/rgb/image_raw"/>
   <arg name="image_signal_topic" default="/top_left_camera/image_raw"/>
   <arg name="twist_cmd_topic" default="/cmd_vel"/>
+  <arg name="twist_temp_topic" default="/cmd_vel_temp"/>
   <arg name="signal_cmd_topic" default="/signal_detected"/>
   <arg name="model_steering_topic" default="/model_steering"/>
   <arg name="crosswalk_sureness_topic" default="/crosswalk_sureness"/>
@@ -28,7 +29,7 @@
   
   <include file="$(find prometheus_decision)/launch/decision_maker.launch">
     <arg name="image_raw_topic" value="$(arg image_raw_topic)" />
-    <arg name="twist_cmd_topic" value="$(arg twist_cmd_topic)"/>
+    <arg name="twist_temp_topic" value="$(arg twist_temp_topic)"/>
     <arg name="signal_cmd_topic" value="$(arg signal_cmd_topic)"/>
     <arg name="crosswalk_sureness_topic" value="$(arg crosswalk_sureness_topic)"/>
     <arg name="model_steering_topic" value="$(arg model_steering_topic)"/>

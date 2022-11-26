@@ -88,7 +88,7 @@ def main():
 
     # Getting parameters
     image_raw_topic = rospy.get_param('~image_raw_topic', '/top_front_camera/rgb/image_raw')
-    twist_cmd_topic = rospy.get_param('~twist_cmd_topic', '/cmd_vel')
+    twist_temp_topic = rospy.get_param('~twist_temp_topic', '/cmd_vel_temp')
     signal_cmd_topic = rospy.get_param('~signal_cmd_topic', '/signal_detected')
     model_name = rospy.get_param('/model_name', '')
     crosswalk_sureness_topic = rospy.get_param('~crosswalk_sureness_topic', '/crosswalk_sureness')
@@ -117,7 +117,7 @@ def main():
     rospy.Subscriber(crosswalk_sureness_topic, Float32, crosswalkSurenessCallback_part)
     rospy.Subscriber(model_steering_topic, Float32, modelSteeringCallback_part)
     rospy.Subscriber(image_raw_topic, Image, imgRgbCallback_part)
-    twist_pub = rospy.Publisher(twist_cmd_topic, Twist, queue_size=10)
+    twist_pub = rospy.Publisher(twist_temp_topic, Twist, queue_size=10)
 
     # Frames per second
     rate = rospy.Rate(30)
