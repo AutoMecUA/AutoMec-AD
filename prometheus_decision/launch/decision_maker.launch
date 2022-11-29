@@ -1,7 +1,7 @@
 <launch>
 
   <arg name="image_raw_topic" default="/top_front_camera/rgb/image_raw"/>
-  <arg name="twist_temp_topic" default="/cmd_vel_temp"/>
+  <arg name="twist_cmd_topic" default="/cmd_vel"/>
   <arg name="signal_cmd_topic" default="/signal_detected"/>
   <arg name="model_steering_topic" default="/model_steering"/>
   <arg name="crosswalk_sureness_topic" default="/crosswalk_sureness"/>
@@ -9,7 +9,7 @@
   
   <node name="decision_maker" pkg="prometheus_decision" type="decision_maker.py" output="screen" required="true" >
     <param name="image_raw_topic" value="$(arg image_raw_topic)" />
-    <param name="twist_temp_topic" value="$(arg twist_temp_topic)"/>
+    <param name="twist_cmd_topic" value="$(arg twist_cmd_topic)"/>
     <param name="signal_cmd_topic" value="$(arg signal_cmd_topic)"/>
     <param name="crosswalk_sureness_topic" value="$(arg crosswalk_sureness_topic)"/>
     <param name="model_steering_topic" value="$(arg model_steering_topic)"/>

@@ -8,7 +8,7 @@ import rospy
 
 
 def twistCallBack(message, config):
-    config['twist'] = message.data
+    config['twist'] = message
 
 
 def main():
@@ -21,26 +21,24 @@ def main():
     rospy.init_node('vel_repeater', anonymous=False)
     
     # Getting parameters
-    twist_cmd_topic = rospy.get_param('~image_cmd_topic', '/cmd_vel')
-    twist_temp_topic = rospy.get_param('~twist_temp_topic', '/cmd_vel_temp')
+    twist_cmd_topic = rospy.get_param('~twist_cmd_topic', '/cmd_vel')
+    twist_tmp_topic = rospy.get_param('~twist_tmp_topic', '/cmd_vel_tmp')
     rate_int = rospy.get_param('~rate_int', '30')
-
 
     # Partials
     twistCallBack_part = partial(twistCallBack, config=config)
 
     # Subscribe and publish topics
-    rospy.Subscriber(twist_temp_topic, Twist, twistCallBack_part)
+    rospy.Subscriber(twist_tmp_topic, Twist, twistCallBack_part)
     twist_pub = rospy.Publisher(twist_cmd_topic, Twist, queue_size=10)
 
     # Frames per second
     rate = rospy.Rate(rate_int)
     
-    while not rospy.is_shutdown:
+    while not rospy.is_shutdown():
 
         # To avoid any errors
         twist_pub.publish(config["twist"])
-
 
         rate.sleep()
 
