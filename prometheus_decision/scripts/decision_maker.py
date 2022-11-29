@@ -127,6 +127,7 @@ def main():
         if config["begin_img"] is False:
             continue
 
+
         crosswalk_sureness_percentage = round(config['crosswalk']*100,2)
         cv2PutText(config['img_rgb'], f'Crosswalk detection: {crosswalk_sureness_percentage}%')
         cv2.imshow(win_name, config['img_rgb'])
@@ -136,6 +137,8 @@ def main():
         if config['signal'] == 'pForward':
             print('Detected pForward, moving forward')
             config["vel"] = linear_velocity
+            # # Restart signal parameter
+            # config['signal'] == None
         elif config['signal'] == 'pStop' and config['crosswalk'] > crosswalk_threshold:
             sleep(crosswalk_threshold)
             config["vel"] = 0

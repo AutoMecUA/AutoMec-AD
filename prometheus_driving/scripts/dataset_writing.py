@@ -148,7 +148,6 @@ def main():
     while not rospy.is_shutdown():
         if not config['begin_img']:
             continue
-
         cv2.imshow('Robot View', config['img_rgb'])
         key = cv2.waitKey(1)
         

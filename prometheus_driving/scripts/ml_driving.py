@@ -13,6 +13,8 @@ from std_msgs.msg import String, Float32
 from cv_bridge.core import CvBridge
 from tensorflow.keras.models import load_model
 import pathlib
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # or any {'0', '1', '2'}
 
 def preProcess(img):
     # Define Region of interest
