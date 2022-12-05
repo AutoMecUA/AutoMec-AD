@@ -12,6 +12,7 @@ def twistMsgCallback(message, **kwargs):
     Twist Callback Function
     """
     linear = float(message.linear.x)
+    message.angular.z = message.angular.z/3
 
     if linear > 0:
         message.linear.x = float(kwargs['linear_velocity'])
@@ -31,13 +32,13 @@ def main():
     # Get parameters
     velocity = rospy.get_param('/linear_velocity', '1') 
     twist_input_topic = rospy.get_param('~twist_input_topic', '/cmd_vel') 
-    twist_cmd_topic = rospy.get_param('~twist_cmd_topic', '/ackermann_steering_controller/cmd_vel') 
+    twist_tmp_topic = rospy.get_param('~twist_tmp_topic', '/cmd_vel_tmp') 
 
     # Define initial variables
     kwargs: dict[str, object] = dict(PubTwist=None, linear_velocity=velocity)
 
     # Define publishers
-    kwargs["PubTwist"] = rospy.Publisher(twist_cmd_topic, Twist, queue_size=10)
+    kwargs["PubTwist"] = rospy.Publisher(twist_tmp_topic, Twist, queue_size=10)
 
     # Partials
     twistMsgCallback_part = partial(twistMsgCallback, **kwargs)

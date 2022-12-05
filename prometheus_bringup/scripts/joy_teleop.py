@@ -12,8 +12,14 @@ from sensor_msgs.msg import Joy
 def messageReceivedCallbackJoy(message, **kwargs):
 
     angular = message.axes[0]
-    linear = round(message.axes[1], 1)
-    twist_cmd = Twist()
+
+    # The R2 trigger rest's at 1, and goes up to -1 as its pressed
+    if(message.axes[4] < 0): 
+        linear = round(abs(message.axes[4]), 1) # For scaling vel
+    else:
+        linear = 0
+
+    twist_cmd = Twist()  # Message type twist
     twist_cmd.linear.x = linear
     twist_cmd.angular.z = angular
     kwargs["twist_publisher"].publish(twist_cmd)

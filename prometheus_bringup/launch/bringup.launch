@@ -19,6 +19,9 @@
     <!-- Initialize twist cap -->
     <include file="$(find prometheus_bringup)/launch/include/twist_cap.launch"/>
 
+    <!-- Initialize vel repeater -->
+    <include file="$(find prometheus_bringup)/launch/include/vel_repeater.launch"/>
+
     <!-- start visualization with rviz-->
     <group if="$(arg visualize)">
         <include file="$(find prometheus_bringup)/launch/include/visualize.launch"/>

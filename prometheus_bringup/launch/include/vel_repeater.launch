@@ -1,0 +1,12 @@
+<launch>
+  <arg name="twist_cmd_topic" default="/ackermann_steering_controller/cmd_vel"/>
+  <arg name="twist_tmp_topic" default="/cmd_vel_tmp"/>
+  <arg name="rate_int" default="30"/>
+
+  <node name="vel_repeater" pkg="prometheus_bringup" type="vel_repeater.py" output="screen">
+    <param name="twist_cmd_topic" value="$(arg twist_cmd_topic)"/>
+    <param name="twist_tmp_topic" value="$(arg twist_tmp_topic)"/>
+    <param name="rate_int" value="$(arg rate_int)"/>
+  </node>
+
+</launch>
