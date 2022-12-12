@@ -63,7 +63,7 @@ void servo_vel( const std_msgs::Int16 & cmd_msg){
 ros::Subscriber<std_msgs::Int16> sub_dir("pub_dir", servo_dir);
 ros::Subscriber<std_msgs::Int16> sub_vel("pub_vel", servo_vel);
 std_msgs::Int16 int16_msg;
-ros::Publisher sub_encoder("sub_encoder", &int16_msg);
+ros::Publisher pub_encoder("encoder_msg", &int16_msg);
 
 // Arduino initialization
 void setup() {
@@ -71,7 +71,7 @@ void setup() {
   nh.initNode();
   nh.subscribe(sub_dir); 
   nh.subscribe(sub_vel);
-  nh.advertise(sub_encoder);
+  nh.advertise(pub_encoder);
   
   // PCA9685 board
   pwm.begin(); // Begins comunnication
@@ -93,8 +93,8 @@ void setup() {
 }
 
 void loop() {
-  int16_msg.data = bodyEncoderLeftTotalPulses;
-  sub_encoder.publish( &int16_msg );
+  int16_msg.data = 10;
+  pub_encoder.publish( &int16_msg );
   nh.spinOnce();
   delay(1);
 }
