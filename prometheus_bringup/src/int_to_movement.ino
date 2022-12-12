@@ -28,18 +28,19 @@ ros::NodeHandle  nh;
 #define SERVO_FREQ 50 // Analog servos run at ~50 Hz updates
 #define servo 1
 #define ESC 0
+
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
 
 void servo_dir( const std_msgs::Int16 & cmd_msg){
-  int potms = map(cmd_msg.data, 0, 180, SERVOMIN, SERVOMAX);   // scale it to use it with the servo library (value between 0 and 180)
-  pwm.writeMicroseconds(servo, potms);
+  int servoms = map(cmd_msg.data, 0, 180, SERVOMIN, SERVOMAX);   // scale it to use it with the servo library (value between 0 and 180)
+  pwm.writeMicroseconds(servo, servoms);
   //digitalWrite(LED_BUILTIN, HIGH-digitalRead(LED_BUILTIN));  //toggle led  
 }
 
 void servo_vel( const std_msgs::Int16 & cmd_msg){
-  int potms = map(cmd_msg.data, 0, 180, ESCMIN, ESCMAX);   // scale it to use it with the servo library (value between 0 and 180)
-  pwm.writeMicroseconds(ESC, potms);  
+  int escms = map(cmd_msg.data, 0, 180, ESCMIN, ESCMAX);   // scale it to use it with the servo library (value between 0 and 180)
+  pwm.writeMicroseconds(ESC, escms);  
   //digitalWrite(LED_BUILTIN, HIGH-digitalRead(LED_BUILTIN));  //toggle led  
 }
 
@@ -56,8 +57,10 @@ void setup() {
   pwm.begin();
   pwm.setOscillatorFrequency(26315700);
   pwm.setPWMFreq(50);  // Analog servos run at ~50 Hz updates
-  int potms = map(90, 0, 180, ESCMIN, ESCMAX);   // scale it to use it with the servo library (value between 0 and 180)
-  pwm.writeMicroseconds(ESC, potms);
+  int escms = map(90, 0, 180, ESCMIN, ESCMAX);   // scale it to use it with the servo library (value between 0 and 180)
+  pwm.writeMicroseconds(ESC, escms);
+  int servoms = map(90, 0, 180, SERVOMIN, SERVOMAX);   // scale it to use it with the servo library (value between 0 and 180)
+  pwm.writeMicroseconds(servo, servoms);
   delay(2000);
 }
 
