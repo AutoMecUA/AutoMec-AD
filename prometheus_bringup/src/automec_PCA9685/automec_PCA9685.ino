@@ -25,14 +25,19 @@
 #define SERVOMIN  500 // This is the 'minimum' pulse length count of the steer Servo
 #define SERVOMAX  2500 // This is the 'maximum' pulse length count of the steer SErvo
 #define SERVO_FREQ 50 // Analog servos run at ~50 Hz updates
-#define servo 1 // Defines the channel of the steer servo
+
+// Defines channel pins in PCA9685
+#define gearbox 4 // Defines the channel of the gearbox servo
+#define dif_back 3 // Defines the channel of the back diferencial lock servo
+#define dif_front 2 // Defines the channel of the front diferencial lock servo
+#define dir 1 // Defines the channel of the steer servo
 #define ESC 0 // Defines the chanel for the esc
 
 // Encoder Definitions
 #define bodyEncoderLeftFunctionA bodyEncoderLeftCounterA
 #define bodyEncoderLeftFunctionB bodyEncoderLeftCounterB
-#define bodyEncoderLeftPinA 35 // A pin the interrupt pin
-#define bodyEncoderLeftPinB 36 // B pin the interrupt pin
+#define bodyEncoderLeftPinA 34 // A pin the interrupt pin
+#define bodyEncoderLeftPinB 35 // B pin the interrupt pin
 
 // encoder pulses
 volatile signed int bodyEncoderLeftTotalPulses = 0;
@@ -47,8 +52,8 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
 // Function that will generate the pwm when receive a message from ROS
 void servo_dir( const std_msgs::Int16 & cmd_msg){
-  int servoms = map(cmd_msg.data, 0, 180, SERVOMIN, SERVOMAX);   // scale it to use it with the servo library (value between 0 and 180)
-  pwm.writeMicroseconds(servo, servoms);
+  int dirms = map(cmd_msg.data, 0, 180, SERVOMIN, SERVOMAX);   // scale it to use it with the servo library (value between 0 and 180)
+  pwm.writeMicroseconds(dir, dirms);
   //digitalWrite(LED_BUILTIN, HIGH-digitalRead(LED_BUILTIN));  //toggle led  
 }
 
@@ -59,9 +64,35 @@ void servo_vel( const std_msgs::Int16 & cmd_msg){
   //digitalWrite(LED_BUILTIN, HIGH-digitalRead(LED_BUILTIN));  //toggle led  
 }
 
+// Function that will generate the pwm when receive a message from ROS
+void servo_dif_front( const std_msgs::Int16 & cmd_msg){
+  int dif_frontms = map(cmd_msg.data, 0, 180, SERVOMIN, SERVOMAX);   // scale it to use it with the servo library (value between 0 and 180)
+  pwm.writeMicroseconds(dif_front, dif_frontms);  
+  //digitalWrite(LED_BUILTIN, HIGH-digitalRead(LED_BUILTIN));  //toggle led  
+  // 50 is closed, 110 is open
+}
+
+// Function that will generate the pwm when receive a message from ROS
+void servo_dif_back( const std_msgs::Int16 & cmd_msg){
+  int dif_backms = map(cmd_msg.data, 0, 180, SERVOMIN, SERVOMAX);   // scale it to use it with the servo library (value between 0 and 180)
+  pwm.writeMicroseconds(dif_back, dif_backms);  
+  //digitalWrite(LED_BUILTIN, HIGH-digitalRead(LED_BUILTIN));  //toggle led  
+  // 70 is open, 120 is closed
+}
+
+// Function that will generate the pwm when receive a message from ROS
+void servo_gearbox( const std_msgs::Int16 & cmd_msg){
+  int gearboxms = map(cmd_msg.data, 0, 180, SERVOMIN, SERVOMAX);   // scale it to use it with the servo library (value between 0 and 180)
+  pwm.writeMicroseconds(gearbox, gearboxms);  
+  //digitalWrite(LED_BUILTIN, HIGH-digitalRead(LED_BUILTIN));  //toggle led  
+}
+
 
 ros::Subscriber<std_msgs::Int16> sub_dir("pub_dir", servo_dir);
 ros::Subscriber<std_msgs::Int16> sub_vel("pub_vel", servo_vel);
+ros::Subscriber<std_msgs::Int16> sub_dif_front("dif_front_cmd", servo_dif_front);
+ros::Subscriber<std_msgs::Int16> sub_dif_back("dif_back_cmd", servo_dif_back);
+ros::Subscriber<std_msgs::Int16> sub_gearbox("gearbox_cmd", servo_gearbox);
 std_msgs::Int16 int16_msg;
 ros::Publisher pub_encoder("encoder_msg", &int16_msg);
 
@@ -71,6 +102,9 @@ void setup() {
   nh.initNode();
   nh.subscribe(sub_dir); 
   nh.subscribe(sub_vel);
+  nh.subscribe(sub_dif_front);
+  nh.subscribe(sub_dif_back);
+  nh.subscribe(sub_gearbox);
   nh.advertise(pub_encoder);
   
   // PCA9685 board
@@ -80,7 +114,12 @@ void setup() {
   int escms = map(90, 0, 180, ESCMIN, ESCMAX);   // scale it to use it with the servo library (value between 0 and 180)
   pwm.writeMicroseconds(ESC, escms);  // Generates the PWM wave
   int servoms = map(90, 0, 180, SERVOMIN, SERVOMAX);   // scale it to use it with the servo library (value between 0 and 180)
-  pwm.writeMicroseconds(servo, servoms); // Generates the PWM wave
+  pwm.writeMicroseconds(dir, servoms); // Generates the PWM wave
+  int dif_frontms = map(50, 0, 180, SERVOMIN, SERVOMAX);   // scale it to use it with the servo library (value between 0 and 180)
+  pwm.writeMicroseconds(dif_front, dif_frontms); // Generates the PWM wave
+  int dif_backms = map(120, 0, 180, SERVOMIN, SERVOMAX);   // scale it to use it with the servo library (value between 0 and 180)
+  pwm.writeMicroseconds(dif_back, servoms); // Generates the PWM wave
+  pwm.writeMicroseconds(gearbox, servoms); // Generates the PWM wave
 
   // Encoder
   pinMode(bodyEncoderLeftPinA,INPUT_PULLUP);
@@ -93,7 +132,7 @@ void setup() {
 }
 
 void loop() {
-  int16_msg.data = 10;
+  int16_msg.data = bodyEncoderLeftTotalPulses;
   pub_encoder.publish( &int16_msg );
   nh.spinOnce();
   delay(1);
