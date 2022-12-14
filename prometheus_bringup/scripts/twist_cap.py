@@ -12,7 +12,7 @@ def twistMsgCallback(message, **kwargs):
     Twist Callback Function
     """
     linear = float(message.linear.x)
-    message.angular.z = message.angular.z/3
+    message.angular.z = message.angular.z
 
     if linear > 0:
         message.linear.x = float(kwargs['linear_velocity'])
