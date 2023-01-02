@@ -140,6 +140,8 @@ def main():
 
     # read opencv key
     key = -1
+    win_name = 'Robot View'
+    cv2.namedWindow(winname=win_name,flags=cv2.WINDOW_NORMAL)
 
     # Info
     rospy.loginfo('To save the dataset, press "s" on the image window')
@@ -148,7 +150,8 @@ def main():
     while not rospy.is_shutdown():
         if not config['begin_img']:
             continue
-        cv2.imshow('Robot View', config['img_rgb'])
+
+        cv2.imshow(win_name, config['img_rgb'])
         key = cv2.waitKey(1)
         
         # save on shutdown...

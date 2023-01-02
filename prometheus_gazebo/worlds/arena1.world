@@ -117,7 +117,7 @@
       <static>1</static>
       <pose>0 -0.044776 0.113553 0 0 -1.57185</pose>
       <link name='lcd1'>
-        <pose>-0.4 0 1 2.0071 0 3.1415</pose>
+        <pose>-0.4 0 1.0856 2.0071 0 3.1415</pose>
         <collision name='collision1'>
           <geometry>
             <box>
@@ -163,7 +163,7 @@
         <gravity>1</gravity>
       </link>
       <link name='lcd2'>
-        <pose>0.4 0 1 2.0071 0 0</pose>
+        <pose>0.4 0 1.0856 2.0071 0 0</pose>
         <collision name='collision2'>
           <geometry>
             <box>

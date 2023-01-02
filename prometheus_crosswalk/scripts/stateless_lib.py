@@ -5,7 +5,7 @@ from util import _blurred_brightness_rate
 # Tune these constants - Base the tuning upon the characteristics of an image with vs without crosswalk
 BINARY_THRESHOLD = 128
 MIN_WHITENESS = 0.05  # Minimum bright count -> indicating that a crossroad is far away or non-visible
-MAX_WHITENESS = 0.20  # Ideal bright count to stop -> +- indicating that a crossroad is in front of the car
+MAX_WHITENESS = 0.40  # Ideal bright count to stop -> +- indicating that a crossroad is in front of the car
 
 
 def basic_sureness(frame: np.ndarray) -> float:

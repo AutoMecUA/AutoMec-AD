@@ -76,12 +76,9 @@ def main():
     config["steering"] = 0
     config["bridge"] = CvBridge()
     twist = Twist()
-    crosswalk_timeout = 0.1
-    crosswalk_threshold = 0.90
+    crosswalk_timeout = 0.18
+    crosswalk_threshold = 0.85
     
-    # Define cv2 windows
-    win_name = 'Robot View'
-    cv2.namedWindow(winname=win_name)
 
     # Init Node
     rospy.init_node('decision_making', anonymous=False)
