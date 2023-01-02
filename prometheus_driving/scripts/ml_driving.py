@@ -81,7 +81,7 @@ def main():
 
         # Predict angle
         image = np.array([resized_img])
-        steering = float(model.predict(image))
+        steering = float(model.predict(image, verbose=0))
         model_steering_pub.publish(steering)
 
         rate.sleep()

@@ -134,11 +134,9 @@ def main():
         key = cv2.waitKey(1)
 
         # Depending on the message from the callback, choose what to do
-        if config['signal'] == 'pForward':
+        if config['signal'] == 'pForward' and config['vel'] != linear_velocity:
             print('Detected pForward, moving forward')
             config["vel"] = linear_velocity
-            # # Restart signal parameter
-            # config['signal'] == None
         elif config['signal'] == 'pStop' and config['crosswalk'] > crosswalk_threshold:
             sleep(crosswalk_threshold)
             config["vel"] = 0
