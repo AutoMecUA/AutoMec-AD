@@ -16,7 +16,6 @@ from PIL import Image as Image_pil
 from cv_bridge.core import CvBridge
 from geometry_msgs.msg._Twist import Twist
 from sensor_msgs.msg._Image import Image
-from std_msgs.msg import Bool
 
 
 # Calback Function to receive the cmd values
@@ -29,8 +28,7 @@ def twistMsgCallback(message, config: dict):
 
 
 # Callback function to receive image
-def message_RGB_ReceivedCallback(message, config: dict):
-
+def imgRgbCallback(message, config: dict):
     config['img_rgb'] = config['bridge'].imgmsg_to_cv2(message, "bgr8")
 
     config['begin_img'] = True
@@ -125,9 +123,8 @@ def main():
     # Recording the linear velocity from the twist
     messageReceivedCallback_part = partial(twistMsgCallback, config=config)
     rospy.Subscriber(twist_cmd_topic, Twist, messageReceivedCallback_part)
-
-    message_RGB_ReceivedCallback_part = partial(message_RGB_ReceivedCallback, config=config)
-    rospy.Subscriber(image_raw_topic, Image, message_RGB_ReceivedCallback_part)
+    imgRgbCallback_part = partial(imgRgbCallback, config=config)
+    rospy.Subscriber(image_raw_topic, Image, imgRgbCallback_part)
 
     # Create an object of the CvBridge class
     config['bridge'] = CvBridge()
@@ -143,6 +140,8 @@ def main():
 
     # read opencv key
     key = -1
+    win_name = 'Robot View'
+    cv2.namedWindow(winname=win_name,flags=cv2.WINDOW_NORMAL)
 
     # Info
     rospy.loginfo('To save the dataset, press "s" on the image window')
@@ -152,7 +151,7 @@ def main():
         if not config['begin_img']:
             continue
 
-        cv2.imshow('Robot View', config['img_rgb'])
+        cv2.imshow(win_name, config['img_rgb'])
         key = cv2.waitKey(1)
         
         # save on shutdown...
