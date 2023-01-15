@@ -9,7 +9,7 @@
 
 This repository serves as the main repository for the autonomous RC car team of Automec. The repository consist of ML code
 for the lane detection, template matching code for signal recognition, all incorporated in a ROS framework.
-![alt text](images/AnimationAutomec.gif)
+![alt text](images/AnimationAutomec-Compressed.gif)
 
 
 ## How to run:
@@ -34,10 +34,10 @@ Here are some challenges we are working on.
 - Obstacle Avoidance 
 - Signal Detection with response
 
-![alt text](images/AnimationAutomec2.gif)
+![alt text](images/AnimationAutomec2-Compressed.gif)
 
 ### Parking 
-![alt text](images/AutomecParking.gif)
+![alt text](images/Parking-Compressed.gif)
 
 
 
