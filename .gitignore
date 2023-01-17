@@ -134,10 +134,10 @@ dmypy.json
 
 
 # databases and models and logs
+prometheus_signal_recognition/data/**
+prometheus_signal_recognition/models/**
 prometheus_driving/data/**
 prometheus_driving/models/**
-prometheus_driving/models/callbacks/**
-signal_recognition/scripts/**
 
 # csv
 *.csv
