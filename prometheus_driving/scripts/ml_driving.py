@@ -12,11 +12,14 @@ from geometry_msgs.msg._Twist import Twist
 from sensor_msgs.msg._Image import Image
 from std_msgs.msg import String
 from cv_bridge.core import CvBridge
-from tensorflow.keras.models import load_model
 import torch
 from torchvision import transforms
 import pathlib
 import os
+
+from models.cnn_nvidia import Nvidia_Model
+from models.cnn_rota import Rota_Model
+from src.utils import LoadModel
 
 
 def preProcess(img):
@@ -24,7 +27,7 @@ def preProcess(img):
     #img = img[60:135, :, :]
     img = cv2.cvtColor(img, cv2.COLOR_RGB2YUV)
     img = cv2.GaussianBlur(img,  (3, 3), 0)
-    img = img[40:, :]  #cut the 40 first lines
+    #img = img[40:, :]  #cut the 40 first lines
     img = cv2.resize(img, (320, 160))
     img = img/255
     return img
@@ -32,7 +35,7 @@ def preProcess(img):
 
 def message_RGB_ReceivedCallback(message, config):
 
-    config['img_rgb'] = config['bridge'].imgmsg_to_cv2(message, "bgr8")
+    config['img_rgb'] = config['bridge'].imgmsg_to_cv2(message, "passthrough")
 
     config["begin_img"] = True
 
@@ -72,7 +75,10 @@ def main():
         linear_velocity = info_loaded['dataset']['linear_velocity'] 
     
     rospy.loginfo('Using model: %s', path)
-    model = torch.load(path)
+    device = f'cuda:0' if torch.cuda.is_available() else 'cpu' # cuda: 0 index of gpu
+    model = Rota_Model()
+    model= LoadModel(path,model,device)
+    model.eval()
 
     PIL_to_Tensor = transforms.Compose([
                     transforms.ToTensor()
@@ -103,8 +109,11 @@ def main():
 
         # Predict angle
         image = np.array([resized_img])
+        image = image[0,:,:,:]
         image = PIL_to_Tensor(image)
-        steering = float(model.forward(image).data.item())
+        image = image.unsqueeze(0)
+        image = image.to(device, dtype=torch.float)
+        steering = float(model.forward(image))
         angle = steering
         
         # Depending on the message from the callback, choose what to do

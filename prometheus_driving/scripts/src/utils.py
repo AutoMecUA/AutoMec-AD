@@ -17,6 +17,13 @@ def SaveModel(model,idx_epoch,optimizer,training_loader,testing_loader,epoch_tra
         }, model_path)
     model.to(device)
 
+
+def LoadModel(model_path,model,device):
+    checkpoint = torch.load(model_path)
+    model.load_state_dict(checkpoint['model_state_dict'])
+    model.to(device) # move the model variable to the gpu if one exists
+    return model
+
 def SaveGraph(train_losses,test_losses,folder_name):
     plt.figure()
     plt.plot(train_losses, label='train loss')
