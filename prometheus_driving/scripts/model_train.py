@@ -127,7 +127,6 @@ def main():
         epoch_test_losses = []
         stored_train_loss=1e2
         model.to(device) # move the model variable to the gpu if one exists
-    # -----------
 
     while True:
         # Train batch by batch -----------------------------------------------

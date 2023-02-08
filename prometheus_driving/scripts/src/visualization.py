@@ -8,7 +8,7 @@ import torch.nn.functional as F
 import numpy as np
 from torch.autograd import Variable
 from torch import nn
-
+import cv2
 
 class ClassificationVisualizer():
 
@@ -45,7 +45,7 @@ class ClassificationVisualizer():
             image_pil = self.tensor_to_pil_image(image_t)
 
             ax = self.figure.add_subplot(5,5,plot_idx) # define a 5 x 5 subplot matrix
-            plt.imshow(image_pil)
+            plt.imshow(cv2.cvtColor(np.asarray(image_pil), cv2.COLOR_YUV2BGR))
             ax.xaxis.set_ticklabels([])
             ax.yaxis.set_ticklabels([])
             ax.xaxis.set_ticks([])

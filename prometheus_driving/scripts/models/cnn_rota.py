@@ -40,7 +40,7 @@ class Rota_Model(nn.Module):
         )
         
         self.flatten = nn.Flatten()
-        self.fc1 = nn.Linear(27456,375)
+        self.fc1 = nn.Linear(13728,375)
         self.fc2 = nn.Linear(375,125)
         self.fc3= nn.Linear(125,25)
         self.fc4= nn.Linear(25,1)
