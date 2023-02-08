@@ -31,8 +31,10 @@ class ClassificationVisualizer():
         inputs = inputs
         batch_size,_,_,_ = list(inputs.shape)
 
-
-        random_idxs = random.sample(list(range(batch_size)), k=5*5)
+        if batch_size < 25:
+            random_idxs = random.sample(list(range(batch_size)), k=batch_size)
+        else:
+            random_idxs = random.sample(list(range(batch_size)), k=5*5)
         plt.clf()
         
         for plot_idx, image_idx in enumerate(random_idxs, start=1):

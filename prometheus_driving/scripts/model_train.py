@@ -3,14 +3,10 @@
 # Imports 
 import argparse
 import os
-import glob
-import random
 from statistics import mean
 import sys
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from torchvision import transforms
-import matplotlib.pyplot as plt
 from tqdm import tqdm
 from colorama import Fore, Style
 import torch
@@ -19,6 +15,7 @@ import torch
 from src.dataset import Dataset
 from models.cnn_nvidia import Nvidia_Model
 from models.cnn_rota import Rota_Model
+from models.mobilenetv2 import MobileNetV2
 from src.utils import SaveModel, SaveGraph
 from src.visualization import DataVisualizer, ClassificationVisualizer
 
