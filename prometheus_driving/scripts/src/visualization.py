@@ -36,7 +36,7 @@ class ClassificationVisualizer():
         plt.clf()
         
         for plot_idx, image_idx in enumerate(random_idxs, start=1):
-            if outputs[image_idx].data.item() == labels[image_idx].data.item():
+            if abs(outputs[image_idx].data.item() - labels[image_idx].data.item()) < 0.1:
                 color='green'
             else:
                 color='red'

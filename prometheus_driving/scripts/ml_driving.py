@@ -13,6 +13,8 @@ from sensor_msgs.msg._Image import Image
 from std_msgs.msg import String
 from cv_bridge.core import CvBridge
 from tensorflow.keras.models import load_model
+import torch
+from torchvision import transforms
 import pathlib
 import os
 
@@ -62,7 +64,7 @@ def main():
         model_name = input('Please define the name of the model to be used: ')
     # Defining path to model
     s = str(pathlib.Path(__file__).parent.absolute())
-    path = f'{s}/../models/{model_name}.h5'
+    path = f'{s}/../models/{model_name}.pkl'
 
     # Retrieving info from yaml
     with open(f'{s}/../models/{model_name}.yaml') as file:
@@ -70,7 +72,11 @@ def main():
         linear_velocity = info_loaded['dataset']['linear_velocity'] 
     
     rospy.loginfo('Using model: %s', path)
-    model = load_model(path)
+    model = torch.load(path)
+
+    PIL_to_Tensor = transforms.Compose([
+                    transforms.ToTensor()
+                    ])
 
     # Partials
     message_RGB_ReceivedCallback_part = partial(message_RGB_ReceivedCallback, config=config)
@@ -97,7 +103,8 @@ def main():
 
         # Predict angle
         image = np.array([resized_img])
-        steering = float(model.predict(image))
+        image = PIL_to_Tensor(image)
+        steering = float(model.forward(image).data.item())
         angle = steering
         
         # Depending on the message from the callback, choose what to do
