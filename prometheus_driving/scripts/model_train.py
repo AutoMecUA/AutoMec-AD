@@ -17,7 +17,8 @@ import torch
 
 #  custom imports
 from src.dataset import Dataset
-from models.cnn_nvidia import Model
+from models.cnn_nvidia import Nvidia_Model
+from models.cnn_rota import Rota_Model
 from src.utils import SaveModel, SaveGraph
 from src.visualization import DataVisualizer, ClassificationVisualizer
 
@@ -37,10 +38,12 @@ def main():
                         help='Batch size')
     parser.add_argument('-c', '--cuda', default=0, type=int,
                         help='Number of cuda device')
-    parser.add_argument('-loss', '--loss_threshold', default=0.01, type=float,
+    parser.add_argument('-loss', '--loss_threshold', default=0.001, type=float,
                         help='Loss threshold criteria for when to stop')
     parser.add_argument('-lr', '--learning_rate', default=0.0001, type=float,
                         help='Learning rate')
+    parser.add_argument('-m', '--model', default='Nvidia_Model()', type=str,
+                        help='Model to use')
 
     arglist = [x for x in sys.argv[1:] if not x.startswith('__')]
     args = vars(parser.parse_args(args=arglist))
@@ -65,7 +68,7 @@ def main():
 
     device = f'cuda:{args["cuda"]}' if torch.cuda.is_available() else 'cpu' # cuda: 0 index of gpu
 
-    model = Model() # Instantiate model
+    model = eval(args['model']) # Instantiate model
 
     # Define hyper parameters
     learning_rate = args['learning_rate']

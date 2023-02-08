@@ -25,7 +25,7 @@ class ClassificationVisualizer():
         self.figure = plt.figure(self.title)
         plt.axis('off')
         self.figure.canvas.manager.set_window_title(self.title)
-        self.figure.set_size_inches(7,7)
+        self.figure.set_size_inches(10,7)
         plt.suptitle(self.title)
 
         inputs = inputs
