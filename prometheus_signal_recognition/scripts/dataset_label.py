@@ -9,7 +9,8 @@ import numpy as np
 from gazebo_msgs.msg._LinkStates import LinkStates
 from sensor_msgs.msg._CameraInfo import CameraInfo
 import tf
-import math
+from math import cos, sin, pi
+
 
 # Callback function to receive link states
 def poses_callback(message, config: dict):
@@ -17,11 +18,23 @@ def poses_callback(message, config: dict):
     config['link_name'] = message.name
     config['link_pose'] = message.pose
 
+
 # Callback function to receive camera info
 def parameter_camera_callback(message, config: dict):
     
     config['parameter_camera'] = message.K
-    
+
+
+# Convert quaternion to roll, pitch, yaw
+def quaternion2rpy(point_array):
+    quaternion1 = (point_array[3],point_array[4],point_array[5],point_array[6])
+    euler = tf.transformations.euler_from_quaternion(quaternion1, axes='sxyz') # will provide result in x, y,z sequence
+    roll=euler[0]
+    pitch=euler[1]
+    yaw=euler[2]
+    return roll, pitch, yaw
+
+
 # Calculate transformation matrix between two points
 def transformation_matrix(point_array_1,point_array_2):
     """calculate transformation matrix between two points
@@ -33,23 +46,19 @@ def transformation_matrix(point_array_1,point_array_2):
     
     for number_point, point in enumerate(point_array,start=1):
         
-        quaternion1 = (point[3],point[4],point[5],point[6])
-        euler = tf.transformations.euler_from_quaternion(quaternion1, axes='sxyz') # will provide result in x, y,z sequence
-        roll=euler[0]
-        pitch=euler[1]
-        yaw=euler[2]
+        roll, pitch, yaw = quaternion2rpy(point)
 
-        C00=math.cos(yaw)*math.cos(pitch)
-        C01=math.cos(yaw)*math.sin(pitch)*math.sin(roll) - math.sin(yaw)*math.sin(roll)
-        C02=math.cos(yaw)*math.sin(pitch)*math.cos(roll) + math.sin(yaw)*math.sin(roll)
+        C00=cos(yaw)*cos(pitch)
+        C01=cos(yaw)*sin(pitch)*sin(roll) - sin(yaw)*sin(roll)
+        C02=cos(yaw)*sin(pitch)*cos(roll) + sin(yaw)*sin(roll)
         C03=point[0]
-        C10=math.sin(yaw)*math.cos(pitch)
-        C11=math.sin(yaw)*math.sin(pitch)*math.sin(roll) + math.cos(yaw)*math.cos(roll)
-        C12=math.sin(yaw)*math.sin(pitch)*math.cos(roll) -math.cos(yaw)*math.sin(roll)
+        C10=sin(yaw)*cos(pitch)
+        C11=sin(yaw)*sin(pitch)*sin(roll) + cos(yaw)*cos(roll)
+        C12=sin(yaw)*sin(pitch)*cos(roll) -cos(yaw)*sin(roll)
         C13=point[1]
-        C20=-math.sin(pitch)
-        C21=math.cos(pitch)*math.sin(roll)
-        C22=math.cos(pitch)*math.cos(roll)
+        C20=-sin(pitch)
+        C21=cos(pitch)*sin(roll)
+        C22=cos(pitch)*cos(roll)
         C23=point[2]
         C30=0
         C31=0
@@ -64,6 +73,44 @@ def transformation_matrix(point_array_1,point_array_2):
     transformation_mat=np.dot(np.linalg.inv(obj2_mat), obj1_mat) #generating the transformation
     return transformation_mat
 
+
+# Calculate bounding box for each signal
+def get_bounding_box(point):    
+    """get bounding box for each signal
+    Args:
+    point: [x,y,z,qx,qy,qz,qw]
+    Returns:
+    bounding_box: array with 8 corners of the bounding box
+    """
+
+    _, _, yaw = quaternion2rpy(point)
+    
+    # Since the sign is square, the height is equal to the length.
+    height = 0.305
+    width = 0.005
+
+    #Translation matrix corner 
+    T_sup_left = np.array([cos(yaw)*height,sin(yaw)*height,height])
+    T_sup_right = np.array([-cos(yaw)*height,-sin(yaw)*height,height])
+    T_inf_left = np.array([-cos(yaw)*height,-sin(yaw)*height,-height])
+    T_ing_right = np.array([cos(yaw)*height,sin(yaw)*height,-height])
+    vector_translation_corner = [T_sup_left,T_sup_right,T_inf_left,T_ing_right]
+
+    # Translation matrix center
+    T_front = np.array([cos(yaw+pi/4)*width,sin(yaw+pi/4)*width,0])
+    T_back = np.array([cos(yaw-pi/4)*width,sin(yaw-pi/4)*width,0])
+    vector_translation_center = [T_front,T_back]
+
+    bounding_box = []
+    for T_center in vector_translation_center:
+        point_T_center = [point[0]+T_center[0],point[1]+T_center[1],point[2]+T_center[2],point[3],point[4],point[5],point[6]]
+        for T_corner in vector_translation_corner:
+            point_T_corner = [round(point_T_center[0]+T_corner[0],2),round(point_T_center[1]+T_corner[1],2),round(point_T_center[2]+T_corner[2],2),round(point_T_center[3],2),round(point_T_center[4],2),round(point_T_center[5],2),round(point_T_center[6],2)]
+            bounding_box.append(point_T_corner)
+    
+    return bounding_box
+
+    
 
 def main():
     # Global variables
@@ -104,7 +151,7 @@ def main():
                     signal_pose['pose'] = config['link_pose'][i]
                     signal_poses.append(signal_pose)
 
-                if name[1] == 'front_right_steer_link':
+                elif name[1] == 'front_right_steer_link':
                     camera_pose = {}
                     camera_pose['signal'] = name[0]
                     camera_pose['pose'] = config['link_pose'][i]
@@ -115,6 +162,10 @@ def main():
 
             # Array of cameras
             camera_pose_array = np.array([[pose['pose'].position.x,pose['pose'].position.y,pose['pose'].position.z,pose['pose'].orientation.x,pose['pose'].orientation.y,pose['pose'].orientation.z,pose['pose'].orientation.w] for pose in camera_poses],dtype = np.float64)
+
+            # bbox = get_bounding_box(signal_pose_array[12])
+            # print(signal_pose_array[12])
+            # print(bbox)
 
             #print(signal_pose_array)
             #print(camera_pose_array)
