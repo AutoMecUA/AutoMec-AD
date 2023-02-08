@@ -25,9 +25,8 @@ class ClassificationVisualizer():
         self.figure = plt.figure(self.title)
         plt.axis('off')
         self.figure.canvas.manager.set_window_title(self.title)
-        self.figure.set_size_inches(10,10)
+        self.figure.set_size_inches(7,7)
         plt.suptitle(self.title)
-        plt.legend(loc='best')
 
         inputs = inputs
         batch_size,_,_,_ = list(inputs.shape)
@@ -51,7 +50,7 @@ class ClassificationVisualizer():
             ax.yaxis.set_ticklabels([])
             ax.xaxis.set_ticks([])
             ax.yaxis.set_ticks([])
-            ax.set_xlabel(round(outputs[image_idx].data.item(),5), color=color)
+            ax.set_xlabel(f'{round(outputs[image_idx].data.item(),5)} , {round(labels[image_idx].data.item(),5)}', color=color)
 
         plt.draw()
         key = plt.waitforbuttonpress(0.05)

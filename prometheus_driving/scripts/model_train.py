@@ -39,7 +39,7 @@ def main():
                         help='Number of cuda device')
     parser.add_argument('-loss', '--loss_threshold', default=0.01, type=float,
                         help='Loss threshold criteria for when to stop')
-    parser.add_argument('-lr', '--learning_rate', default=0.01, type=float,
+    parser.add_argument('-lr', '--learning_rate', default=0.0001, type=float,
                         help='Learning rate')
 
     arglist = [x for x in sys.argv[1:] if not x.startswith('__')]

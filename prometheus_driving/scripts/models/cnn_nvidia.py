@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-
 from torch import nn
 
 # Definition of the model. For now a 1 neuron network
@@ -34,20 +33,21 @@ class Model(nn.Module):
         )
 
         self.layer4 = nn.Sequential(
-            nn.Conv2d(48,64, kernel_size=5),
+            nn.Conv2d(48,64, kernel_size=3),
             #nn.BatchNorm2d(128),
             nn.ReLU(),
             #nn.MaxPool2d(2)
         )
 
         self.layer5 = nn.Sequential(
-            nn.Conv2d(64,64, kernel_size=5),
+            nn.Conv2d(64,64, kernel_size=3),
             #nn.BatchNorm2d(128),
             nn.ReLU(),
+            nn.Flatten()
             #nn.MaxPool2d(2)
         )
         
-        self.fc1 = nn.Linear(16704,100)
+        self.fc1 = nn.Linear(27456,100)
         self.fc2 = nn.Linear(100,50)
         self.fc3= nn.Linear(50,10)
         self.fc4= nn.Linear(10,1)
@@ -72,7 +72,7 @@ class Model(nn.Module):
         out = self.layer5(out)
         # print('layer 3 out = ' + str(out.shape))
 
-        out = out.view(out.size(0),-1) # flatten to keep batch dimension and compact all others into the second dimension
+        #out = out.view(out.size(0),-1) # flatten to keep batch dimension and compact all others into the second dimension
 
         out = self.relu(self.fc1(out))
         # print('fc1 out = ' + str(out.shape))

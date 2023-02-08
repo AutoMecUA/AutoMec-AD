@@ -49,11 +49,11 @@ class Dataset(torch.utils.data.Dataset):
 
     def augmentImage(self,imgPath, steering):
         # Function: Add randomness to the data set by applying random "filters"
-        # img = Image.open(imgPath)
+        img = Image.open(imgPath)
 
-        # img = np.asarray(img)
+        img = np.asarray(img)
 
-        img = mpimg.imread(imgPath)
+        #img = mpimg.imread(imgPath)
 
         # Translation... PAN
         if np.random.rand() < 0.30:
