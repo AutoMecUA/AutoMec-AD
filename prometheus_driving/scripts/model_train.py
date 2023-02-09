@@ -11,6 +11,7 @@ from tqdm import tqdm
 from colorama import Fore, Style
 import torch
 from torch.nn import MSELoss
+import yaml
 
 #  custom imports
 from src.dataset import Dataset
@@ -60,6 +61,10 @@ def main():
 
     del df["velocity"] # not in use, currently
     df.head()
+
+    # Read YAML file
+    with open(dataset_path + "info.yaml", 'r') as stream:
+        data_loaded = yaml.safe_load(stream)
 
     print(f'{Fore.BLUE}The dataset has {len(df)} images{Style.RESET_ALL}')
 
@@ -200,7 +205,7 @@ def main():
             print(Fore.CYAN + 'Finished training. Reached maximum number of epochs. Comparing to previously stored model' + Style.RESET_ALL)
             if epoch_train_loss < stored_train_loss:
                 print(Fore.BLUE + 'Saving model at Epoch ' + str(idx_epoch) + ' Loss ' + str(epoch_train_loss) + Style.RESET_ALL)
-                SaveModel(model,idx_epoch,optimizer,loader_train,loader_test,epoch_train_losses,epoch_test_losses,folder_path,device,args['model_name'],args['model'],idx_epoch,args['batch_size'],train_losses[-1],test_losses[-1],args['loss_function'],df) # Saves the model
+                SaveModel(model,idx_epoch,optimizer,loader_train,loader_test,epoch_train_losses,epoch_test_losses,folder_path,device,args['model_name'],args['model'],idx_epoch,args['batch_size'],train_losses[-1],test_losses[-1],args['loss_function'],data_loaded) # Saves the model
                 SaveGraph(epoch_train_losses,epoch_test_losses,folder_path)
             else:
                 print(Fore.BLUE + 'Not saved, current loos '+ str(epoch_train_loss) + '. Previous model is better, previous loss ' + str(stored_train_loss) + '.' + Style.RESET_ALL)
@@ -209,7 +214,7 @@ def main():
             print(Fore.CYAN + 'Finished training. Reached target loss. Comparing to previously stored model' + Style.RESET_ALL)
             if epoch_train_loss < stored_train_loss:
                 print(Fore.BLUE + 'Saving model at Epoch ' + str(idx_epoch) + ' Loss ' + str(epoch_train_loss) + Style.RESET_ALL)
-                SaveModel(model,idx_epoch,optimizer,loader_train,loader_test,epoch_train_losses,epoch_test_losses,folder_path,device,args['model_name'],args['model'],idx_epoch,args['batch_size'],train_losses[-1],test_losses[-1],args['loss_function'],df) # Saves the model
+                SaveModel(model,idx_epoch,optimizer,loader_train,loader_test,epoch_train_losses,epoch_test_losses,folder_path,device,args['model_name'],args['model'],idx_epoch,args['batch_size'],train_losses[-1],test_losses[-1],args['loss_function'],data_loaded) # Saves the model
                 SaveGraph(epoch_train_losses,epoch_test_losses,folder_path)
             else:
                 print(Fore.BLUE + 'Not saved, current loos '+ str(epoch_train_loss) + '. Previous model is better, previous loss ' + str(stored_train_loss) + '.' + Style.RESET_ALL)
@@ -223,7 +228,7 @@ def main():
             if epoch_train_loss < stored_train_loss: # checks if the previous model is better than the new one
                 print(Fore.BLUE + 'Saving model at Epoch ' + str(idx_epoch) + ' Loss ' + str(epoch_train_loss) + Style.RESET_ALL)
                 # Save checkpoint
-                SaveModel(model,idx_epoch,optimizer,loader_train,loader_test,epoch_train_losses,epoch_test_losses,folder_path,device,args['model_name'],args['model'],idx_epoch,args['batch_size'],train_losses[-1],test_losses[-1],args['loss_function'],df) # Saves the model
+                SaveModel(model,idx_epoch,optimizer,loader_train,loader_test,epoch_train_losses,epoch_test_losses,folder_path,device,args['model_name'],args['model'],idx_epoch,args['batch_size'],train_losses[-1],test_losses[-1],args['loss_function'],data_loaded) # Saves the model
                 SaveGraph(epoch_train_losses,epoch_test_losses,folder_path)
                 stored_train_loss=epoch_train_loss
                 
