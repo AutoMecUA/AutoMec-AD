@@ -1,10 +1,12 @@
+import datetime
 import torch
 import matplotlib.pyplot as plt
 import os
 import glob
+import yaml
 
 
-def SaveModel(model,idx_epoch,optimizer,training_loader,testing_loader,epoch_train_losses,epoch_test_losses,model_path,device):
+def SaveModel(model,idx_epoch,optimizer,training_loader,testing_loader,epoch_train_losses,epoch_test_losses,folder_path,device,modelname,cnn_model_name,epochs,batch_size_val,val_loss,test_loss,model_evaluation,data_loaded):
     model.to('cpu')
     torch.save({
         'epoch': idx_epoch,
@@ -14,8 +16,26 @@ def SaveModel(model,idx_epoch,optimizer,training_loader,testing_loader,epoch_tra
         'loader_test': testing_loader,
         'train_losses': epoch_train_losses,
         'test_losses': epoch_test_losses,
-        }, model_path)
+        }, folder_path + f'/{modelname}.pkl')
     model.to(device)
+
+    # Save info
+    current_date = datetime.datetime.now().strftime("%d-%m-%Y-%H:%M:%S")
+    info_data = dict(
+        model = dict(
+            name = modelname,
+            developer = os.getenv('automec_developer'),
+            date = current_date,
+            ml_arch = {"name":cnn_model_name, "epochs":epochs, 
+                       "batch_size_val":batch_size_val,
+                       "val_loss":val_loss, "tes_loss":test_loss},
+            model_eval = model_evaluation,
+            #comments = ml_comments
+        ),
+        dataset = data_loaded['dataset']
+    )
+    with open(f'{folder_path}/{cnn_model_name}.yaml', 'w') as outfile: #info
+        yaml.dump(info_data, outfile, default_flow_style=False, sort_keys=False)
 
 
 def LoadModel(model_path,model,device):

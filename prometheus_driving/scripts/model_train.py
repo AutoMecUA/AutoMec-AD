@@ -10,12 +10,14 @@ from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 from colorama import Fore, Style
 import torch
+from torch.nn import MSELoss
 
 #  custom imports
 from src.dataset import Dataset
 from models.cnn_nvidia import Nvidia_Model
 from models.cnn_rota import Rota_Model
 from models.mobilenetv2 import MobileNetV2
+from models.inceptionV3 import InceptionV3
 from src.utils import SaveModel, SaveGraph
 from src.visualization import DataVisualizer, ClassificationVisualizer
 
@@ -27,20 +29,24 @@ def main():
     parser = argparse.ArgumentParser(description='Data Collector')
     parser.add_argument('-v', '--visualize', action='store_true',
                         help='Visualize the loss')
-    parser.add_argument('-fn', '--folder_name', type=str, required=True, help='folder name')
-    parser.add_argument('-mn', '--model_name', type=str, required=True, help='model name')
+    parser.add_argument('-fn', '--folder_name', type=str, required=True,
+                        help='folder name')
+    parser.add_argument('-mn', '--model_name', type=str, required=True,
+                        help='model name')
     parser.add_argument('-n_epochs', '--max_epoch', default=50, type=int,
                         help='Maximum number of epochs')
     parser.add_argument('-batch_size', '--batch_size', default=256, type=int,
                         help='Batch size')
     parser.add_argument('-c', '--cuda', default=0, type=int,
                         help='Number of cuda device')
-    parser.add_argument('-loss', '--loss_threshold', default=0.001, type=float,
+    parser.add_argument('-loss_t', '--loss_threshold', default=0.001, type=float,
                         help='Loss threshold criteria for when to stop')
     parser.add_argument('-lr', '--learning_rate', default=0.0001, type=float,
                         help='Learning rate')
     parser.add_argument('-m', '--model', default='Nvidia_Model()', type=str,
-                        help='Model to use')
+                        help='Model to use [Nvidia_Model(), Rota_Model(), MobileNetV2(), InceptionV3()]')
+    parser.add_argument('-loss_f', '--loss_function', type=str, default='MSELoss()',
+                        help='Type of loss function. [MSELoss()]')
 
     arglist = [x for x in sys.argv[1:] if not x.startswith('__')]
     args = vars(parser.parse_args(args=arglist))
@@ -71,7 +77,7 @@ def main():
     learning_rate = args['learning_rate']
     maximum_num_epochs = args['max_epoch'] 
     termination_loss_threshold =  args['loss_threshold']
-    loss_function = torch.nn.MSELoss()
+    loss_function = eval(args['loss_function']) # Instantiate loss function
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
     ########################################
@@ -109,7 +115,7 @@ def main():
             optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
             loader_train = checkpoint['loader_train']
             loader_test = checkpoint['loader_test']
-            idx_epoch = checkpoint['epoch']
+            idx_epoch = checkpoint['epoch'] + 1
             epoch_train_losses = checkpoint['train_losses']
             stored_train_loss=epoch_train_losses[-1]
             epoch_test_losses = checkpoint['test_losses']
@@ -185,7 +191,7 @@ def main():
 
             loss_visualizer.recomputeAxesRanges()
 
-        print(f'{Fore.LIGHTGREEN_EX}Epoch {str(idx_epoch)} Train Loss: {str(epoch_train_loss)} Test Loss: {str(epoch_test_loss)} {Style.RESET_ALL}')
+        print(f'{Fore.LIGHTBLUE_EX}Epoch {str(idx_epoch)} Train Loss: {str(epoch_train_loss)} Test Loss: {str(epoch_test_loss)} {Style.RESET_ALL}')
 
         ########################################
         # Termination criteria                 #
@@ -194,7 +200,7 @@ def main():
             print(Fore.CYAN + 'Finished training. Reached maximum number of epochs. Comparing to previously stored model' + Style.RESET_ALL)
             if epoch_train_loss < stored_train_loss:
                 print(Fore.BLUE + 'Saving model at Epoch ' + str(idx_epoch) + ' Loss ' + str(epoch_train_loss) + Style.RESET_ALL)
-                SaveModel(model,idx_epoch,optimizer,loader_train,loader_test,epoch_train_losses,epoch_test_losses,model_path,device) # Saves the model
+                SaveModel(model,idx_epoch,optimizer,loader_train,loader_test,epoch_train_losses,epoch_test_losses,folder_path,device,args['model_name'],args['model'],idx_epoch,args['batch_size'],train_losses[-1],test_losses[-1],args['loss_function'],df) # Saves the model
                 SaveGraph(epoch_train_losses,epoch_test_losses,folder_path)
             else:
                 print(Fore.BLUE + 'Not saved, current loos '+ str(epoch_train_loss) + '. Previous model is better, previous loss ' + str(stored_train_loss) + '.' + Style.RESET_ALL)
@@ -203,7 +209,7 @@ def main():
             print(Fore.CYAN + 'Finished training. Reached target loss. Comparing to previously stored model' + Style.RESET_ALL)
             if epoch_train_loss < stored_train_loss:
                 print(Fore.BLUE + 'Saving model at Epoch ' + str(idx_epoch) + ' Loss ' + str(epoch_train_loss) + Style.RESET_ALL)
-                SaveModel(model,idx_epoch,optimizer,loader_train,loader_test,epoch_train_losses,epoch_test_losses,model_path,device) # Saves the model
+                SaveModel(model,idx_epoch,optimizer,loader_train,loader_test,epoch_train_losses,epoch_test_losses,folder_path,device,args['model_name'],args['model'],idx_epoch,args['batch_size'],train_losses[-1],test_losses[-1],args['loss_function'],df) # Saves the model
                 SaveGraph(epoch_train_losses,epoch_test_losses,folder_path)
             else:
                 print(Fore.BLUE + 'Not saved, current loos '+ str(epoch_train_loss) + '. Previous model is better, previous loss ' + str(stored_train_loss) + '.' + Style.RESET_ALL)
@@ -217,7 +223,7 @@ def main():
             if epoch_train_loss < stored_train_loss: # checks if the previous model is better than the new one
                 print(Fore.BLUE + 'Saving model at Epoch ' + str(idx_epoch) + ' Loss ' + str(epoch_train_loss) + Style.RESET_ALL)
                 # Save checkpoint
-                SaveModel(model,idx_epoch,optimizer,loader_train,loader_test,epoch_train_losses,epoch_test_losses,model_path,device) # Saves the model
+                SaveModel(model,idx_epoch,optimizer,loader_train,loader_test,epoch_train_losses,epoch_test_losses,folder_path,device,args['model_name'],args['model'],idx_epoch,args['batch_size'],train_losses[-1],test_losses[-1],args['loss_function'],df) # Saves the model
                 SaveGraph(epoch_train_losses,epoch_test_losses,folder_path)
                 stored_train_loss=epoch_train_loss
                 

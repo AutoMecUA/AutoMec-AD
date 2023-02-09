@@ -6,28 +6,29 @@ import torchvision.models as models
 
 class InceptionV3(nn.Module):
     def __init__(self):
-        self.pre_trained_model = models.inception_v3(pretrained=False)
+        super(InceptionV3, self).__init__()
+        # Expects input to be 3 x 299 x 299
+        pre_trained_model = models.inception_v3(weights=models.Inception_V3_Weights.DEFAULT) # Shouldn't it be pretrained?
 
         # Freeze Layers if set to False
-        for param in self.pre_trained_model.parameters():
+        for param in pre_trained_model.parameters():
             param.requires_grad = False
 
-        last_layer = self.pre_trained_model._modules.get('mixed7')
-        print('last layer output shape: ', last_layer.output_shape)
-        last_output = last_layer.output
+        self.features = nn.Sequential(*list(pre_trained_model.children())[:4])
 
         self.fc = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(2048, 1024),
+            nn.Linear(341056, 1024),
             nn.ReLU(),
             nn.Dropout(0.2),
             nn.Linear(1024, 1),
             nn.Sigmoid()
         )
 
+        self.pre_trained_model = pre_trained_model
 
 
     def forward(self, x):
-        x = self.pre_trained_model.features(x) 
+        x = self.features(x) 
         x = self.fc(x)
         return x
