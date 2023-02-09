@@ -185,6 +185,8 @@ def main():
 
             loss_visualizer.recomputeAxesRanges()
 
+        print(f'{Fore.LIGHTGREEN_EX}Epoch {str(idx_epoch)} Train Loss: {str(epoch_train_loss)} Test Loss: {str(epoch_test_loss)} {Style.RESET_ALL}')
+
         ########################################
         # Termination criteria                 #
         ########################################
