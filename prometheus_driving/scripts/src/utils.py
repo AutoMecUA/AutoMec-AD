@@ -16,7 +16,7 @@ def SaveModel(model,idx_epoch,optimizer,training_loader,testing_loader,epoch_tra
         'loader_test': testing_loader,
         'train_losses': epoch_train_losses,
         'test_losses': epoch_test_losses,
-        }, folder_path + f'/{modelname}.pkl')
+        }, folder_path + f'/{cnn_model_name}.pkl')
     model.to(device)
 
     # Save info
