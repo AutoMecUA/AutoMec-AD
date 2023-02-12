@@ -45,18 +45,18 @@ class MyVGG(nn.Module):
 
         # Creating blocks of VGG with the following 
         # (filters, kernel_size, repetitions) configurations
-        self.block_a = Block(1,64,3,2)
+        self.block_a = Block(3,64,3,2)
         self.block_b = Block(64,128,3,2)
         self.block_c = Block(128,256,3,3)
         self.block_d = Block(256,512,3,3)
-        self.block_e = Block(256,512,3,3)
+        self.block_e = Block(512,512,3,3)
         
         # Classification head
         # Define a Flatten layer
         self.flatten = nn.Flatten()
         
         # Create a Dense layer with 256 units and ReLU as the activation function
-        self.fc = nn.Linear(512 * 7 * 7, 256)
+        self.fc = nn.Linear(25600, 256)
         self.fc_relu = nn.ReLU()
         # Finally add the softmax classifier using a Dense layer
         self.classifier = nn.Linear(256, 1)
