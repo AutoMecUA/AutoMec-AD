@@ -52,7 +52,7 @@ def main():
                         help='Step size of the learning rate decay')
     parser.add_argument('-lr_gamma', '--lr_gamma', type=float, default=0.5,
                         help='Decay of the learning rate after step size')
-    parser.add_argument('-wd', '--weight_decay', type=float, default=0, help='L2 regularizer')
+    parser.add_argument('-wd', '--weight_decay', type=float, default=0.5, help='L2 regularizer')
     parser.add_argument('-m', '--model', default='Nvidia_Model()', type=str,
                         help='Model to use [Nvidia_Model(), Rota_Model(), MobileNetV2(), InceptionV3()]')
     parser.add_argument('-loss_f', '--loss_function', type=str, default='MSELoss()',
