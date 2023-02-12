@@ -48,7 +48,7 @@ def main():
                         help='Loss threshold criteria for when to stop')
     parser.add_argument('-lr', '--learning_rate', default=0.0001, type=float,
                         help='Learning rate')
-    parser.add_argument('-lr_step_size', '--lr_step_size', type=int, default=20,
+    parser.add_argument('-lr_step_size', '--lr_step_size', type=int, default=100,
                         help='Step size of the learning rate decay')
     parser.add_argument('-lr_gamma', '--lr_gamma', type=float, default=0.5,
                         help='Decay of the learning rate after step size')
