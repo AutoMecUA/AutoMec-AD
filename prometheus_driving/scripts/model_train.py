@@ -30,6 +30,8 @@ def main():
     parser = argparse.ArgumentParser(description='Data Collector')
     parser.add_argument('-v', '--visualize', action='store_true',
                         help='Visualize the loss')
+    parser.add_argument('-d', '--dataset_name', type=str, required=True,
+                        help='folder name')
     parser.add_argument('-fn', '--folder_name', type=str, required=True,
                         help='folder name')
     parser.add_argument('-mn', '--model_name', type=str, required=True,
@@ -53,9 +55,10 @@ def main():
     args = vars(parser.parse_args(args=arglist))
 
     # General Path
-    files_path=f'/home/andre/catkin_ws/src/AutoMec-AD/prometheus_driving/data/'
+    files_path=os.environ.get('AUTOMEC_DATASETS')
+    #files_path=f'/home/andre/catkin_ws/src/AutoMec-AD/prometheus_driving/data/'
     # Image dataset paths
-    dataset_path = files_path + 'set10/'
+    dataset_path = f'{files_path}/datasets/{args["dataset_name"]}/'
     columns = ['img_name','steering', 'velocity'] 
     df = pd.read_csv(os.path.join(dataset_path, 'driving_log.csv'), names = columns)
 
@@ -93,12 +96,12 @@ def main():
     #image_filenames = random.sample(image_filenames,k=700)
     train_dataset,test_dataset = train_test_split(df,test_size=0.2)
     # Creates the train dataset
-    dataset_train = Dataset(train_dataset)
+    dataset_train = Dataset(train_dataset,dataset_path)
     # Creates the batch size that suits the amount of memory the graphics can handle
     loader_train = torch.utils.data.DataLoader(dataset=dataset_train,batch_size=args['batch_size'],shuffle=True)
     # Goes through al the images and displays them
 
-    dataset_test = Dataset(test_dataset)
+    dataset_test = Dataset(test_dataset,dataset_path)
     loader_test = torch.utils.data.DataLoader(dataset=dataset_test, batch_size=args['batch_size'], shuffle=True)
 
     ########################################

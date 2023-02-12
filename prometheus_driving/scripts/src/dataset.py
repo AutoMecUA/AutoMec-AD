@@ -17,18 +17,15 @@ from PIL import Image
 from torchvision import transforms
 
 class Dataset(torch.utils.data.Dataset):
-    def __init__(self,dataset):
-        #super().init()
-        # General Path
-        files_path=f'/home/andre/catkin_ws/src/AutoMec-AD/prometheus_driving/data/'
+    def __init__(self,dataset,dataset_path):
         # Image dataset paths
-        images_path = files_path + 'set10/IMG/'
+        images_path = dataset_path + '/IMG/'
         self.image_filenames_original = images_path + dataset['img_name']
         self.image_filenames_original = self.image_filenames_original.values.tolist()
         self.labels_original = dataset['steering'].values.tolist()
         self.num_images= len(self.image_filenames_original)
-        self.image_width = 299
-        self.image_height = 299
+        self.image_width = 320
+        self.image_height = 160
         # Create a set of transformations
         self.transforms = transforms.Compose([
             transforms.ToTensor()

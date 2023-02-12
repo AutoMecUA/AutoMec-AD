@@ -67,10 +67,11 @@ def main():
         model_name = input('Please define the name of the model to be used: ')
     # Defining path to model
     s = str(pathlib.Path(__file__).parent.absolute())
-    path = f'{s}/../models/{model_name}.pkl'
+    automec_path = os.environ.get('AUTOMEC_DATASETS')
+    path = f'{automec_path}/models/{model_name}.pkl'
 
     # Retrieving info from yaml
-    with open(f'{s}/../models/{model_name}.yaml') as file:
+    with open(f'{automec_path}/models/{model_name}.yaml') as file:
         info_loaded = yaml.load(file, Loader=yaml.FullLoader)
         linear_velocity = info_loaded['dataset']['linear_velocity'] 
     
