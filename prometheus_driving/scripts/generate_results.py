@@ -40,6 +40,10 @@ def main():
                         help='folder name where the model is stored')
     parser.add_argument('-mn', '--model_name', type=str, required=True,
                         help='model name')
+    parser.add_argument('-batch_size', '--batch_size', default=256, type=int,
+                        help='Batch size')
+    parser.add_argument('-m', '--model', default='Nvidia_Model()', type=str,
+                        help='Model to use [Nvidia_Model(), Rota_Model(), MobileNetV2(), InceptionV3(), MyVGG(), ResNet()]')
     parser.add_argument('-c', '--cuda', default=0, type=int,
                         help='Number of cuda device')
 
@@ -51,6 +55,10 @@ def main():
     results_folder = args['results_name']
     # Image dataset paths
     dataset_path = f'{files_path}/datasets/{args["dataset_name"]}/'
+    if not os.path.exists(dataset_path):
+        print(f'{Fore.RED}The dataset does not exist{Style.RESET_ALL}')
+        exit()
+
     columns = ['img_name','steering', 'velocity'] 
     df = pd.read_csv(os.path.join(dataset_path, 'driving_log.csv'), names = columns)
 
@@ -61,7 +69,7 @@ def main():
 
     device = f'cuda:{args["cuda"]}' if torch.cuda.is_available() else 'cpu' # cuda: 0 index of gpu
 
-    model_path = f'{files_path}/models/{args["folder_name"]}/{args["model_name"]}'
+    model_path = f'{files_path}/models/{args["folder_name"]}/{args["model_name"]}.pkl'
     model = eval(args['model']) # Instantiate model
     model= LoadModel(model_path,model,device)
     model.eval()
@@ -73,7 +81,7 @@ def main():
     if args['visualize']: # Checks if the user wants to visualize the loss
         test_visualizer = ClassificationVisualizer('Test Images')
     # Init results
-    results = SaveResults(results_folder, args["model_folder"], args["dataset_name"])
+    results = SaveResults(results_folder, args["folder_name"], args["dataset_name"])
 
     for batch_idx, (image_t, label_t) in tqdm(enumerate(loader_test), total=len(loader_test), desc=Fore.GREEN + 'Testing batches' +  Style.RESET_ALL):
 
@@ -84,7 +92,7 @@ def main():
         label_t_predicted = model.forward(image_t)
         # Compute the error based on the predictions
         for idx in range(len(label_t_predicted)):
-            print(label_t_predicted[idx].data.item() - label_t[idx].data.item())
+            #print(label_t_predicted[idx].data.item() - label_t[idx].data.item())
             steering_error = abs(label_t_predicted[idx].data.item() - label_t[idx].data.item())
             results.updateCSV(steering_error, 0)
             results.step()
@@ -95,3 +103,7 @@ def main():
 
     results.saveCSV()
     results.saveErrorsFig()
+
+
+if __name__ == '__main__':
+    main()

@@ -54,7 +54,7 @@ def main():
                         help='Decay of the learning rate after step size')
     parser.add_argument('-wd', '--weight_decay', type=float, default=0.5, help='L2 regularizer')
     parser.add_argument('-m', '--model', default='Nvidia_Model()', type=str,
-                        help='Model to use [Nvidia_Model(), Rota_Model(), MobileNetV2(), InceptionV3()]')
+                        help='Model to use [Nvidia_Model(), Rota_Model(), MobileNetV2(), InceptionV3(), MyVGG(), ResNet()]')
     parser.add_argument('-loss_f', '--loss_function', type=str, default='MSELoss()',
                         help='Type of loss function. [MSELoss()]')
 

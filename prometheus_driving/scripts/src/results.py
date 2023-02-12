@@ -51,25 +51,27 @@ class SaveResults():
         print('SaveResults initialized properly')
 
     def updateCSV(self, steering_error, velocity_error):
-        row = {'frame' : f'{self.frame_idx:05d}', 
-                'steering_error (m)' : steering_error,
-                'velocity_error (rads)' : velocity_error}
+        row = pd.DataFrame({'frame' : f'{self.frame_idx:05d}', 
+                'steering_error (rads)' : steering_error,
+                'velocity_error (m/s)' : velocity_error},index=[0])
         
-        self.csv = self.csv.append(row, ignore_index=True)  
+        #self.csv = self.csv.append(row, ignore_index=True)  
+        self.csv = pd.concat([self.csv , row],ignore_index=True)
+        
         
     def saveCSV(self):
         # save averages values in the last row
-        mean_row = {'frame'                 : 'mean_values', 
-                    'steering_error (m)'    : self.csv.mean(axis=0).loc["steering_error (m)"],
-                    'velocity_error (rads)' : self.csv.mean(axis=0).loc["velocity_error (rads)"]}
+        mean_row = pd.DataFrame({'frame'                 : 'mean_values', 
+                    'steering_error (rads)'    : self.csv.mean(axis=0).loc["steering_error (rads)"],
+                    'velocity_error (m/s)' : self.csv.mean(axis=0).loc["velocity_error (m/s)"]},index=[0])
         
         
-        median_row = {'frame'                 : 'median_values', 
-                      'steering_error (m)'    : self.csv.median(axis=0).loc["steering_error (m)"],
-                      'velocity_error (rads)' : self.csv.median(axis=0).loc["velocity_error (rads)"]}
+        median_row = pd.DataFrame({'frame'                 : 'median_values', 
+                      'steering_error (rads)'    : self.csv.median(axis=0).loc["steering_error (rads)"],
+                      'velocity_error (m/s)' : self.csv.median(axis=0).loc["velocity_error (m/s)"]},index=[0])
         
-        self.csv = self.csv.append(mean_row, ignore_index=True)  
-        self.csv = self.csv.append(median_row, ignore_index=True) 
+        #self.csv = self.csv.append(mean_row, ignore_index=True)  
+        self.csv = pd.concat([self.csv , mean_row],ignore_index=True) 
         
         
         print(self.csv)
@@ -78,16 +80,16 @@ class SaveResults():
     def saveErrorsFig(self):
         frames_array = self.csv.iloc[:-2]['frame'].to_numpy().astype(int)
         
-        pos_error_array = self.csv.iloc[:-2]['steering_error (m)'].to_numpy()
-        rot_error_array = self.csv.iloc[:-2]['velocity_error (rads)'].to_numpy()
+        pos_error_array = self.csv.iloc[:-2]['steering_error (rads)'].to_numpy()
+        rot_error_array = self.csv.iloc[:-2]['velocity_error (m/s)'].to_numpy()
         
         fig, (ax1, ax2) = plt.subplots(2, sharex=True)
         fig.suptitle('steering and velocity errors')
         ax1.plot(frames_array, pos_error_array, 'cyan',  label='steering error')
         ax2.plot(frames_array, rot_error_array, 'navy', label='velocity error')
         ax2.set_xlabel('frame idx')
-        ax2.set_ylabel('[rads]')
-        ax1.set_ylabel('[m]')
+        ax2.set_ylabel('[m/s]')
+        ax1.set_ylabel('[rads]')
         ax1.legend()
         ax2.legend()
         plt.savefig(f'{self.output_folder}/errors.png')

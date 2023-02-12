@@ -104,6 +104,10 @@ class Dataset(torch.utils.data.Dataset):
         # Get the image
         if self.augmentation == True:
             image, label = self.augmentImage(self.image_filenames_original[index], self.labels_original[index])
+        else:
+            image = Image.open(self.image_filenames_original[index])
+            image = np.asarray(image)
+            label = self.labels_original[index]
         image = self.pre_processing(image, self.image_width, self.image_height)
         image = self.transforms(image)
 
