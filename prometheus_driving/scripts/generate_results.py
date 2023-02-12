@@ -20,7 +20,7 @@ from models.cnn_nvidia import Nvidia_Model
 from models.cnn_rota import Rota_Model
 from models.mobilenetv2 import MobileNetV2
 from models.inceptionV3 import InceptionV3
-from src.utils import SaveModel, SaveGraph
+from src.utils import SaveModel, SaveGraph , LoadModel
 from src.visualization import DataVisualizer, ClassificationVisualizer
 
 
@@ -49,7 +49,6 @@ def main():
     # General Path
     files_path=os.environ.get('AUTOMEC_DATASETS')
     results_folder = args['results_name']
-    #files_path=f'/home/andre/catkin_ws/src/AutoMec-AD/prometheus_driving/data/'
     # Image dataset paths
     dataset_path = f'{files_path}/datasets/{args["dataset_name"]}/'
     columns = ['img_name','steering', 'velocity'] 
@@ -62,8 +61,10 @@ def main():
 
     device = f'cuda:{args["cuda"]}' if torch.cuda.is_available() else 'cpu' # cuda: 0 index of gpu
 
+    model_path = f'{files_path}/models/{args["folder_name"]}/{args["model_name"]}'
     model = eval(args['model']) # Instantiate model
-    model.to(device) # move the model variable to the gpu if one exists
+    model= LoadModel(model_path,model,device)
+    model.eval()
 
     dataset_test = Dataset(df,dataset_path,augmentation=False)
     loader_test = torch.utils.data.DataLoader(dataset=dataset_test, batch_size=args['batch_size'], shuffle=True)
@@ -71,7 +72,7 @@ def main():
     # Init visualization of loss
     if args['visualize']: # Checks if the user wants to visualize the loss
         test_visualizer = ClassificationVisualizer('Test Images')
-
+    # Init results
     results = SaveResults(results_folder, args["model_folder"], args["dataset_name"])
 
     for batch_idx, (image_t, label_t) in tqdm(enumerate(loader_test), total=len(loader_test), desc=Fore.GREEN + 'Testing batches' +  Style.RESET_ALL):

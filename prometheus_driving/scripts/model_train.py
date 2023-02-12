@@ -48,6 +48,11 @@ def main():
                         help='Loss threshold criteria for when to stop')
     parser.add_argument('-lr', '--learning_rate', default=0.0001, type=float,
                         help='Learning rate')
+    parser.add_argument('-lr_step_size', '--lr_step_size', type=int, default=20,
+                        help='Step size of the learning rate decay')
+    parser.add_argument('-lr_gamma', '--lr_gamma', type=float, default=0.5,
+                        help='Decay of the learning rate after step size')
+    parser.add_argument('-wd', '--weight_decay', type=float, default=0, help='L2 regularizer')
     parser.add_argument('-m', '--model', default='Nvidia_Model()', type=str,
                         help='Model to use [Nvidia_Model(), Rota_Model(), MobileNetV2(), InceptionV3()]')
     parser.add_argument('-loss_f', '--loss_function', type=str, default='MSELoss()',
@@ -58,7 +63,6 @@ def main():
 
     # General Path
     files_path=os.environ.get('AUTOMEC_DATASETS')
-    #files_path=f'/home/andre/catkin_ws/src/AutoMec-AD/prometheus_driving/data/'
     # Image dataset paths
     dataset_path = f'{files_path}/datasets/{args["dataset_name"]}/'
     columns = ['img_name','steering', 'velocity'] 
@@ -88,7 +92,8 @@ def main():
     maximum_num_epochs = args['max_epoch'] 
     termination_loss_threshold =  args['loss_threshold']
     loss_function = eval(args['loss_function']) # Instantiate loss function
-    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=args['weight_decay'])
+    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=args['lr_step_size'], gamma=args['lr_gamma'])
 
     ########################################
     # Dataset                              #
@@ -189,6 +194,9 @@ def main():
         # Compute the loss for the epoch
         epoch_test_loss = mean(test_losses)
         epoch_test_losses.append(epoch_test_loss)
+
+        # Steps the learning rate scheduler
+        scheduler.step()
 
 
         ########################################
