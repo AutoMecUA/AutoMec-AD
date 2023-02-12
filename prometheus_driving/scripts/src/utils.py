@@ -34,7 +34,7 @@ def SaveModel(model,idx_epoch,optimizer,training_loader,testing_loader,epoch_tra
         ),
         dataset = data_loaded['dataset']
     )
-    with open(f'{folder_path}/{cnn_model_name}.yaml', 'w') as outfile: #info
+    with open(f'{folder_path}/{modelname}.yaml', 'w') as outfile: #info
         yaml.dump(info_data, outfile, default_flow_style=False, sort_keys=False)
 
 
