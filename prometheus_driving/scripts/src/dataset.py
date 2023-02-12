@@ -17,8 +17,9 @@ from PIL import Image
 from torchvision import transforms
 
 class Dataset(torch.utils.data.Dataset):
-    def __init__(self,dataset,dataset_path):
+    def __init__(self,dataset,dataset_path,augmentation=True):
         # Image dataset paths
+        self.augmentation = augmentation
         images_path = dataset_path + '/IMG/'
         self.image_filenames_original = images_path + dataset['img_name']
         self.image_filenames_original = self.image_filenames_original.values.tolist()
@@ -101,7 +102,8 @@ class Dataset(torch.utils.data.Dataset):
 
     def __getitem__(self,index): # returns a specific x,y of the datasets
         # Get the image
-        image, label = self.augmentImage(self.image_filenames_original[index], self.labels_original[index])
+        if self.augmentation == True:
+            image, label = self.augmentImage(self.image_filenames_original[index], self.labels_original[index])
         image = self.pre_processing(image, self.image_width, self.image_height)
         image = self.transforms(image)
 

@@ -19,6 +19,8 @@ from models.cnn_nvidia import Nvidia_Model
 from models.cnn_rota import Rota_Model
 from models.mobilenetv2 import MobileNetV2
 from models.inceptionV3 import InceptionV3
+from models.vgg import MyVGG
+from models.resnet import ResNet
 from src.utils import SaveModel, SaveGraph
 from src.visualization import DataVisualizer, ClassificationVisualizer
 
@@ -31,9 +33,9 @@ def main():
     parser.add_argument('-v', '--visualize', action='store_true',
                         help='Visualize the loss')
     parser.add_argument('-d', '--dataset_name', type=str, required=True,
-                        help='folder name')
+                        help='folder name of the dataset')
     parser.add_argument('-fn', '--folder_name', type=str, required=True,
-                        help='folder name')
+                        help='folder name where the model is stored')
     parser.add_argument('-mn', '--model_name', type=str, required=True,
                         help='model name')
     parser.add_argument('-n_epochs', '--max_epoch', default=50, type=int,
