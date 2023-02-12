@@ -13,7 +13,7 @@ import torch
 from torch.nn import MSELoss
 import yaml
 
-#  custom imports
+# Custom imports
 from src.dataset import Dataset
 from models.cnn_nvidia import Nvidia_Model
 from models.cnn_rota import Rota_Model
@@ -84,7 +84,6 @@ def main():
         os.makedirs(f'{files_path}/models') # Creates the folder
 
     device = f'cuda:{args["cuda"]}' if torch.cuda.is_available() else 'cpu' # cuda: 0 index of gpu
-
     model = eval(args['model']) # Instantiate model
 
     # Define hyper parameters
@@ -98,7 +97,6 @@ def main():
     ########################################
     # Dataset                              #
     ########################################
-
     # Sample ony a few images for develop
     #image_filenames = random.sample(image_filenames,k=700)
     train_dataset,test_dataset = train_test_split(df,test_size=0.2)
@@ -106,9 +104,9 @@ def main():
     dataset_train = Dataset(train_dataset,dataset_path)
     # Creates the batch size that suits the amount of memory the graphics can handle
     loader_train = torch.utils.data.DataLoader(dataset=dataset_train,batch_size=args['batch_size'],shuffle=True)
-    # Goes through al the images and displays them
-
+    # Creates the test dataset
     dataset_test = Dataset(test_dataset,dataset_path)
+    # Creates the batch size that suits the amount of memory the graphics can handle
     loader_test = torch.utils.data.DataLoader(dataset=dataset_test, batch_size=args['batch_size'], shuffle=True)
 
     ########################################
@@ -122,8 +120,8 @@ def main():
     # Resume training
     if os.path.exists(folder_path): # Checks to see if the model exists
         print(Fore.YELLOW + f'Folder already exists! Do you want to resume training?' + Style.RESET_ALL)
-        ans = input("YES/no")
-        if ans.lower() in ['', 'yes','y']:
+        ans = input("YES/no") # Asks the user if they want to resume training
+        if ans.lower() in ['', 'yes','y']: # If the user wants to resume training
             checkpoint = torch.load(model_path)
             model.load_state_dict(checkpoint['model_state_dict'])
             model.to(device) # move the model variable to the gpu if one exists
@@ -134,10 +132,10 @@ def main():
             epoch_train_losses = checkpoint['train_losses']
             stored_train_loss=epoch_train_losses[-1]
             epoch_test_losses = checkpoint['test_losses']
-        else:
+        else: # If the user does not want to resume training
             print(f'{Fore.RED} Terminating training... {Fore.RESET}')
             exit(0)
-    else:
+    else: # If the model does not exist
         print(Fore.YELLOW + f'Model Folder not found: {args["folder_name"]}. Starting from sratch.' + Style.RESET_ALL)
         os.makedirs(folder_path)
         idx_epoch = 0
@@ -146,11 +144,12 @@ def main():
         stored_train_loss=1e2
         model.to(device) # move the model variable to the gpu if one exists
 
+    # Training loop for each epoch
     while True:
-        # Train batch by batch -----------------------------------------------
+        # Train batch by batch
         train_losses = []
         for batch_idx, (image_t, label_t) in tqdm(enumerate(loader_train), total=len(loader_train), desc=Fore.GREEN + 'Training batches for Epoch ' + str(idx_epoch) +  Style.RESET_ALL):
-
+            # Move the data to the GPU if one exists
             image_t = image_t.to(device=device, dtype=torch.float)
             label_t = label_t.to(device=device, dtype=torch.float).unsqueeze(1)
 
@@ -164,19 +163,17 @@ def main():
             optimizer.zero_grad() # resets the weights to make sure we are not accumulating
             loss.backward() # propagates the loss error into each neuron
             optimizer.step() # update the weights
-
-
+            # Store the loss for the batch
             train_losses.append(loss.data.item())
 
         # Compute the loss for the epoch
         epoch_train_loss = mean(train_losses)
         epoch_train_losses.append(epoch_train_loss)
 
-        # Run test in batches ---------------------------------------
-        # TODO dropout
+        # Run test in batches 
         test_losses = []
         for batch_idx, (image_t, label_t) in tqdm(enumerate(loader_test), total=len(loader_test), desc=Fore.GREEN + 'Testing batches for Epoch ' + str(idx_epoch) +  Style.RESET_ALL):
-
+            # Move the data to the gpu if one exists
             image_t = image_t.to(device=device, dtype=torch.float)
             label_t = label_t.to(device=device, dtype=torch.float).unsqueeze(1)
 
@@ -184,9 +181,9 @@ def main():
             label_t_predicted = model.forward(image_t)
             # Compute the error based on the predictions
             loss = loss_function(label_t_predicted, label_t)
-
+            # Store the loss for the batch
             test_losses.append(loss.data.item())
-
+            # Visualize the test images with the labeled data and predicted data
             if args['visualize']:
                 test_visualizer.draw(image_t, label_t, label_t_predicted)
 
