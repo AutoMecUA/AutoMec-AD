@@ -15,7 +15,7 @@ class SaveResults():
     class to save results
     """
     
-    def __init__(self, output, model_path, seq_path, overwrite):
+    def __init__(self, output, model_path, seq_path, overwrite=False):
         
         # attribute initializer
         path=os.environ.get("AUTOMEC_DATASETS")

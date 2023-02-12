@@ -34,8 +34,8 @@ def main():
                         help='Visualize the loss')
     parser.add_argument('-d', '--dataset_name', type=str, required=True,
                         help='folder name of the dataset')
-    parser.add_argument('-r', '--dataset_name', type=str, required=True,
-                        help='folder name of the dataset')
+    parser.add_argument('-r', '--results_name', type=str, required=True,
+                        help='folder name of the results')
     parser.add_argument('-fn', '--folder_name', type=str, required=True,
                         help='folder name where the model is stored')
     parser.add_argument('-mn', '--model_name', type=str, required=True,
@@ -48,10 +48,9 @@ def main():
 
     # General Path
     files_path=os.environ.get('AUTOMEC_DATASETS')
+    results_folder = args['results_name']
     #files_path=f'/home/andre/catkin_ws/src/AutoMec-AD/prometheus_driving/data/'
     # Image dataset paths
-    dataset_path = f'{files_path}/datasets/{args["dataset_name"]}/'
-
     dataset_path = f'{files_path}/datasets/{args["dataset_name"]}/'
     columns = ['img_name','steering', 'velocity'] 
     df = pd.read_csv(os.path.join(dataset_path, 'driving_log.csv'), names = columns)
@@ -73,7 +72,7 @@ def main():
     if args['visualize']: # Checks if the user wants to visualize the loss
         test_visualizer = ClassificationVisualizer('Test Images')
 
-    results = SaveResults(results_folder, args["model_folder"], args["testing_set"], args['overwrite'])
+    results = SaveResults(results_folder, args["model_folder"], args["dataset_name"])
 
     for batch_idx, (image_t, label_t) in tqdm(enumerate(loader_test), total=len(loader_test), desc=Fore.GREEN + 'Testing batches' +  Style.RESET_ALL):
 
@@ -85,8 +84,8 @@ def main():
         # Compute the error based on the predictions
         for idx in range(len(label_t_predicted)):
             print(label_t_predicted[idx].data.item() - label_t[idx].data.item())
-            error = abs(label_t_predicted[idx].data.item() - label_t[idx].data.item())
-            results.updateCSV(pos_error, rot_error)
+            steering_error = abs(label_t_predicted[idx].data.item() - label_t[idx].data.item())
+            results.updateCSV(steering_error, 0)
             results.step()
 
 
