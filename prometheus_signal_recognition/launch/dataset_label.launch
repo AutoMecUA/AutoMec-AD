@@ -1,10 +1,11 @@
 <launch>
-  <arg name="model_topic" default="/gazebo/model_states"/>
+
+  <arg name="image_raw_topic" default="/top_right_camera/image_raw"/>
   <arg name="rate" default="5"/>
 
 
     <node name="label_dataset" pkg="prometheus_signal_recognition" type="dataset_label.py" output="screen" required="true">
-      <param name="model_topic" value="$(arg model_topic)"/>
+      <param name="image_raw_topic" value="$(arg image_raw_topic)"/>
       <param name="rate" value="$(arg rate)"/>
     </node>
 

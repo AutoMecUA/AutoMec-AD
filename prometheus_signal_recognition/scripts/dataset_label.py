@@ -156,11 +156,11 @@ def main():
     rate = rospy.Rate(rate_hz)
     listener = tf.TransformListener()
 
-    signal_poses = []
-    camera_poses = []
 
     while not rospy.is_shutdown():
         if not config['link_name'] is None and not config['link_pose'] is None:
+            signal_poses = []
+            camera_poses = []
             for i in range(len(config['link_name'])):
                 name = config['link_name'][i].split('::')
 
@@ -176,7 +176,7 @@ def main():
                     camera_pose['signal'] = name[0]
                     camera_pose['pose'] = config['link_pose'][i]
                     camera_poses.append(camera_pose)
-            
+
             # Array of signals
             signal_pose_array = np.array([[pose['pose'].position.x,pose['pose'].position.y,pose['pose'].position.z,pose['pose'].orientation.x,pose['pose'].orientation.y,pose['pose'].orientation.z,pose['pose'].orientation.w] for pose in signal_poses],dtype = np.float64)
             signal_pose_xyz = np.array([[pose['pose'].position.x,pose['pose'].position.y,pose['pose'].position.z] for pose in signal_poses],dtype = np.float64)
@@ -199,14 +199,35 @@ def main():
             
             matrix_footprint2cam = get_matrix_from_TransRot(trans_footprint2cam,rot_footprint2cam)
             matrix_world2footprint = get_matrix_from_PointArray(base_footprint_pose_array[0])
-            
+          
             matrix_world2cam = np.dot(matrix_world2footprint,matrix_footprint2cam)
-    
             matrix_cam2world = np.linalg.inv(matrix_world2cam)   
             rot_matrix_cam2world = matrix_cam2world[0:3,0:3]
             trans_matrix_cam2world = matrix_cam2world[0:3,3]
 
-            points_2d = cv2.projectPoints(signal_pose_xyz, rot_matrix_cam2world, trans_matrix_cam2world, config['camera_matrix'], None,)[0]
+            # # Checking the project points function     
+            # for idx_objects, _ in enumerate(signal_pose_xyz):
+            #     point = np.ones((1,4))
+            #     point[:,0:3] = signal_pose_xyz[idx_objects]
+            #     point = np.transpose(point)
+            #     point = np.dot(matrix_cam2world,point)
+            #     signal_pose_xyz[idx_objects,:]=np.transpose(point[0:3,:]) 
+
+            # focal_length = 530.467
+            # center_x = 320
+            # center_y = 240
+            # x = signal_pose_xyz[12][0]
+            # y = signal_pose_xyz[12][1]
+            # z = signal_pose_xyz[12][2]
+            # projected_x = focal_length * x / z + center_x
+            # projected_y = focal_length * y / z + center_y
+            # points_2d_check = (projected_x, projected_y)
+            # print(points_2d_check)
+
+            # points_2d = cv2.projectPoints(signal_pose_xyz, np.identity(3), np.zeros(3), config['camera_matrix'], None,)[0]
+            # print('signal: ' + signal_name[12] + ' point center:' + str(points_2d[12]))
+
+            points_2d = cv2.projectPoints(signal_pose_xyz, rot_footprint2cam, trans_footprint2cam, config['camera_matrix'], None,)[0]
             print('signal: ' + signal_name[12] + ' point center:' + str(points_2d[12]))
 
             # read opencv key
