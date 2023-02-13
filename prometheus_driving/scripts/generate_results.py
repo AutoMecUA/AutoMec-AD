@@ -20,6 +20,8 @@ from models.cnn_nvidia import Nvidia_Model
 from models.cnn_rota import Rota_Model
 from models.mobilenetv2 import MobileNetV2
 from models.inceptionV3 import InceptionV3
+from models.vgg import MyVGG
+from models.resnet import ResNet
 from src.utils import SaveModel, SaveGraph , LoadModel
 from src.visualization import DataVisualizer, ClassificationVisualizer
 
