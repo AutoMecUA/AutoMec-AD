@@ -3,15 +3,11 @@
 # Imports 
 import argparse
 import os
-from statistics import mean
 import sys
 import pandas as pd
-from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 from colorama import Fore, Style
 import torch
-from torch.nn import MSELoss
-import yaml
 
 #  custom imports
 from src.dataset import Dataset
@@ -22,8 +18,8 @@ from models.mobilenetv2 import MobileNetV2
 from models.inceptionV3 import InceptionV3
 from models.vgg import MyVGG
 from models.resnet import ResNet
-from src.utils import SaveModel, SaveGraph , LoadModel
-from src.visualization import DataVisualizer, ClassificationVisualizer
+from src.utils import LoadModel
+from src.visualization import ClassificationVisualizer
 
 
 # Main code
@@ -84,7 +80,8 @@ def main():
         test_visualizer = ClassificationVisualizer('Test Images')
     # Init results
     results = SaveResults(results_folder, args["folder_name"], args["dataset_name"])
-
+    label_predicted = []
+    label = []
     for batch_idx, (image_t, label_t) in tqdm(enumerate(loader_test), total=len(loader_test), desc=Fore.GREEN + 'Testing batches' +  Style.RESET_ALL):
 
         image_t = image_t.to(device=device, dtype=torch.float)
@@ -94,15 +91,12 @@ def main():
         label_t_predicted = model.forward(image_t)
         # Compute the error based on the predictions
         for idx in range(len(label_t_predicted)):
-            #print(label_t_predicted[idx].data.item() - label_t[idx].data.item())
-            steering_error = abs(label_t_predicted[idx].data.item() - label_t[idx].data.item())
-            results.updateCSV(steering_error, 0)
-            results.step()
-
-
+            label_predicted.append(label_t_predicted[idx].data.item())
+            label.append(label_t[idx].data.item())
         if args['visualize']:
             test_visualizer.draw(image_t, label_t, label_t_predicted)
-
+    
+    results.updateCSV(label_predicted, label , len(label_predicted))
     results.saveCSV()
     results.saveErrorsFig()
 

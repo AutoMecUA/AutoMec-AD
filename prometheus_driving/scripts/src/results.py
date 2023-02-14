@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
+import math
 import os
 import yaml
 import pandas as pd
 import shutil
 import matplotlib.pyplot as plt
+import sklearn
+import numpy as np
 
 from utils import write_transformation
 from colorama import Fore
@@ -45,30 +48,36 @@ class SaveResults():
         with open(f'{self.output_folder}/config.yaml', 'w') as file:
             yaml.dump(config, file)
         
-        self.frame_idx = 0 # make sure to save as 00000
-        self.csv = pd.DataFrame(columns=('frame', 'position_error (m)', 'rotation_error (rads)'))
+        self.csv = pd.DataFrame(columns=('frame', 'steering_difference (rads)', 'steering_SE (rads²)' , 'steering_RSE (rads)'))
         
         print('SaveResults initialized properly')
 
-    def updateCSV(self, steering_error, velocity_error):
-        row = pd.DataFrame({'frame' : f'{self.frame_idx:05d}', 
-                'steering_error (rads)' : steering_error,
-                'velocity_error (m/s)' : velocity_error},index=[0])
-        
-        #self.csv = self.csv.append(row, ignore_index=True)  
-        self.csv = pd.concat([self.csv , row],ignore_index=True)
+    def updateCSV(self, steering_predicted, steering_labeled , num_frames):
+        steering_se = np.square(np.subtract(steering_predicted, steering_labeled))
+        self.steering_mse = sklearn.metrics.mean_squared_error(steering_labeled, steering_predicted, squared=True)
+        self.steering_rmse = math.sqrt(self.steering_mse) 
+        for frame_idx in range(num_frames):
+            steering_error = abs(steering_predicted[frame_idx] - steering_labeled[frame_idx])
+            steering_rse = math.sqrt(steering_se[frame_idx]) 
+            row = pd.DataFrame({'frame' : f'{frame_idx:05d}', 
+                                'steering_difference (rads)' : steering_error,
+                                'steering_SE (rads²)' : steering_se[frame_idx],
+                                'steering_RSE (rads)': steering_rse},index=[0])
+            self.csv = pd.concat([self.csv , row],ignore_index=True)
         
         
     def saveCSV(self):
         # save averages values in the last row
         mean_row = pd.DataFrame({'frame'                 : 'mean_values', 
-                    'steering_error (rads)'    : self.csv.mean(axis=0).loc["steering_error (rads)"],
-                    'velocity_error (m/s)' : self.csv.mean(axis=0).loc["velocity_error (m/s)"]},index=[0])
+                                 'steering_difference (rads)'    : self.csv.mean(axis=0).loc['steering_difference (rads)'],
+                                 'steering_SE (rads²)' : self.steering_mse,
+                                 'steering_RSE (rads)': self.steering_rmse},index=[0])
         
         
         median_row = pd.DataFrame({'frame'                 : 'median_values', 
-                      'steering_error (rads)'    : self.csv.median(axis=0).loc["steering_error (rads)"],
-                      'velocity_error (m/s)' : self.csv.median(axis=0).loc["velocity_error (m/s)"]},index=[0])
+                      'steering_difference (rads)'    : self.csv.median(axis=0).loc['steering_difference (rads)'],
+                      'steering_SE (rads²)' : self.csv.median(axis=0).loc['steering_SE (rads²)'],
+                      'steering_RSE (rads)': self.csv.median(axis=0).loc['steering_RSE (rads)']},index=[0])
         
         #self.csv = self.csv.append(mean_row, ignore_index=True)  
         self.csv = pd.concat([self.csv , mean_row],ignore_index=True) 
@@ -80,21 +89,23 @@ class SaveResults():
     def saveErrorsFig(self):
         frames_array = self.csv.iloc[:-2]['frame'].to_numpy().astype(int)
         
-        pos_error_array = self.csv.iloc[:-2]['steering_error (rads)'].to_numpy()
-        rot_error_array = self.csv.iloc[:-2]['velocity_error (m/s)'].to_numpy()
+        diff_error_array = self.csv.iloc[:-2]['steering_difference (rads)'].to_numpy()
+        se_error_array = self.csv.iloc[:-2]['steering_SE (rads²)'].to_numpy()
+        rse_error_array = self.csv.iloc[:-2]['steering_RSE (rads)'].to_numpy()
+
         
-        fig, (ax1, ax2) = plt.subplots(2, sharex=True)
+        fig, (ax1, ax2, ax3) = plt.subplots(3, sharex=True)
         fig.suptitle('steering and velocity errors')
-        ax1.plot(frames_array, pos_error_array, 'cyan',  label='steering error')
-        ax2.plot(frames_array, rot_error_array, 'navy', label='velocity error')
-        ax2.set_xlabel('frame idx')
-        ax2.set_ylabel('[m/s]')
+        ax1.plot(frames_array, diff_error_array, 'cyan',  label='difference steering error')
+        ax2.plot(frames_array, se_error_array, 'navy', label='SE steering error')
+        ax3.plot(frames_array, rse_error_array, 'navy', label='RSE steering error')
+        ax3.set_xlabel('frame idx')
+        ax3.set_ylabel('[rads]')
+        ax2.set_ylabel('[rads²]')
         ax1.set_ylabel('[rads]')
         ax1.legend()
         ax2.legend()
+        ax3.legend()
         plt.savefig(f'{self.output_folder}/errors.png')
         
-        
-    def step(self):
-        self.frame_idx+=1
         
