@@ -95,7 +95,6 @@ class SaveResults():
 
         
         fig, (ax1, ax2, ax3) = plt.subplots(3, sharex=True)
-        fig.suptitle('steering and velocity errors')
         ax1.plot(frames_array, diff_error_array, '#a2cffe',  label='Difference error')
         ax1.plot(frames_array, np.full((len(frames_array),1),self.csv.mean(axis=0).loc['steering_difference (rads)']), '#0343df', label=f'Mean error')
         ax2.plot(frames_array, se_error_array, '#8e82fe', label='Square error')
