@@ -36,8 +36,6 @@ def main():
                         help='folder name of the dataset')
     parser.add_argument('-fn', '--folder_name', type=str, required=True,
                         help='folder name where the model is stored')
-    parser.add_argument('-mn', '--model_name', type=str, required=True,
-                        help='model name')
     parser.add_argument('-n_epochs', '--max_epoch', default=50, type=int,
                         help='Maximum number of epochs')
     parser.add_argument('-batch_size', '--batch_size', default=256, type=int,
@@ -53,6 +51,8 @@ def main():
     parser.add_argument('-lr_gamma', '--lr_gamma', type=float, default=0.5,
                         help='Decay of the learning rate after step size')
     parser.add_argument('-wd', '--weight_decay', type=float, default=0, help='L2 regularizer')
+    parser.add_argument('-nw', '--num_workers', type=int, default=0, help='How many subprocesses to use for data loading. 0 means that the data will be loaded in the main process.')
+    parser.add_argument('-pff', '--prefetch_factor', type=int, default=2, help='Number of batches loaded in advance by each worker')
     parser.add_argument('-m', '--model', default='Nvidia_Model()', type=str,
                         help='Model to use [Nvidia_Model(), Rota_Model(), MobileNetV2(), InceptionV3(), MyVGG(), ResNet()]')
     parser.add_argument('-loss_f', '--loss_function', type=str, default='MSELoss()',
@@ -77,7 +77,7 @@ def main():
 
     print(f'{Fore.BLUE}The dataset has {len(df)} images{Style.RESET_ALL}')
 
-    model_path = files_path + f'/models/{args["folder_name"]}/{args["model_name"]}.pkl'
+    model_path = files_path + f'/models/{args["folder_name"]}/{args["folder_name"]}.pkl'
     folder_path =files_path + f'/models/{args["folder_name"]}'
     # Checks if the models folder exists if not create
     if not os.path.exists(f'{files_path}/models'):
@@ -85,6 +85,8 @@ def main():
 
     device = f'cuda:{args["cuda"]}' if torch.cuda.is_available() else 'cpu' # cuda: 0 index of gpu
     model = eval(args['model']) # Instantiate model
+    print(f'You are training using the device: ' + Fore.YELLOW + f'{device}' + Style.RESET_ALL)
+
 
     # Define hyper parameters
     learning_rate = args['learning_rate']
@@ -103,7 +105,7 @@ def main():
     # Creates the train dataset
     dataset_train = Dataset(train_dataset,dataset_path)
     # Creates the batch size that suits the amount of memory the graphics can handle
-    loader_train = torch.utils.data.DataLoader(dataset=dataset_train,batch_size=args['batch_size'],shuffle=True)
+    loader_train = torch.utils.data.DataLoader(dataset=dataset_train,batch_size=args['batch_size'],shuffle=True,num_workers=args['num_workers'])
     # Creates the test dataset
     dataset_test = Dataset(test_dataset,dataset_path)
     # Creates the batch size that suits the amount of memory the graphics can handle
@@ -118,25 +120,35 @@ def main():
         loss_visualizer.draw([0,maximum_num_epochs], [termination_loss_threshold, termination_loss_threshold], layer='threshold', marker='--', markersize=1, color=[0.5,0.5,0.5], alpha=1, label='threshold', x_label='Epochs', y_label='Loss')
         test_visualizer = ClassificationVisualizer('Test Images')
     # Resume training
+    ans = ''
     if os.path.exists(folder_path): # Checks to see if the model exists
-        print(Fore.YELLOW + f'Folder already exists! Do you want to resume training?' + Style.RESET_ALL)
-        ans = input("YES/no") # Asks the user if they want to resume training
+        print(Fore.YELLOW + f'Model already exists! Do you want to resume training?' + Style.RESET_ALL)
+        ans = input(Fore.YELLOW + "Y" + Style.RESET_ALL + "ES/" + Fore.YELLOW + "n" + Style.RESET_ALL + "o/"+ Fore.YELLOW + "o" + Style.RESET_ALL + "verwrite: ") # Asks the user if they want to resume training
         if ans.lower() in ['', 'yes','y']: # If the user wants to resume training
-            checkpoint = torch.load(model_path)
-            model.load_state_dict(checkpoint['model_state_dict'])
-            model.to(device) # move the model variable to the gpu if one exists
-            optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-            loader_train = checkpoint['loader_train']
-            loader_test = checkpoint['loader_test']
-            idx_epoch = checkpoint['epoch'] + 1
-            epoch_train_losses = checkpoint['train_losses']
-            stored_train_loss=epoch_train_losses[-1]
-            epoch_test_losses = checkpoint['test_losses']
-        else: # If the user does not want to resume training
+            try:
+                checkpoint = torch.load(model_path)
+            except FileNotFoundError:
+                print(Fore.YELLOW + 'Folder empty' + Style.RESET_ALL)
+                ans = 'o'
+            else:
+                model.load_state_dict(checkpoint['model_state_dict'])
+                model.to(device) # move the model variable to the gpu if one exists
+                optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+                loader_train = checkpoint['loader_train']
+                loader_test = checkpoint['loader_test']
+                idx_epoch = checkpoint['epoch'] + 1
+                epoch_train_losses = checkpoint['train_losses']
+                stored_train_loss=epoch_train_losses[-1]
+                epoch_test_losses = checkpoint['test_losses']
+        if ans.lower() in ['overwrite', 'o']:
+            print(Fore.YELLOW + 'Overwriting.' + Style.RESET_ALL)
+            os.system('rm -rf ' + folder_path)
+        if ans.lower() not in ['', 'yes', 'y', 'overwrite', 'o']: # If the user does not want to resume training
             print(f'{Fore.RED} Terminating training... {Fore.RESET}')
             exit(0)
-    else: # If the model does not exist
-        print(Fore.YELLOW + f'Model Folder not found: {args["folder_name"]}. Starting from sratch.' + Style.RESET_ALL)
+    # If the model does not exist or the user wants to overwrite
+    if not os.path.exists(folder_path) or ans.lower() in ['overwrite', 'o']: # If the model does not exist
+        print(Fore.YELLOW + f'Starting from scratch.' + Style.RESET_ALL)
         os.makedirs(folder_path)
         idx_epoch = 0
         epoch_train_losses = []
@@ -243,7 +255,7 @@ def main():
                 stored_train_loss=epoch_train_loss
                 
             else: 
-                print(Fore.BLUE + 'Not saved, current loos '+ str(epoch_train_loss) + '. Previous model is better, previous loss ' + str(stored_train_loss) + '.' + Style.RESET_ALL)
+                print(Fore.BLUE + 'Not saved, current loss '+ str(epoch_train_loss) + '. Previous model is better, previous loss ' + str(stored_train_loss) + '.' + Style.RESET_ALL)
 
 
         idx_epoch += 1 # go to next epoch
