@@ -27,8 +27,8 @@ def parameter_camera_callback(message, config: dict):
     
     config['camera_matrix'] = message.K
     config['camera_matrix'] = np.reshape(config['camera_matrix'], (3, 3))
-    config['camera_matrix'][0][2] = 320
-    config['camera_matrix'][1][2] = 240
+    # config['camera_matrix'][0][2] = 320
+    # config['camera_matrix'][1][2] = 240
   
 
 # Callback function to receive image
@@ -131,7 +131,6 @@ def main():
         bridge=None
     )
 
-    # print(f'{Fore.RED}Hello world! {Style.RESET_ALL}')
 
     # Init Node
     rospy.init_node('label_data', anonymous=False)
@@ -142,7 +141,7 @@ def main():
   
     # Subscribers
     PosesCallback_part = partial(poses_callback, config=config)
-    rospy.Subscriber('gazebo/link_states', LinkStates, PosesCallback_part)
+    rospy.Subscriber('/gazebo/link_states', LinkStates, PosesCallback_part)
     ParameterCameraCallback_part = partial(parameter_camera_callback, config=config)
     rospy.Subscriber('/top_right_camera/camera_info', CameraInfo, ParameterCameraCallback_part)
     imgRgbCallback_part = partial(imgRgbCallback, config=config)
@@ -158,7 +157,7 @@ def main():
 
 
     while not rospy.is_shutdown():
-        if not config['link_name'] is None and not config['link_pose'] is None:
+        if not config['link_name'] is None and not config['link_pose'] is None and not config['camera_matrix'] is None:
             signal_poses = []
             camera_poses = []
             for i in range(len(config['link_name'])):
@@ -191,49 +190,31 @@ def main():
                 bbox = get_bounding_box(signal_pose_array[i])
                 bboxs.append(bbox)
 
-            
+            # Gather transformation from base_footprint to the camera 
             try:
-                (trans_footprint2cam,rot_footprint2cam) = listener.lookupTransform('base_footprint', 'top_right_camera_rgb_optical_frame',  rospy.Time(0))
+                (trans_footprint2cam,rot_footprint2cam) = listener.lookupTransform('top_right_camera_rgb_optical_frame', 'base_footprint', rospy.Time(0))
             except (tf.LookupException, tf.ConnectivityException):
                 continue
-            
             matrix_footprint2cam = get_matrix_from_TransRot(trans_footprint2cam,rot_footprint2cam)
-            matrix_world2footprint = get_matrix_from_PointArray(base_footprint_pose_array[0])
-          
-            matrix_world2cam = np.dot(matrix_world2footprint,matrix_footprint2cam)
-            matrix_cam2world = np.linalg.inv(matrix_world2cam)   
-            rot_matrix_cam2world = matrix_cam2world[0:3,0:3]
-            trans_matrix_cam2world = matrix_cam2world[0:3,3]
 
-            # # Checking the project points function     
-            # for idx_objects, _ in enumerate(signal_pose_xyz):
-            #     point = np.ones((1,4))
-            #     point[:,0:3] = signal_pose_xyz[idx_objects]
-            #     point = np.transpose(point)
-            #     point = np.dot(matrix_cam2world,point)
-            #     signal_pose_xyz[idx_objects,:]=np.transpose(point[0:3,:]) 
+            # Gather transformation from world to base_footprint
+            matrix_world2footprint = np.linalg.inv(get_matrix_from_PointArray(base_footprint_pose_array[0]))
 
-            # focal_length = 530.467
-            # center_x = 320
-            # center_y = 240
-            # x = signal_pose_xyz[12][0]
-            # y = signal_pose_xyz[12][1]
-            # z = signal_pose_xyz[12][2]
-            # projected_x = focal_length * x / z + center_x
-            # projected_y = focal_length * y / z + center_y
-            # points_2d_check = (projected_x, projected_y)
-            # print(points_2d_check)
+            # Gather transformation from world to the camera
+            matrix_world2cam = np.dot(matrix_footprint2cam, matrix_world2footprint)
+            rot_matrix_cam2world = matrix_world2cam[0:3,0:3]
+            trans_matrix_cam2world = matrix_world2cam[0:3,3]
 
-            # points_2d = cv2.projectPoints(signal_pose_xyz, np.identity(3), np.zeros(3), config['camera_matrix'], None,)[0]
-            # print('signal: ' + signal_name[12] + ' point center:' + str(points_2d[12]))
+            # Gather points in camera 2d coordinate frame
+            points_2d = cv2.projectPoints(signal_pose_xyz, cv2.Rodrigues(rot_matrix_cam2world)[0], trans_matrix_cam2world, config['camera_matrix'], None)[0].astype(np.int32)
 
-            points_2d = cv2.projectPoints(signal_pose_xyz, rot_footprint2cam, trans_footprint2cam, config['camera_matrix'], None,)[0]
-            print('signal: ' + signal_name[12] + ' point center:' + str(points_2d[12]))
+            # Display first signal with marking
+            image_with_point = cv2.circle(config['img_rgb'], tuple(points_2d[12][0]), 4, (0, 255, 255), 2)
 
             # read opencv key
             win_name = 'Robot View'
             cv2.namedWindow(winname=win_name,flags=cv2.WINDOW_NORMAL)
-            image = cv2.cvtColor(config['img_rgb'], cv2.COLOR_BGR2RGB)
+            image = cv2.cvtColor(image_with_point, cv2.COLOR_BGR2RGB)
 
             cv2.imshow(win_name, image)
             key = cv2.waitKey(1)     
