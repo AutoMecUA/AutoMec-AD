@@ -23,7 +23,7 @@
         </link>
 
         <joint name="${name}_optical_joint" type="fixed">
-            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <origin xyz="0 0 0" rpy="-1.5708 0 -1.5708"/>
             <parent link="${name}_link"/>
             <child link="${name}_optical_frame"/>
         </joint>
@@ -54,7 +54,7 @@
         </link>
         
         <joint name="${name}_rgb_optical_joint" type="fixed">
-            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <origin xyz="0 0 0" rpy="-1.5708 0 -1.5708"/>
             <parent link="${name}_link"/>
             <child link="${name}_rgb_optical_frame"/>
         </joint>

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <robot name="prometheus_gazebo" xmlns:xacro="http://ros.org/wiki/xacro">
 
-    <gazebo reference="top_front_camera_optical_frame">
+    <gazebo reference="top_front_camera_link">
         <sensor name="kinect" type="depth">
             <!-- openni plugin has the x pointing towards the scene, so rotate to have z -->
             <pose frame="world">0.0 0.0 0.0 -1.5708 0.0 1.5708</pose>
@@ -34,7 +34,7 @@
                 <depthImageTopicName>/top_front_camera/depth_registered/image</depthImageTopicName>
                 <depthImageInfoTopicName>/top_front_camera/depth_registered/camera_info</depthImageInfoTopicName>
                 <pointCloudTopicName>/top_front_camera/depth_registered/points</pointCloudTopicName>
-                <frameName>top_front_camera_optical_frame</frameName>
+                <frameName>top_front_camera_link</frameName>
                 <pointCloudCutoff>0.5</pointCloudCutoff>
                 <pointCloudCutoffMax>2.0</pointCloudCutoffMax>
             </plugin>
@@ -43,7 +43,7 @@
         </sensor>
     </gazebo>
 
-    <gazebo reference="bottom_front_camera_optical_frame">
+    <gazebo reference="bottom_front_camera_link">
         <sensor name="kinect" type="depth">
             <!-- openni plugin has the x pointing towards the scene, so rotate to have z -->
             <pose frame="world">0.0 0.0 0.0 -1.5708 0.0 1.5708</pose>
@@ -76,7 +76,7 @@
                 <depthImageTopicName>/bottom_front_camera/depth_registered/image</depthImageTopicName>
                 <depthImageInfoTopicName>/bottom_front_camera/depth_registered/camera_info</depthImageInfoTopicName>
                 <pointCloudTopicName>/bottom_front_camera/depth_registered/points</pointCloudTopicName>
-                <frameName>bottom_front_camera_optical_frame</frameName>
+                <frameName>bottom_front_camera_link</frameName>
                 <pointCloudCutoff>0.5</pointCloudCutoff>
                 <pointCloudCutoffMax>2.0</pointCloudCutoffMax>
             </plugin>
@@ -85,7 +85,7 @@
         </sensor>
     </gazebo>
 
-    <gazebo reference="top_left_camera_rgb_optical_frame">
+    <gazebo reference="top_left_camera_link">
         <sensor type="camera" name="Usb Camera">
         <always_on>true</always_on>
         <visualize>false</visualize>
@@ -105,7 +105,7 @@
             <alwaysOn>true</alwaysOn>
             <updateRate>30.0</updateRate>
             <cameraName>top_left_camera</cameraName>
-            <frameName>top_left_camera_rgb_optical_frame</frameName>
+            <frameName>top_left_camera_link</frameName>
             <imageTopicName>image_raw</imageTopicName>
             <cameraInfoTopicName>camera_info</cameraInfoTopicName>
             <hackBaseline>0.07</hackBaseline>
@@ -118,7 +118,15 @@
         </sensor>
     </gazebo>
 
-    <gazebo reference="top_right_camera_rgb_optical_frame">
+
+    Pull requests
+    Issues
+    Codespaces
+    Marketplace
+    Explore
+    @manuelgitgomes
+    Top Repositories
+        <gazebo reference="top_right_camera_link">
         <sensor type="camera" name="Usb Camera">
         <always_on>true</always_on>
         <visualize>false</visualize>
@@ -138,7 +146,7 @@
             <alwaysOn>true</alwaysOn>
             <updateRate>30.0</updateRate>
             <cameraName>top_right_camera</cameraName>
-            <frameName>top_right_camera_rgb_optical_frame</frameName>
+            <frameName>top_right_camera_link</frameName>
             <imageTopicName>image_raw</imageTopicName>
             <cameraInfoTopicName>camera_info</cameraInfoTopicName>
             <hackBaseline>0.07</hackBaseline>
