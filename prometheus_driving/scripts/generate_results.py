@@ -38,6 +38,10 @@ def main():
                         help='folder name where the model is stored')
     parser.add_argument('-batch_size', '--batch_size', default=256, type=int,
                         help='Batch size')
+    parser.add_argument('-nw', '--num_workers', type=int, default=0, 
+                        help='How many subprocesses to use for data loading. 0 means that the data will be loaded in the main process.')
+    parser.add_argument('-pff', '--prefetch_factor', type=int, default=2, 
+                        help='Number of batches loaded in advance by each worker')
     parser.add_argument('-m', '--model', default='Nvidia_Model()', type=str,
                         help='Model to use [Nvidia_Model(), Rota_Model(), MobileNetV2(), InceptionV3(), MyVGG(), ResNet()]')
     parser.add_argument('-c', '--cuda', default=0, type=int,
@@ -71,7 +75,7 @@ def main():
     model.eval()
 
     dataset_test = Dataset(df,dataset_path,augmentation=False)
-    loader_test = torch.utils.data.DataLoader(dataset=dataset_test, batch_size=args['batch_size'], shuffle=True)
+    loader_test = torch.utils.data.DataLoader(dataset=dataset_test, batch_size=args['batch_size'], shuffle=True , num_workers=args['num_workers'] , prefetch_factor=args['prefetch_factor'])
 
     # Init visualization of loss
     if args['visualize']: # Checks if the user wants to visualize the loss
