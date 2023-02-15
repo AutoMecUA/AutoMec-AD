@@ -36,8 +36,6 @@ def main():
                         help='folder name of the results')
     parser.add_argument('-fn', '--folder_name', type=str, required=True,
                         help='folder name where the model is stored')
-    parser.add_argument('-mn', '--model_name', type=str, required=True,
-                        help='model name')
     parser.add_argument('-batch_size', '--batch_size', default=256, type=int,
                         help='Batch size')
     parser.add_argument('-m', '--model', default='Nvidia_Model()', type=str,
@@ -67,7 +65,7 @@ def main():
 
     device = f'cuda:{args["cuda"]}' if torch.cuda.is_available() else 'cpu' # cuda: 0 index of gpu
 
-    model_path = f'{files_path}/models/{args["folder_name"]}/{args["model_name"]}.pkl'
+    model_path = f'{files_path}/models/{args["folder_name"]}/{args["folder_name"]}.pkl'
     model = eval(args['model']) # Instantiate model
     model= LoadModel(model_path,model,device)
     model.eval()
