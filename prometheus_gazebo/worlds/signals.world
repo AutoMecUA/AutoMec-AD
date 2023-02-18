@@ -3607,7 +3607,7 @@
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
-      </model>
+      </model>   
       <light name='sun'>
         <pose>0 0 10 0 -0 0</pose>
       </light>
