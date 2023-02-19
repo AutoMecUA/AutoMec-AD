@@ -19,6 +19,10 @@ import os
 
 from models.cnn_nvidia import Nvidia_Model
 from models.cnn_rota import Rota_Model
+from models.mobilenetv2 import MobileNetV2
+from models.inceptionV3 import InceptionV3
+from models.vgg import MyVGG
+from models.resnet import ResNet
 from src.utils import LoadModel
 
 
@@ -68,16 +72,16 @@ def main():
     # Defining path to model
     s = str(pathlib.Path(__file__).parent.absolute())
     automec_path = os.environ.get('AUTOMEC_DATASETS')
-    path = f'{automec_path}/models/{model_name}.pkl'
+    path = f'{automec_path}/models/{model_name}/{model_name}.pkl'
 
     # Retrieving info from yaml
-    with open(f'{automec_path}/models/{model_name}.yaml') as file:
+    with open(f'{automec_path}/models/{model_name}/{model_name}.yaml') as file:
         info_loaded = yaml.load(file, Loader=yaml.FullLoader)
         linear_velocity = info_loaded['dataset']['linear_velocity'] 
     
     rospy.loginfo('Using model: %s', path)
     device = f'cuda:0' if torch.cuda.is_available() else 'cpu' # cuda: 0 index of gpu
-    model = Rota_Model()
+    model = Nvidia_Model()
     model= LoadModel(path,model,device)
     model.eval()
 
