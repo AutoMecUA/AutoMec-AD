@@ -8,15 +8,15 @@ import cv2
 import numpy as np
 import rospy
 import yaml
-from geometry_msgs.msg._Twist import Twist
 from sensor_msgs.msg._Image import Image
-from std_msgs.msg import String
+from std_msgs.msg import String, Float32
 from cv_bridge.core import CvBridge
 import torch
 from torchvision import transforms
 import pathlib
 import os
 
+# Custom imports
 from models.cnn_nvidia import Nvidia_Model
 from models.cnn_rota import Rota_Model
 from models.mobilenetv2 import MobileNetV2
@@ -24,6 +24,8 @@ from models.inceptionV3 import InceptionV3
 from models.vgg import MyVGG
 from models.resnet import ResNet
 from src.utils import LoadModel
+
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # or any {'0', '1', '2'}
 
 
 def preProcess(img):
@@ -37,38 +39,30 @@ def preProcess(img):
     return img
 
 
-def message_RGB_ReceivedCallback(message, config):
+
+def imgRgbCallback(message, config):
 
     config['img_rgb'] = config['bridge'].imgmsg_to_cv2(message, "passthrough")
 
     config["begin_img"] = True
 
 
-def signalCallback(message, config):
-    config['signal'] = message.data
-
-
 def main():
-    config: dict[str, Any] = dict(vel=None, signal=None, img_rgb=None,
-                                  bridge=None, begin_img=None, twist_linear_x=None)
-
+    config: dict[str, Any] = dict(vel=None, img_rgb=None,
+                                  bridge=None, begin_img=None)
     # Defining starting values
     config["begin_img"] = False
     config["vel"] = 0
     config["bridge"] = CvBridge()
-    twist = Twist()
 
     # Init Node
     rospy.init_node('ml_driving', anonymous=False)
 
     # Getting parameters
     image_raw_topic = rospy.get_param('~image_raw_topic', '/top_front_camera/rgb/image_raw')
-    twist_cmd_topic = rospy.get_param('~twist_cmd_topic', '')
-    signal_cmd_topic = rospy.get_param('~signal_cmd_topic', '')
-    model_name = rospy.get_param('~model_name', '')
+    model_steering_topic = rospy.get_param('~model_steering_topic', '/model_steering')
+    model_name = rospy.get_param('/model_name', '')
 
-    if model_name == "":
-        model_name = input('Please define the name of the model to be used: ')
     # Defining path to model
     s = str(pathlib.Path(__file__).parent.absolute())
     automec_path = os.environ.get('AUTOMEC_DATASETS')
@@ -77,8 +71,7 @@ def main():
     # Retrieving info from yaml
     with open(f'{automec_path}/models/{model_name}/{model_name}.yaml') as file:
         info_loaded = yaml.load(file, Loader=yaml.FullLoader)
-        linear_velocity = info_loaded['dataset']['linear_velocity'] 
-    
+
     rospy.loginfo('Using model: %s', path)
     device = f'cuda:0' if torch.cuda.is_available() else 'cpu' # cuda: 0 index of gpu
     model = Nvidia_Model()
@@ -90,13 +83,11 @@ def main():
                     ])
 
     # Partials
-    message_RGB_ReceivedCallback_part = partial(message_RGB_ReceivedCallback, config=config)
-    signalCallback_part = partial(signalCallback, config=config)
+    imgRgbCallback_part = partial(imgRgbCallback, config=config)
 
     # Subscribe and publish topics
-    rospy.Subscriber(image_raw_topic, Image, message_RGB_ReceivedCallback_part)
-    rospy.Subscriber(signal_cmd_topic, String, signalCallback_part)
-    twist_pub = rospy.Publisher(twist_cmd_topic, Twist, queue_size=10)
+    rospy.Subscriber(image_raw_topic, Image, imgRgbCallback_part)
+    model_steering_pub = rospy.Publisher(model_steering_topic, Float32, queue_size=10)
 
     # Frames per second
     rate = rospy.Rate(30)
@@ -107,10 +98,6 @@ def main():
             continue
 
         resized_img = preProcess(config["img_rgb"])
-
-        cv2.imshow('Robot View Processed', resized_img)
-        cv2.imshow('Robot View', config["img_rgb"])
-        key = cv2.waitKey(1)
 
         # Predict angle
         image = np.array([resized_img])

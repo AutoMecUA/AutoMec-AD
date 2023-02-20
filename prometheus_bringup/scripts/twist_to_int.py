@@ -39,7 +39,7 @@ def main():
     twist_cmd_topic = rospy.get_param('~twist_cmd_topic', '/ackermann_steering_controller/cmd_vel') 
     int_dir_topic = rospy.get_param('~int_dir_topic', '/pub_dir')
     int_vel_topic = rospy.get_param('~int_vel_topic', '/pub_vel')
-    int_vel_max = rospy.get_param('~int_vel_max', 108)
+    int_vel_max = rospy.get_param('~int_vel_max', 70)
 
     # Define initial variables
     kwargs: dict[str, object] = dict(

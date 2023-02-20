@@ -27,9 +27,9 @@
 
     <!-- Add sensors-->
     <xacro:kinect name="top_front_camera" x= "-0.22" y="0" z="0.6" roll="0" pitch="0.4" yaw="0"/>
-    <xacro:kinect name="bottom_front_camera" x="0.25" y="0" z="0.2" roll="0" pitch="0" yaw="0"/>
+    <xacro:kinect name="bottom_front_camera" x="0.25" y="0" z="0.115" roll="3.141509" pitch="0" yaw="0"/>
     <xacro:usb_cam name="top_left_camera" x="-0.28" y="0.025" z="0.7" roll="0" pitch="-0.3" yaw="0"/>
-    <xacro:usb_cam name="top_right_camera" x="-0.28" y="-0.025" z="0.7" roll="0" pitch="-0.3" yaw="-1.5708"/>
+    <xacro:usb_cam name="top_right_camera" x="-0.28" y="-0.025" z="0.7" roll="0" pitch="-0.3" yaw="-0.7854"/>
 
     <!-- Add gazebo functionalities-->
     <xacro:include filename="$(find prometheus_description)/urdf/prometheus.gazebo.macro.xacro"/>

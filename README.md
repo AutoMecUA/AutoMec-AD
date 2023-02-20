@@ -81,3 +81,9 @@ If you want to run the model without using the signal detection, please launch t
 ```
 rostopic pub /signal_detected std_msgs/String "pForward"
 ```
+
+If you want to run the complete driving experience, please use:
+
+```
+roslaunch prometheus_bringup main_driving.launch model_name:=*insert model name*
+```

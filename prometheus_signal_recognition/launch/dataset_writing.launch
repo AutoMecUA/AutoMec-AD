@@ -1,0 +1,12 @@
+<launch>
+
+  <arg name="image_raw_topic" default="/top_right_camera/image_raw"/>
+  <arg name="rate" default="5"/>
+
+
+    <node name="write_dataset" pkg="prometheus_signal_recognition" type="dataset_writing.py" output="screen" required="true">
+      <param name="image_raw_topic" value="$(arg image_raw_topic)"/>
+      <param name="rate" value="$(arg rate)"/>
+    </node>
+
+</launch>

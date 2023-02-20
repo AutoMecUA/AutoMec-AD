@@ -13,28 +13,34 @@
  */
 
 
-#if defined(ARDUINO) && ARDUINO >= 100
-  #include "Arduino.h"
-#else
-  #include <WProgram.h>
-#endif
-
-#include <Servo.h> 
+#include <Wire.h>
+#include <Adafruit_PWMServoDriver.h>
 #include <ros.h>
 #include <std_msgs/Int16.h>
 
 ros::NodeHandle  nh;
 
-Servo servo;
-Servo ESC;
+
+#define ESCMIN  1000 // This is the 'minimum' pulse length count (out of 4096)
+#define ESCMAX  1960 // This is the 'maximum' pulse length count (out of 4096)
+#define SERVOMIN  500 // This is the 'minimum' pulse length count (out of 4096)
+#define SERVOMAX  2500 // This is the 'maximum' pulse length count (out of 4096)
+#define SERVO_FREQ 50 // Analog servos run at ~50 Hz updates
+#define servo 1
+#define ESC 0
+
+Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
+
 
 void servo_dir( const std_msgs::Int16 & cmd_msg){
-  servo.write(cmd_msg.data); //set servo angle, should be from 0-180  
+  int servoms = map(cmd_msg.data, 0, 180, SERVOMIN, SERVOMAX);   // scale it to use it with the servo library (value between 0 and 180)
+  pwm.writeMicroseconds(servo, servoms);
   //digitalWrite(LED_BUILTIN, HIGH-digitalRead(LED_BUILTIN));  //toggle led  
 }
 
 void servo_vel( const std_msgs::Int16 & cmd_msg){
-  ESC.write(cmd_msg.data); //set servo angle, should be from 0-180  
+  int escms = map(cmd_msg.data, 0, 180, ESCMIN, ESCMAX);   // scale it to use it with the servo library (value between 0 and 180)
+  pwm.writeMicroseconds(ESC, escms);  
   //digitalWrite(LED_BUILTIN, HIGH-digitalRead(LED_BUILTIN));  //toggle led  
 }
 
@@ -42,22 +48,25 @@ void servo_vel( const std_msgs::Int16 & cmd_msg){
 ros::Subscriber<std_msgs::Int16> sub_dir("pub_dir", servo_dir);
 ros::Subscriber<std_msgs::Int16> sub_vel("pub_vel", servo_vel);
 
-void setup(){
-  //pinMode(LED_BUILTIN, OUTPUT);
-
+int potValue=90;  // value from the analog pin
+void setup() {
   nh.initNode();
   nh.subscribe(sub_dir);
   nh.subscribe(sub_vel);
   
-  servo.attach(9); //attach it to pin 9
-  ESC.attach(6);
-  ESC.write(90);
+  pwm.begin();
+  pwm.setOscillatorFrequency(26315700);
+  pwm.setPWMFreq(50);  // Analog servos run at ~50 Hz updates
+  int escms = map(90, 0, 180, ESCMIN, ESCMAX);   // scale it to use it with the servo library (value between 0 and 180)
+  pwm.writeMicroseconds(ESC, escms);
+  int servoms = map(90, 0, 180, SERVOMIN, SERVOMAX);   // scale it to use it with the servo library (value between 0 and 180)
+  pwm.writeMicroseconds(servo, servoms);
   delay(2000);
 }
 
-void loop(){
+void loop() {
   nh.spinOnce();
   delay(1);
-} 
+}
 
 
