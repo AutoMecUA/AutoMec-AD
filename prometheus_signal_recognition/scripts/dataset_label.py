@@ -332,7 +332,7 @@ def main():
                     sign_rith_side = True
 
                 
-                if min_x > 0 and max_x < image_ori.shape[1] and min_y > 0 and max_y < image_ori.shape[0] and dist < 2:
+                if min_x > 0 and max_x < image_ori.shape[1] and min_y > 0 and max_y < image_ori.shape[0] and dist < 7:
                     r,g,b = image_ori[points_2d[i][0][1], points_2d[i][0][0]]
                     #print(r,g,b)
                     if r == g == b == 178: 
