@@ -21,6 +21,7 @@ from models.mobilenetv2 import MobileNetV2
 from models.inceptionV3 import InceptionV3
 from models.vgg import MyVGG
 from models.resnet import ResNet
+from models.lstm import LSTM
 from src.utils import SaveModel, SaveGraph
 from src.visualization import DataVisualizer, ClassificationVisualizer
 
@@ -158,18 +159,22 @@ def main():
         epoch_test_losses = []
         stored_train_loss=1e2
         model.to(device) # move the model variable to the gpu if one exists
-
     # Training loop for each epoch
     while True:
         # Train batch by batch
         train_losses = []
+        hs = None
         for batch_idx, (image_t, label_t) in tqdm(enumerate(loader_train), total=len(loader_train), desc=Fore.GREEN + 'Training batches for Epoch ' + str(idx_epoch) +  Style.RESET_ALL):
             # Move the data to the GPU if one exists
             image_t = image_t.to(device=device, dtype=torch.float)
             label_t = label_t.to(device=device, dtype=torch.float).unsqueeze(1)
 
             # Apply the network to get the predicted ys
-            label_t_predicted = model.forward(image_t)
+            if args['model'] == 'LSTM())':
+                label_t_predicted , hs = model.forward(image_t , hs)
+                hs = tuple([h.data for h in hs])
+            else:
+                label_t_predicted = model.forward(image_t)
  
             # Compute the error based on the predictions
             loss = loss_function(label_t_predicted, label_t)
@@ -193,7 +198,7 @@ def main():
             label_t = label_t.to(device=device, dtype=torch.float).unsqueeze(1)
 
             # Apply the network to get the predicted ys
-            label_t_predicted = model.forward(image_t)
+            label_t_predicted , _ = model.forward(image_t , hs)
             # Compute the error based on the predictions
             loss = loss_function(label_t_predicted, label_t)
             # Store the loss for the batch
