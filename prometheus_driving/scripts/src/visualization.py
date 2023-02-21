@@ -53,7 +53,7 @@ class ClassificationVisualizer():
             ax.yaxis.set_ticklabels([])
             ax.xaxis.set_ticks([])
             ax.yaxis.set_ticks([])
-            ax.set_xlabel(f'{round(outputs[image_idx].data.item(),5)*180/pi} , {round(labels[image_idx].data.item(),5)*180/pi}', color=color)
+            ax.set_xlabel(f'{round(outputs[image_idx].data.item(),5)*180/pi}º , {round(labels[image_idx].data.item(),5)*180/pi}º', color=color)
 
         plt.draw()
         key = plt.waitforbuttonpress(0.05)
