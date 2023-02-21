@@ -2,6 +2,7 @@
 
 # Imports
 from functools import partial
+import os
 from typing import Any
 
 import numpy as np
@@ -96,10 +97,9 @@ def main():
     cv2.namedWindow(winname=win_name,flags=cv2.WINDOW_NORMAL)
 
     # Retrieving info from yaml
-    rospack = rospkg.RosPack()
-    path = rospack.get_path('prometheus_driving')
+    automec_path = os.environ.get('AUTOMEC_DATASETS')
 
-    with open(f'{path}/models/{model_name}.yaml') as file:
+    with open(f'{automec_path}/models/{model_name}/{model_name}.yaml') as file:
         info_loaded = yaml.load(file, Loader=yaml.FullLoader)
         linear_velocity = info_loaded['dataset']['linear_velocity'] 
     
@@ -123,7 +123,6 @@ def main():
 
         if config["begin_img"] is False:
             continue
-
 
         crosswalk_sureness_percentage = round(config['crosswalk']*100,2)
         cv2PutText(config['img_rgb'], f'Crosswalk detection: {crosswalk_sureness_percentage}%')
@@ -173,7 +172,7 @@ def main():
                 info_loaded['model']['driving_model_eval'] = info_loaded['model']['driving_model_eval'] + '; ' + model_eval
             
             # Saving yaml
-            with open(f'{path}/models/{model_name}.yaml', 'w') as outfile:
+            with open(f'{automec_path}/models/{model_name}/{model_name}.yaml', 'w') as outfile:
                 yaml.dump(info_loaded, outfile, default_flow_style=False)
             
             exit(0)

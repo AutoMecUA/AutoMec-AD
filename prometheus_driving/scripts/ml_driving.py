@@ -74,7 +74,7 @@ def main():
 
     rospy.loginfo('Using model: %s', path)
     device = f'cuda:0' if torch.cuda.is_available() else 'cpu' # cuda: 0 index of gpu
-    model = Nvidia_Model()
+    model = eval(info_loaded['model']['ml_arch']['name'])
     model= LoadModel(path,model,device)
     model.eval()
 
@@ -92,6 +92,7 @@ def main():
     # Frames per second
     rate = rospy.Rate(30)
 
+
     while not rospy.is_shutdown():
 
         if config["begin_img"] is False:
@@ -106,59 +107,8 @@ def main():
         image = image.unsqueeze(0)
         image = image.to(device, dtype=torch.float)
         steering = float(model.forward(image))
-        angle = steering
-        
-        # Depending on the message from the callback, choose what to do
-        if config['signal'] == 'pForward':
-            print('Detected pForward, moving forward')
-            config["vel"] = linear_velocity
-        elif config['signal'] == 'pStop':
-            config["vel"] = 0
-            print('Detected pStop, stopping')
-        elif config['signal'] == 'pChess':
-            config["vel"] = 0
-            print('Detected chessboard, stopping the program')
-            exit(0)
-        else:
-            config["vel"] = 0
-
-        # Send twist
-        twist.linear.x = config["vel"]
-        twist.linear.y = 0
-        twist.linear.z = 0
-        twist.angular.x = 0
-        twist.angular.y = 0
-        twist.angular.z = angle
-
-        # Stop the script
-        if key == ord('q'):
-            twist.linear.x = 0
-            twist.angular.z = 0
-            twist_pub.publish(twist)
-            print('Stopping the autonomous driving')
-
-            # Recording comments
-            comments = input("[info.yaml] Additional comments about the model: ")
-            if 'driving_comments' not in info_loaded['model'].keys():
-                info_loaded['model']['driving_comments'] = comments
-            else:
-                info_loaded['model']['driving_comments'] = info_loaded['model']['driving_comments'] + '; ' + comments
-            
-            # Recording comments
-            model_eval = input("[info.yaml] Evaluate the model on a scale from 0 (bad) to 10 (good): ") + '/10'
-            if 'driving_model_eval' not in info_loaded['model'].keys():
-                info_loaded['model']['driving_model_eval'] = model_eval
-            else:
-                info_loaded['model']['driving_model_eval'] = info_loaded['model']['driving_model_eval'] + '; ' + model_eval
-            
-            # Saving yaml
-            with open(f'{s}/../models/{model_name}.yaml', 'w') as outfile:
-                yaml.dump(info_loaded, outfile, default_flow_style=False)
-            exit(0)
-
-        # To avoid any errors
-        twist_pub.publish(twist)
-
+        # Publish angle
+        model_steering_pub.publish(steering)
         rate.sleep()
 
 
