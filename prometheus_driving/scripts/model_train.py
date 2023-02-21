@@ -103,17 +103,21 @@ def main():
     ########################################
     # Dataset                              #
     ########################################
+    if args['model'] == 'LSTM()':
+        shuffle = False
+    else:
+        shuffle = True
     # Sample ony a few images for development
     #df = df[0:700]
     train_dataset,test_dataset = train_test_split(df,test_size=0.2)
     # Creates the train dataset
     dataset_train = Dataset(train_dataset,dataset_path)
     # Creates the batch size that suits the amount of memory the graphics can handle
-    loader_train = torch.utils.data.DataLoader(dataset=dataset_train,batch_size=args['batch_size'],shuffle=True , num_workers=args['num_workers'] , prefetch_factor=args['prefetch_factor'])
+    loader_train = torch.utils.data.DataLoader(dataset=dataset_train,batch_size=args['batch_size'],shuffle=shuffle , num_workers=args['num_workers'] , prefetch_factor=args['prefetch_factor'])
     # Creates the test dataset
     dataset_test = Dataset(test_dataset , dataset_path , augmentation=False)
     # Creates the batch size that suits the amount of memory the graphics can handle
-    loader_test = torch.utils.data.DataLoader(dataset=dataset_test, batch_size=args['batch_size'], shuffle=True , num_workers=args['num_workers'] , prefetch_factor=args['prefetch_factor'])
+    loader_test = torch.utils.data.DataLoader(dataset=dataset_test, batch_size=args['batch_size'], shuffle=shuffle , num_workers=args['num_workers'] , prefetch_factor=args['prefetch_factor'])
 
     ########################################
     # Training                             #
@@ -170,7 +174,7 @@ def main():
             label_t = label_t.to(device=device, dtype=torch.float).unsqueeze(1)
 
             # Apply the network to get the predicted ys
-            if args['model'] == 'LSTM())':
+            if args['model'] == 'LSTM()':
                 label_t_predicted , hs = model.forward(image_t , hs)
                 hs = tuple([h.data for h in hs])
             else:
@@ -192,13 +196,18 @@ def main():
 
         # Run test in batches 
         test_losses = []
+        hs = None
         for batch_idx, (image_t, label_t) in tqdm(enumerate(loader_test), total=len(loader_test), desc=Fore.GREEN + 'Testing batches for Epoch ' + str(idx_epoch) +  Style.RESET_ALL):
             # Move the data to the gpu if one exists
             image_t = image_t.to(device=device, dtype=torch.float)
             label_t = label_t.to(device=device, dtype=torch.float).unsqueeze(1)
 
             # Apply the network to get the predicted ys
-            label_t_predicted , _ = model.forward(image_t , hs)
+            if args['model'] == 'LSTM()':
+                label_t_predicted , hs = model.forward(image_t , hs)
+                hs = tuple([h.data for h in hs])
+            else:
+                label_t_predicted = model.forward(image_t)
             # Compute the error based on the predictions
             loss = loss_function(label_t_predicted, label_t)
             # Store the loss for the batch

@@ -23,6 +23,7 @@ from models.mobilenetv2 import MobileNetV2
 from models.inceptionV3 import InceptionV3
 from models.vgg import MyVGG
 from models.resnet import ResNet
+from models.lstm import LSTM
 from src.utils import LoadModel
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # or any {'0', '1', '2'}
@@ -92,7 +93,7 @@ def main():
     # Frames per second
     rate = rospy.Rate(30)
 
-
+    hs=None
     while not rospy.is_shutdown():
 
         if config["begin_img"] is False:
@@ -106,7 +107,13 @@ def main():
         image = PIL_to_Tensor(image)
         image = image.unsqueeze(0)
         image = image.to(device, dtype=torch.float)
-        steering = float(model.forward(image))
+        if info_loaded['model']['ml_arch']['name'] == 'LSTM()':
+            label_t_predicted , hs = model.forward(image , hs)
+            hs = tuple([h.data for h in hs])
+            steering = float(label_t_predicted)
+        else:
+            label_t_predicted = model.forward(image)
+            steering = float(label_t_predicted)
         # Publish angle
         model_steering_pub.publish(steering)
         rate.sleep()
