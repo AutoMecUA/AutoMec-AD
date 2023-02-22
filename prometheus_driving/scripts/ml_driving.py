@@ -93,7 +93,6 @@ def main():
     # Frames per second
     rate = rospy.Rate(30)
 
-    hs=None
     while not rospy.is_shutdown():
 
         if config["begin_img"] is False:
@@ -107,13 +106,8 @@ def main():
         image = PIL_to_Tensor(image)
         image = image.unsqueeze(0)
         image = image.to(device, dtype=torch.float)
-        if info_loaded['model']['ml_arch']['name'] == 'LSTM()':
-            label_t_predicted , hs = model.forward(image , hs)
-            hs = tuple([h.data for h in hs])
-            steering = float(label_t_predicted)
-        else:
-            label_t_predicted = model.forward(image)
-            steering = float(label_t_predicted)
+        label_t_predicted = model.forward(image)
+        steering = float(label_t_predicted)
         # Publish angle
         model_steering_pub.publish(steering)
         rate.sleep()

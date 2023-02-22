@@ -52,7 +52,7 @@ def main():
     parser.add_argument('-lr_gamma', '--lr_gamma', type=float, default=0.5,
                         help='Decay of the learning rate after step size')
     parser.add_argument('-wd', '--weight_decay', type=float, default=0, help='L2 regularizer')
-    parser.add_argument('-nw', '--num_workers', type=int, default=0, 
+    parser.add_argument('-nw', '--num_workers', type=int, default=4, 
                         help='How many subprocesses to use for data loading. 0 means that the data will be loaded in the main process.')
     parser.add_argument('-pff', '--prefetch_factor', type=int, default=2, 
                         help='Number of batches loaded in advance by each worker')
@@ -167,18 +167,13 @@ def main():
     while True:
         # Train batch by batch
         train_losses = []
-        hs = None
         for batch_idx, (image_t, label_t) in tqdm(enumerate(loader_train), total=len(loader_train), desc=Fore.GREEN + 'Training batches for Epoch ' + str(idx_epoch) +  Style.RESET_ALL):
             # Move the data to the GPU if one exists
             image_t = image_t.to(device=device, dtype=torch.float)
             label_t = label_t.to(device=device, dtype=torch.float).unsqueeze(1)
 
             # Apply the network to get the predicted ys
-            if args['model'] == 'LSTM()':
-                label_t_predicted , hs = model.forward(image_t , hs)
-                hs = tuple([h.data for h in hs])
-            else:
-                label_t_predicted = model.forward(image_t)
+            label_t_predicted = model.forward(image_t)
  
             # Compute the error based on the predictions
             loss = loss_function(label_t_predicted, label_t)
@@ -196,18 +191,13 @@ def main():
 
         # Run test in batches 
         test_losses = []
-        hs = None
         for batch_idx, (image_t, label_t) in tqdm(enumerate(loader_test), total=len(loader_test), desc=Fore.GREEN + 'Testing batches for Epoch ' + str(idx_epoch) +  Style.RESET_ALL):
             # Move the data to the gpu if one exists
             image_t = image_t.to(device=device, dtype=torch.float)
             label_t = label_t.to(device=device, dtype=torch.float).unsqueeze(1)
 
             # Apply the network to get the predicted ys
-            if args['model'] == 'LSTM()':
-                label_t_predicted , hs = model.forward(image_t , hs)
-                hs = tuple([h.data for h in hs])
-            else:
-                label_t_predicted = model.forward(image_t)
+            label_t_predicted = model.forward(image_t)
             # Compute the error based on the predictions
             loss = loss_function(label_t_predicted, label_t)
             # Store the loss for the batch
