@@ -7,7 +7,7 @@ class ResNetV1(nn.Module):
     def __init__(self):
         super(ResNetV1, self).__init__()
 
-        feature_extractor = models.resnet50(wheights=models.ResNet50_Weights.DEFAULT)
+        feature_extractor = models.resnet50(weights=models.ResNet50_Weights.DEFAULT)
         d = OrderedDict(feature_extractor.named_children())
         _, fc = d.popitem(last=True)
         fe_out_planes = fc.in_features  # this is the input dimention of the fc layer
