@@ -242,7 +242,7 @@ def main():
             print(Fore.CYAN + 'Finished training. Reached maximum number of epochs. Comparing to previously stored model' + Style.RESET_ALL)
             if epoch_train_loss < stored_train_loss:
                 print(Fore.BLUE + 'Saving model at Epoch ' + str(idx_epoch) + ' Loss ' + str(epoch_train_loss) + Style.RESET_ALL)
-                SaveModel(model,idx_epoch,optimizer,loader_train,loader_test,epoch_train_losses,epoch_test_losses,folder_path,device,model_name,args['model'],idx_epoch,args['batch_size'],train_losses[-1],test_losses[-1],args['loss_function'],data_loaded) # Saves the model
+                SaveModel(model,idx_epoch,optimizer,loader_train,loader_test,epoch_train_losses,epoch_test_losses,folder_path,device,model_name,args['model'],idx_epoch,args['batch_size'],train_losses[-1],test_losses[-1],args['loss_function'],data_loaded,args['summarize_model']) # Saves the model
                 SaveGraph(epoch_train_losses,epoch_test_losses,folder_path)
             else:
                 print(Fore.BLUE + 'Not saved, current loos '+ str(epoch_train_loss) + '. Previous model is better, previous loss ' + str(stored_train_loss) + '.' + Style.RESET_ALL)
@@ -251,7 +251,7 @@ def main():
             print(Fore.CYAN + 'Finished training. Reached target loss. Comparing to previously stored model' + Style.RESET_ALL)
             if epoch_train_loss < stored_train_loss:
                 print(Fore.BLUE + 'Saving model at Epoch ' + str(idx_epoch) + ' Loss ' + str(epoch_train_loss) + Style.RESET_ALL)
-                SaveModel(model,idx_epoch,optimizer,loader_train,loader_test,epoch_train_losses,epoch_test_losses,folder_path,device,model_name,args['model'],idx_epoch,args['batch_size'],train_losses[-1],test_losses[-1],args['loss_function'],data_loaded) # Saves the model
+                SaveModel(model,idx_epoch,optimizer,loader_train,loader_test,epoch_train_losses,epoch_test_losses,folder_path,device,model_name,args['model'],idx_epoch,args['batch_size'],train_losses[-1],test_losses[-1],args['loss_function'],data_loaded,args['summarize_model']) # Saves the model
                 SaveGraph(epoch_train_losses,epoch_test_losses,folder_path)
             else:
                 print(Fore.BLUE + 'Not saved, current loos '+ str(epoch_train_loss) + '. Previous model is better, previous loss ' + str(stored_train_loss) + '.' + Style.RESET_ALL)
@@ -265,7 +265,7 @@ def main():
             if epoch_train_loss < stored_train_loss: # checks if the previous model is better than the new one
                 print(Fore.BLUE + 'Saving model at Epoch ' + str(idx_epoch) + ' Loss ' + str(epoch_train_loss) + Style.RESET_ALL)
                 # Save checkpoint
-                SaveModel(model,idx_epoch,optimizer,loader_train,loader_test,epoch_train_losses,epoch_test_losses,folder_path,device,model_name,args['model'],idx_epoch,args['batch_size'],train_losses[-1],test_losses[-1],args['loss_function'],data_loaded) # Saves the model
+                SaveModel(model,idx_epoch,optimizer,loader_train,loader_test,epoch_train_losses,epoch_test_losses,folder_path,device,model_name,args['model'],idx_epoch,args['batch_size'],train_losses[-1],test_losses[-1],args['loss_function'],data_loaded,args['summarize_model']) # Saves the model
                 SaveGraph(epoch_train_losses,epoch_test_losses,folder_path)
                 stored_train_loss=epoch_train_loss
                 
