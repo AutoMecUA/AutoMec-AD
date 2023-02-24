@@ -21,6 +21,7 @@ from models.mobilenetv2 import MobileNetV2
 from models.inceptionV3 import InceptionV3
 from models.vgg import MyVGG
 from models.resnet import ResNet
+from models.resnet_imported import ResNetV1
 from models.lstm import LSTM
 from src.utils import SaveModel, SaveGraph
 from src.visualization import DataVisualizer, ClassificationVisualizer
@@ -52,7 +53,7 @@ def main():
     parser.add_argument('-lr_gamma', '--lr_gamma', type=float, default=0.5,
                         help='Decay of the learning rate after step size')
     parser.add_argument('-wd', '--weight_decay', type=float, default=0, help='L2 regularizer')
-    parser.add_argument('-nw', '--num_workers', type=int, default=4, 
+    parser.add_argument('-nw', '--num_workers', type=int, default=0, 
                         help='How many subprocesses to use for data loading. 0 means that the data will be loaded in the main process.')
     parser.add_argument('-pff', '--prefetch_factor', type=int, default=2, 
                         help='Number of batches loaded in advance by each worker')
@@ -225,7 +226,7 @@ def main():
 
             loss_visualizer.recomputeAxesRanges()
 
-        print(f'{Fore.LIGHTBLUE_EX}Epoch {str(idx_epoch)} Train Loss: {str(epoch_train_loss)} Test Loss: {str(epoch_test_loss)} With learning rate: {str(scheduler.get_lr())} {Style.RESET_ALL}')
+        print(f'{Fore.LIGHTBLUE_EX}Epoch {str(idx_epoch)} Train Loss: {str(epoch_train_loss)} Test Loss: {str(epoch_test_loss)} With learning rate: {str(scheduler.get_last_lr())} {Style.RESET_ALL}')
 
         ########################################
         # Termination criteria                 #
