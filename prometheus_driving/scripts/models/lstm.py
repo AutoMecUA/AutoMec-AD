@@ -86,7 +86,7 @@ class LSTM(nn.Module):
 
         d = OrderedDict(feature_extraction.named_children())
         self.feature_extraction = nn.Sequential(d)
-
+        
         self.lstm = nn.LSTM(input_size=128, hidden_size=hidden_dim,
                           num_layers=self.num_layers, batch_first=True) #lstm
 

@@ -11,6 +11,7 @@ from tqdm import tqdm
 from colorama import Fore, Style
 import torch
 from torch.nn import MSELoss
+from torchinfo import summary
 import yaml
 
 # Custom imports
@@ -38,6 +39,8 @@ def main():
                         help='folder name of the dataset')
     parser.add_argument('-fn', '--folder_name', type=str, required=True,
                         help='folder name where the model is stored')
+    parser.add_argument('-sm', '--summarize_model', action='store_true',
+                        help='Summarize the model to help debugging')
     parser.add_argument('-n_epochs', '--max_epoch', default=50, type=int,
                         help='Maximum number of epochs')
     parser.add_argument('-batch_size', '--batch_size', default=256, type=int,
@@ -142,6 +145,8 @@ def main():
             else:
                 model.load_state_dict(checkpoint['model_state_dict'])
                 model.to(device) # move the model variable to the gpu if one exists
+                if args['summarize_model']:
+                    print(summary(model, (args['batch_size'],3, 320, 160)))
                 optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
                 loader_train = checkpoint['loader_train']
                 loader_test = checkpoint['loader_test']
@@ -164,6 +169,8 @@ def main():
         epoch_test_losses = []
         stored_train_loss=1e2
         model.to(device) # move the model variable to the gpu if one exists
+        if args['summarize_model']:
+            print(summary(model, (args['batch_size'],3, 320, 160)))
     # Training loop for each epoch
     while True:
         # Train batch by batch
