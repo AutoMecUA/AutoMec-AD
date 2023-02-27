@@ -180,6 +180,8 @@ def main():
             image_t = image_t.to(device=device, dtype=torch.float)
             label_t = label_t.to(device=device, dtype=torch.float).unsqueeze(1)
 
+            model = model.train() # set the model to training mode
+
             # Apply the network to get the predicted ys
             label_t_predicted = model(image_t)
  
@@ -203,6 +205,8 @@ def main():
             # Move the data to the gpu if one exists
             image_t = image_t.to(device=device, dtype=torch.float)
             label_t = label_t.to(device=device, dtype=torch.float).unsqueeze(1)
+
+            model = model.eval() # set the model to evaluation mode
 
             # Apply the network to get the predicted ys
             label_t_predicted = model(image_t)
