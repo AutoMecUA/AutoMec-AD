@@ -175,12 +175,11 @@ def main():
     while True:
         # Train batch by batch
         train_losses = []
+        model.train() # set the model to training mode
         for batch_idx, (image_t, label_t) in tqdm(enumerate(loader_train), total=len(loader_train), desc=Fore.GREEN + 'Training batches for Epoch ' + str(idx_epoch) +  Style.RESET_ALL):
             # Move the data to the GPU if one exists
             image_t = image_t.to(device=device, dtype=torch.float)
             label_t = label_t.to(device=device, dtype=torch.float).unsqueeze(1)
-
-            model = model.train() # set the model to training mode
 
             # Apply the network to get the predicted ys
             label_t_predicted = model(image_t)
@@ -201,12 +200,11 @@ def main():
 
         # Run test in batches 
         test_losses = []
+        model.eval() # set the model to evaluation mode
         for batch_idx, (image_t, label_t) in tqdm(enumerate(loader_test), total=len(loader_test), desc=Fore.GREEN + 'Testing batches for Epoch ' + str(idx_epoch) +  Style.RESET_ALL):
             # Move the data to the gpu if one exists
             image_t = image_t.to(device=device, dtype=torch.float)
             label_t = label_t.to(device=device, dtype=torch.float).unsqueeze(1)
-
-            model = model.eval() # set the model to evaluation mode
 
             # Apply the network to get the predicted ys
             label_t_predicted = model(image_t)
