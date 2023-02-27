@@ -181,7 +181,7 @@ def main():
             label_t = label_t.to(device=device, dtype=torch.float).unsqueeze(1)
 
             # Apply the network to get the predicted ys
-            label_t_predicted = model.forward(image_t)
+            label_t_predicted = model(image_t)
  
             # Compute the error based on the predictions
             loss = loss_function(label_t_predicted, label_t)
@@ -205,7 +205,7 @@ def main():
             label_t = label_t.to(device=device, dtype=torch.float).unsqueeze(1)
 
             # Apply the network to get the predicted ys
-            label_t_predicted = model.forward(image_t)
+            label_t_predicted = model(image_t)
             # Compute the error based on the predictions
             loss = loss_function(label_t_predicted, label_t)
             # Store the loss for the batch
