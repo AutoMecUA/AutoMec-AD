@@ -1,14 +1,9 @@
 from math import pi
 import random
 import matplotlib.pyplot as plt
-import torch.nn.functional as F
 from torchvision import transforms
 import torch
-import matplotlib.pyplot as plt
-import torch.nn.functional as F
 import numpy as np
-from torch.autograd import Variable
-from torch import nn
 import cv2
 
 class ClassificationVisualizer():

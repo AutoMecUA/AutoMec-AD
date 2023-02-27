@@ -9,7 +9,7 @@ import numpy as np
 import rospy
 import yaml
 from sensor_msgs.msg._Image import Image
-from std_msgs.msg import String, Float32
+from std_msgs.msg import Float32
 from cv_bridge.core import CvBridge
 import torch
 from torchvision import transforms
