@@ -12,7 +12,7 @@ class Rota_Model(nn.Module):
             # 3 input channels, 16 output depth, padding and stride
             nn.Conv2d(3,8,kernel_size=5,stride=2),
             # normalizes the batch data setting the average to 0 and std to 1
-            nn.BatchNorm2d(32),
+            nn.BatchNorm2d(8),
             nn.ReLU(),
             nn.MaxPool2d(2) # similar to image pyrdown, reduces size
         )
@@ -20,24 +20,24 @@ class Rota_Model(nn.Module):
         
         self.layer2 = nn.Sequential(
             nn.Conv2d(8,16, kernel_size=5 , stride=2),
-            nn.BatchNorm2d(64),
+            nn.BatchNorm2d(16),
             nn.ReLU(),
             )
         
         self.layer3 = nn.Sequential(
             nn.Conv2d(16,32, kernel_size=5, stride=2),
-            nn.BatchNorm2d(128),
+            nn.BatchNorm2d(32),
             nn.ReLU(),
         )
 
         self.layer4 = nn.Sequential(
             nn.Conv2d(32,32, kernel_size=5),
-            nn.BatchNorm2d(128),
+            nn.BatchNorm2d(32),
             nn.ReLU(),
         )
         
         self.flatten = nn.Flatten()
-        self.fc1 = nn.Linear(13728,375)
+        self.fc1 = nn.Linear(1248,375)
         self.fc2 = nn.Linear(375,125)
         self.fc3= nn.Linear(125,25)
         self.fc4= nn.Linear(25,1)
