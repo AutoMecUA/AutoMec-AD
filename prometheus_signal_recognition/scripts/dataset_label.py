@@ -311,37 +311,47 @@ def main():
             images_with_signal = []
 
            
+            points_test = signal_pose_xyz
+            for idx_objects, _ in enumerate(points_test):
+                point = np.ones((1,4))
+                point[:,0:3] = points_test[idx_objects]
+                point = np.transpose(point)
+                point = np.dot(matrix_world2cam,point)
+                points_test[idx_objects,:]=np.transpose(point[0:3,:])
+        
 
             for i in range(len(points_2d)):
-                #distance betwwen the camera and the signal
+                # #distance betwwen the camera and the signal
                 dist = sqrt((base_footprint_pose_array[0][0]-signal_pose_array[i][0])**2 + (base_footprint_pose_array[0][1]-signal_pose_array[i][1])**2)
-                #dist = calculate_distance(base_footprint_pose_array[0],signal_pose_array[i])
-                # angle between the camera and the signal
-                angle = xy_axis_angle_between_vectors(base_footprint_pose_array[0],signal_pose_array[i])
-                # min and max point of the bounding box
+                # #dist = calculate_distance(base_footprint_pose_array[0],signal_pose_array[i])
+                # # angle between the camera and the signal
+                # angle = xy_axis_angle_between_vectors(base_footprint_pose_array[0],signal_pose_array[i])
+                # # min and max point of the bounding box
                 min_x = min(bbox_2d[i][0][0][0],bbox_2d[i][1][0][0],bbox_2d[i][2][0][0],bbox_2d[i][3][0][0])
                 max_x = max(bbox_2d[i][0][0][0],bbox_2d[i][1][0][0],bbox_2d[i][2][0][0],bbox_2d[i][3][0][0])
                 min_y = min(bbox_2d[i][0][0][1],bbox_2d[i][1][0][1],bbox_2d[i][2][0][1],bbox_2d[i][3][0][1])
                 max_y = max(bbox_2d[i][0][0][1],bbox_2d[i][1][0][1],bbox_2d[i][2][0][1],bbox_2d[i][3][0][1])
                 
-                roll_car,pitch_car,yaw_car = quaternion2rpy(base_footprint_pose_array[0])
-                sign_rith_side = False
-                if -pi/2 < yaw_car < pi/2 and signal_pose_array[i][0] > base_footprint_pose_array[0][0]:
-                    sign_rith_side = True
-                elif signal_pose_array[i][0] < base_footprint_pose_array[0][0] and not -pi/2 < yaw_car < pi/2 :
-                    sign_rith_side = True
-
-                
-                if min_x > 0 and max_x < image_ori.shape[1] and min_y > 0 and max_y < image_ori.shape[0] and dist < 7:
-                    r,g,b = image_ori[points_2d[i][0][1], points_2d[i][0][0]]
-                    #print(r,g,b)
-                    if r == g == b == 178: 
-                        continue
-                    #print(signal_name[i],angle)
+                # roll_car,pitch_car,yaw_car = quaternion2rpy(base_footprint_pose_array[0])
+                # sign_rith_side = False
+                # if -pi/2 < yaw_car < pi/2 and signal_pose_array[i][0] > base_footprint_pose_array[0][0]:
+                #     sign_rith_side = True
+                # elif signal_pose_array[i][0] < base_footprint_pose_array[0][0] and not -pi/2 < yaw_car < pi/2 :
+                #     sign_rith_side = True
+               
+                # if i == 4:
+                #     print(signal_name[i],points_test[i][2],min_x,max_x,min_y,max_y)
+                   
+                if min_x > 0 and max_x < image_ori.shape[1] and min_y > 0 and max_y < image_ori.shape[0] and points_test[i][2]>0 and dist < 3:
+                    # r,g,b = image_ori[points_2d[i][0][1], points_2d[i][0][0]]
+                    # #print(r,g,b)
+                    # if r == g == b == 178: 
+                    #     continue
+                    #print(signal_name[i],points_2d[i][0])
                     # Display signal
                     image_with_point = cv2.circle(config['img_rgb'], tuple(points_2d[i][0]), 4, (0, 255, 255), 2)
                     #cv2.putText(image_with_point, signal_name[i], tuple(points_2d[i][0]), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2, cv2.LINE_AA)
-                    
+                    #print(signal_name[i],points_test[i])
                     # Dictionary of signal
                     signal = {}
                     signal['name'] = signal_name[i]
