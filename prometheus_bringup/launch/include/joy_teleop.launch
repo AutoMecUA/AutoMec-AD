@@ -4,8 +4,8 @@
   <arg name="joy_number" default="0"/>
   <arg name="deadzone" default="0"/>
 
-  <param name="joy_node/dev" value="/dev/input/js$(arg joy_number)"/>
   <node name="joy" pkg="joy" type="joy_node">
+    <param name="dev" value="/dev/input/js$(arg joy_number)"/>
     <param name="deadzone" value="$(arg deadzone)"/>
   </node>
 
