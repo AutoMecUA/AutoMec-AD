@@ -135,6 +135,53 @@ def get_bounding_box(point):
         bounding_box.append(point_T_corner)
 
     return bounding_box
+
+
+def get_iou(bb1_2d,bb2_2d):
+        """
+        Calculate the Intersection over Union (IoU) of two bounding boxes.
+
+        bb1 : dict
+            Keys: {'x1', 'x2', 'y1', 'y2'}
+            The (x1, y1) position is at the top left corner,
+            the (x2, y2) position is at the bottom right corner
+        bb2 : dict
+            Keys: {'x1', 'x2', 'y1', 'y2'}
+            The (x, y) position is at the top left corner,
+            the (x2, y2) position is at the bottom right corner
+        """
+
+        for i, bb_2d in enumerate([bb1_2d,bb2_2d]):
+        
+            min_x = min(bb_2d[0][0][0],bb_2d[1][0][0],bb_2d[2][0][0],bb_2d[3][0][0])
+            max_x = max(bb_2d[0][0][0],bb_2d[1][0][0],bb_2d[2][0][0],bb_2d[3][0][0])
+            min_y = min(bb_2d[0][0][1],bb_2d[1][0][1],bb_2d[2][0][1],bb_2d[3][0][1])
+            max_y = max(bb_2d[0][0][1],bb_2d[1][0][1],bb_2d[2][0][1],bb_2d[3][0][1])
+            if i == 0:
+                bb1 = {'x1': min_x , 'x2': max_x , 'y1': min_y , 'y2': max_y}
+            else:
+                bb2 = {'x1': min_x , 'x2': max_x , 'y1': min_y , 'y2': max_y}
+                
+        
+        # determine the coordinates of the intersection rectangle
+        x_left = max(bb1['x1'], bb2['x1'])
+        y_top = max(bb1['y1'], bb2['y1'])
+        x_right = min(bb1['x2'], bb2['x2'])
+        y_bottom = min(bb1['y2'], bb2['y2'])
+        
+        # The intersection of two axis-aligned bounding boxes is always an
+        # axis-aligned bounding box
+        intersection_area = abs(max((x_right - x_left),0) * max((y_bottom - y_top),0))
+        
+        # compute the area of both AABBs
+        bb1_area = (bb1['x2'] - bb1['x1']) * (bb1['y2'] - bb1['y1'])
+        bb2_area = (bb2['x2'] - bb2['x1']) * (bb2['y2'] - bb2['y1'])
+
+        # compute the intersection over union 
+        #iou = intersection_area / float(bb1_area + bb2_area - intersection_area)
+        iou = intersection_area / float(bb1_area)
+
+        return iou
     
 def class_name2class_id(class_name):
     name = class_name.split('_')
@@ -260,6 +307,7 @@ def main():
                     base['signal'] = name[0]
                     base['pose'] = config['link_pose'][i]
                     base_footprint.append(base)
+                    print(base)
 
             # Array of signals poses
             signal_pose_array = np.array([[pose['pose'].position.x,pose['pose'].position.y,pose['pose'].position.z,pose['pose'].orientation.x,pose['pose'].orientation.y,pose['pose'].orientation.z,pose['pose'].orientation.w] for pose in signal_poses],dtype = np.float64)
@@ -318,48 +366,64 @@ def main():
                 point = np.transpose(point)
                 point = np.dot(matrix_world2cam,point)
                 points_test[idx_objects,:]=np.transpose(point[0:3,:])
-        
-
+            
+            
             for i in range(len(points_2d)):
-                # #distance betwwen the camera and the signal
+                # distance betwwen the camera and the signal
                 dist = sqrt((base_footprint_pose_array[0][0]-signal_pose_array[i][0])**2 + (base_footprint_pose_array[0][1]-signal_pose_array[i][1])**2)
-                # #dist = calculate_distance(base_footprint_pose_array[0],signal_pose_array[i])
-                # # angle between the camera and the signal
-                # angle = xy_axis_angle_between_vectors(base_footprint_pose_array[0],signal_pose_array[i])
-                # # min and max point of the bounding box
+            
+                # angle between the camera and the signal
+                angle = xy_axis_angle_between_vectors(base_footprint_pose_array[0],signal_pose_array[i])
+                
+                # min and max point of the bounding box
                 min_x = min(bbox_2d[i][0][0][0],bbox_2d[i][1][0][0],bbox_2d[i][2][0][0],bbox_2d[i][3][0][0])
                 max_x = max(bbox_2d[i][0][0][0],bbox_2d[i][1][0][0],bbox_2d[i][2][0][0],bbox_2d[i][3][0][0])
                 min_y = min(bbox_2d[i][0][0][1],bbox_2d[i][1][0][1],bbox_2d[i][2][0][1],bbox_2d[i][3][0][1])
                 max_y = max(bbox_2d[i][0][0][1],bbox_2d[i][1][0][1],bbox_2d[i][2][0][1],bbox_2d[i][3][0][1])
                 
-                # roll_car,pitch_car,yaw_car = quaternion2rpy(base_footprint_pose_array[0])
-                # sign_rith_side = False
-                # if -pi/2 < yaw_car < pi/2 and signal_pose_array[i][0] > base_footprint_pose_array[0][0]:
-                #     sign_rith_side = True
-                # elif signal_pose_array[i][0] < base_footprint_pose_array[0][0] and not -pi/2 < yaw_car < pi/2 :
-                #     sign_rith_side = True
-               
-                # if i == 4:
-                #     print(signal_name[i],points_test[i][2],min_x,max_x,min_y,max_y)
-                   
-                if min_x > 0 and max_x < image_ori.shape[1] and min_y > 0 and max_y < image_ori.shape[0] and points_test[i][2]>0 and dist < 3:
-                    # r,g,b = image_ori[points_2d[i][0][1], points_2d[i][0][0]]
-                    # #print(r,g,b)
-                    # if r == g == b == 178: 
-                    #     continue
-                    #print(signal_name[i],points_2d[i][0])
-                    # Display signal
-                    image_with_point = cv2.circle(config['img_rgb'], tuple(points_2d[i][0]), 4, (0, 255, 255), 2)
-                    #cv2.putText(image_with_point, signal_name[i], tuple(points_2d[i][0]), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2, cv2.LINE_AA)
-                    #print(signal_name[i],points_test[i])
+                # area of the bounding box
+                area = (max_x-min_x)*(max_y-min_y)
+                if round(area/5) > 100:
+                    tresshold_pose = 30
+                else:
+                    tresshold_pose = round(area/5)
+                
+                
+                # If the signal is in the image and the signal is in front of the camera:
+                if min_x > -tresshold_pose and max_x < (image_ori.shape[1]+tresshold_pose) and min_y > -tresshold_pose and max_y < (image_ori.shape[0]+tresshold_pose) and points_test[i][2]>0 and angle < 60 and angle >-90 and area > 300:
+                    
                     # Dictionary of signal
                     signal = {}
                     signal['name'] = signal_name[i]
                     signal['bbox'] = bbox_2d[i]
                     signal['x_center'] = points_2d[i][0][0]
                     signal['y_center'] = points_2d[i][0][1]
-                    images_with_signal.append(signal)
-            
+                    signal['distance'] = dist
+
+                    if images_with_signal == []:
+                        images_with_signal.append(signal)
+                        image_with_point = cv2.circle(config['img_rgb'], (signal['x_center'],signal['y_center']), 4, (0, 255, 255), 2)
+                       
+                    else:
+                        iou_TRUE = False
+                        for signal_image in images_with_signal:
+                            if signal_image['name'] == signal['name']:
+                                continue
+                            iou = get_iou(signal_image['bbox'],signal['bbox'])
+                            # print(signal_image['name'],signal['name'],iou)
+                            if iou != 0 and iou != 1:
+                                if signal_image['distance'] > signal['distance']:
+                                    images_with_signal.remove(signal_image)
+                                    image_with_point = cv2.circle(config['img_rgb'], (signal_image['x_center'],signal_image['y_center']), 4, (255, 0, 0), 3)
+                                    continue
+                                else:
+                                    iou_TRUE = True
+
+                        if iou_TRUE == False:
+                            images_with_signal.append(signal)
+                            image_with_point = cv2.circle(config['img_rgb'], (signal['x_center'],signal['y_center']), 4, (0, 255, 255), 2)
+                           
+              
             ############################################
             # Visualize the image                      #
             ############################################
