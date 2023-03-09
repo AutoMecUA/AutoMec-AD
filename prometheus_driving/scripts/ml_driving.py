@@ -24,6 +24,7 @@ from models.inceptionV3 import InceptionV3
 from models.vgg import MyVGG
 from models.resnet import ResNet
 from models.lstm import LSTM
+from models.resnet_imported import ResNetV1
 from src.utils import LoadModel
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # or any {'0', '1', '2'}
