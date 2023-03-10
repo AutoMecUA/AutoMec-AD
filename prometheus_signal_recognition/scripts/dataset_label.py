@@ -5,11 +5,10 @@ import rospy
 import cv2
 import tf
 import numpy as np
-import time
 from typing import Any
 from datetime import datetime
 from functools import partial
-from math import cos, sin, sqrt, atan2, pi
+from math import cos, sin, sqrt, pi
 from scipy.spatial.transform import Rotation as R
 
 from cv_bridge.core import CvBridge
@@ -38,7 +37,7 @@ def imgRgbCallback(message, config: dict):
 
 
 # Convert quaternion to roll, pitch, yaw
-def quaternion2rpy(point_array):
+def get_euler_from_quaternion(point_array):
     quaternion1 = (point_array[3],point_array[4],point_array[5],point_array[6])
     euler = tf.transformations.euler_from_quaternion(quaternion1, axes='sxyz') # will provide result in x, y,z sequence
     roll=euler[0]
@@ -47,30 +46,15 @@ def quaternion2rpy(point_array):
     return roll, pitch, yaw
 
 
-def xy_axis_angle_between_vectors(point_array1, point_array2):
+def angle_between_vectors(point_array1, point_array2):
     
-    r1 = R.from_quat([point_array1[3], point_array1[4], point_array1[5], point_array1[6]])
-    R1 = r1.as_matrix()
-
-    r2 = R.from_quat([point_array2[3], point_array2[4], point_array2[5], point_array2[6]])
-    R2 = r2.as_matrix()
-
-    v1 = R1 @ np.array([1, 0, 0])
-    v2 = R2 @ np.array([0, 1, 0])
-
-    cross_product = np.cross(v1, v2)
-    dot_product = np.dot(v1, v2)
-    magnitude_v1 = np.linalg.norm(v1)
-    magnitude_v2 = np.linalg.norm(v2)
-
-    cos_theta = dot_product / (magnitude_v1 * magnitude_v2)
-    sin_theta = np.linalg.norm(cross_product) / (magnitude_v1 * magnitude_v2)
-
-    if cross_product[2] < 0:
-        sin_theta = -sin_theta
-
-    theta = np.arctan2(sin_theta, cos_theta)
-    return np.degrees(theta)
+    _,_,yaw1 = get_euler_from_quaternion(point_array1)
+    _,_,yaw2 = get_euler_from_quaternion(point_array2)
+    angle_between = yaw2 - (yaw1 - pi/2)
+    if angle_between < 0:
+        angle_between = angle_between + 2*pi
+    
+    return np.degrees(angle_between)
 
 # Get the transformation matrix from the point array
 def get_matrix_from_PointArray(point_array):
@@ -117,7 +101,7 @@ def get_bounding_box(point):
     bounding_box: array with 4 corners of the bounding box
     """
 
-    _, _, yaw = quaternion2rpy(point)
+    _, _, yaw = get_euler_from_quaternion(point)
     
     # Since the sign is square, the height is equal to the length.
     height = 0.305/2
@@ -175,10 +159,8 @@ def get_iou(bb1_2d,bb2_2d):
         
         # compute the area of both AABBs
         bb1_area = (bb1['x2'] - bb1['x1']) * (bb1['y2'] - bb1['y1'])
-        bb2_area = (bb2['x2'] - bb2['x1']) * (bb2['y2'] - bb2['y1'])
 
         # compute the intersection over union 
-        #iou = intersection_area / float(bb1_area + bb2_area - intersection_area)
         iou = intersection_area / float(bb1_area)
 
         return iou
@@ -239,6 +221,7 @@ def calculate_distance(point1, point2):
     else:
         # both x and y are negative
         return -distance
+
 
 def main():
     ####################################
@@ -301,13 +284,12 @@ def main():
                     signal_pose['signal'] = name[0]
                     signal_pose['pose'] = config['link_pose'][i]
                     signal_poses.append(signal_pose)
-
+                   
                 elif name[1] == 'base_footprint':
                     base = {}
                     base['signal'] = name[0]
                     base['pose'] = config['link_pose'][i]
                     base_footprint.append(base)
-                    print(base)
 
             # Array of signals poses
             signal_pose_array = np.array([[pose['pose'].position.x,pose['pose'].position.y,pose['pose'].position.z,pose['pose'].orientation.x,pose['pose'].orientation.y,pose['pose'].orientation.z,pose['pose'].orientation.w] for pose in signal_poses],dtype = np.float64)
@@ -358,7 +340,6 @@ def main():
             image_with_point = config['img_rgb']
             images_with_signal = []
 
-           
             points_test = signal_pose_xyz
             for idx_objects, _ in enumerate(points_test):
                 point = np.ones((1,4))
@@ -373,7 +354,7 @@ def main():
                 dist = sqrt((base_footprint_pose_array[0][0]-signal_pose_array[i][0])**2 + (base_footprint_pose_array[0][1]-signal_pose_array[i][1])**2)
             
                 # angle between the camera and the signal
-                angle = xy_axis_angle_between_vectors(base_footprint_pose_array[0],signal_pose_array[i])
+                angle = angle_between_vectors(signal_pose_array[i],base_footprint_pose_array[0])
                 
                 # min and max point of the bounding box
                 min_x = min(bbox_2d[i][0][0][0],bbox_2d[i][1][0][0],bbox_2d[i][2][0][0],bbox_2d[i][3][0][0])
@@ -383,14 +364,17 @@ def main():
                 
                 # area of the bounding box
                 area = (max_x-min_x)*(max_y-min_y)
-                if round(area/5) > 100:
-                    tresshold_pose = 30
+                if round(area/500) > 100:
+                    tresshold_pose = 100
                 else:
-                    tresshold_pose = round(area/5)
-                
-                
+                    tresshold_pose = round(area/500)
+               
+                # if i == 17:
+                #     print(signal_name[i])
+                #     print(angle)
+
                 # If the signal is in the image and the signal is in front of the camera:
-                if min_x > -tresshold_pose and max_x < (image_ori.shape[1]+tresshold_pose) and min_y > -tresshold_pose and max_y < (image_ori.shape[0]+tresshold_pose) and points_test[i][2]>0 and angle < 60 and angle >-90 and area > 300:
+                if min_x > -tresshold_pose and max_x < (image_ori.shape[1]+tresshold_pose) and min_y > -tresshold_pose and max_y < (image_ori.shape[0]+tresshold_pose) and points_test[i][2]>0 and angle > 100 and angle < 260 and area > 300:
                     
                     # Dictionary of signal
                     signal = {}
@@ -409,9 +393,9 @@ def main():
                         for signal_image in images_with_signal:
                             if signal_image['name'] == signal['name']:
                                 continue
+                            
                             iou = get_iou(signal_image['bbox'],signal['bbox'])
-                            # print(signal_image['name'],signal['name'],iou)
-                            if iou != 0 and iou != 1:
+                            if iou != 0 and (iou != 1 or (iou == 1 and signal_image['name'] != signal['name'])) :
                                 if signal_image['distance'] > signal['distance']:
                                     images_with_signal.remove(signal_image)
                                     image_with_point = cv2.circle(config['img_rgb'], (signal_image['x_center'],signal_image['y_center']), 4, (255, 0, 0), 3)
