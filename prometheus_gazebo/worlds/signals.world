@@ -465,7 +465,7 @@
       </link>
       <pose>2.48498 -2.56275 0 0 -0 0</pose>
     </model>
-    <model name='Depression_signal'>
+    <model name='Cattle_signal_1'>
       <link name='support_structure'>
         <pose>0 0 0 0 -0 0</pose>
         <visual name='base'>
@@ -560,14 +560,14 @@
         <visual name='pictogram'>
           <geometry>
             <mesh>
-              <uri>model://DepressionSignal/signal.dae</uri>
+              <uri>model://CattleSignal/signal.dae</uri>
             </mesh>
           </geometry>
           <material>
             <script>
-              <uri>model://DepressionSignal/materials/scripts</uri>
-              <uri>model://DepressionSignal/materials/textures</uri>
-              <name>Signal/Depression</name>
+              <uri>model://CattleSignal/materials/scripts</uri>
+              <uri>model://CattleSignal/materials/textures</uri>
+              <name>Signal/Cattle</name>
             </script>
           </material>
         </visual>
@@ -589,7 +589,7 @@
       </link>
       <pose>1.85708 -2.71735 0 0 -0 0</pose>
     </model>
-    <model name='Depression_signal_0'>
+    <model name='Cattle_signal_2'>
       <link name='support_structure'>
         <pose>0 0 0 0 -0 0</pose>
         <visual name='base'>
@@ -684,14 +684,14 @@
         <visual name='pictogram'>
           <geometry>
             <mesh>
-              <uri>model://DepressionSignal/signal.dae</uri>
+              <uri>model://CattleSignal/signal.dae</uri>
             </mesh>
           </geometry>
           <material>
             <script>
-              <uri>model://DepressionSignal/materials/scripts</uri>
-              <uri>model://DepressionSignal/materials/textures</uri>
-              <name>Signal/Depression</name>
+              <uri>model://CattleSignal/materials/scripts</uri>
+              <uri>model://CattleSignal/materials/textures</uri>
+              <name>Signal/Cattle</name>
             </script>
           </material>
         </visual>
@@ -713,7 +713,7 @@
       </link>
       <pose>1.32479 -2.81574 0 0 -0 0</pose>
     </model>
-    <model name='Other_Dangers_signal'>
+    <model name='Cattle_signal_3'>
       <link name='support_structure'>
         <pose>0 0 0 0 -0 0</pose>
         <visual name='base'>
@@ -808,14 +808,14 @@
         <visual name='pictogram'>
           <geometry>
             <mesh>
-              <uri>model://OtherDangersSignal/signal.dae</uri>
+              <uri>model://CattleSignal/signal.dae</uri>
             </mesh>
           </geometry>
           <material>
             <script>
-              <uri>model://OtherDangersSignal/materials/scripts</uri>
-              <uri>model://OtherDangersSignal/materials/textures</uri>
-              <name>Signal/OtherDangers</name>
+              <uri>model://CattleSignal/materials/scripts</uri>
+              <uri>model://CattleSignal/materials/textures</uri>
+              <name>Signal/Cattle</name>
             </script>
           </material>
         </visual>
@@ -837,7 +837,7 @@
       </link>
       <pose>0.847609 -2.8766 0 0 -0 0</pose>
     </model>
-    <model name='Other_Dangers_signal_0'>
+    <model name='Cattle_signal_4'>
       <link name='support_structure'>
         <pose>0 0 0 0 -0 0</pose>
         <visual name='base'>
@@ -932,14 +932,14 @@
         <visual name='pictogram'>
           <geometry>
             <mesh>
-              <uri>model://OtherDangersSignal/signal.dae</uri>
+              <uri>model://CattleSignal/signal.dae</uri>
             </mesh>
           </geometry>
           <material>
             <script>
-              <uri>model://OtherDangersSignal/materials/scripts</uri>
-              <uri>model://OtherDangersSignal/materials/textures</uri>
-              <name>Signal/OtherDangers</name>
+              <uri>model://CattleSignal/materials/scripts</uri>
+              <uri>model://CattleSignal/materials/textures</uri>
+              <name>Signal/Cattle</name>
             </script>
           </material>
         </visual>
@@ -961,7 +961,7 @@
       </link>
       <pose>0.465416 -2.92072 0 0 -0 0</pose>
     </model>
-    <model name='Road_Narrow_signal'>
+    <model name='Cattle_signal_5'>
       <link name='support_structure'>
         <pose>0 0 0 0 -0 0</pose>
         <visual name='base'>
@@ -1056,14 +1056,14 @@
         <visual name='pictogram'>
           <geometry>
             <mesh>
-              <uri>model://RoadNarrowSignal/signal.dae</uri>
+              <uri>model://CattleSignal/signal.dae</uri>
             </mesh>
           </geometry>
           <material>
             <script>
-              <uri>model://RoadNarrowSignal/materials/scripts</uri>
-              <uri>model://RoadNarrowSignal/materials/textures</uri>
-              <name>Signal/RoadNarrow</name>
+              <uri>model://CattleSignal/materials/scripts</uri>
+              <uri>model://CattleSignal/materials/textures</uri>
+              <name>Signal/Cattle</name>
             </script>
           </material>
         </visual>
@@ -1085,7 +1085,7 @@
       </link>
       <pose>0.042232 -2.8478 0 0 -0 0</pose>
     </model>
-    <model name='Road_Narrow_signal_0'>
+    <model name='Cattle_signal_6'>
       <link name='support_structure'>
         <pose>0 0 0 0 -0 0</pose>
         <visual name='base'>
@@ -1180,14 +1180,14 @@
         <visual name='pictogram'>
           <geometry>
             <mesh>
-              <uri>model://RoadNarrowSignal/signal.dae</uri>
+              <uri>model://CattleSignal/signal.dae</uri>
             </mesh>
           </geometry>
           <material>
             <script>
-              <uri>model://RoadNarrowSignal/materials/scripts</uri>
-              <uri>model://RoadNarrowSignal/materials/textures</uri>
-              <name>Signal/RoadNarrow</name>
+              <uri>model://CattleSignal/materials/scripts</uri>
+              <uri>model://CattleSignal/materials/textures</uri>
+              <name>Signal/Cattle</name>
             </script>
           </material>
         </visual>
@@ -1209,7 +1209,7 @@
       </link>
       <pose>-0.376908 -2.76438 0 0 -0 0</pose>
     </model>
-    <model name='Crosswalk_signal'>
+    <model name='Cattle_signal_7'>
       <link name='support_structure'>
         <pose>0 0 0 0 -0 0</pose>
         <visual name='base'>
@@ -1304,14 +1304,14 @@
         <visual name='pictogram'>
           <geometry>
             <mesh>
-              <uri>model://CrosswalkSignal/signal.dae</uri>
+              <uri>model://CattleSignal/signal.dae</uri>
             </mesh>
           </geometry>
           <material>
             <script>
-              <uri>model://CrosswalkSignal/materials/scripts</uri>
-              <uri>model://CrosswalkSignal/materials/textures</uri>
-              <name>Signal/Crosswalk</name>
+              <uri>model://CattleSignal/materials/scripts</uri>
+              <uri>model://CattleSignal/materials/textures</uri>
+              <name>Signal/Cattle</name>
             </script>
           </material>
         </visual>
@@ -1333,7 +1333,7 @@
       </link>
       <pose>3.03872 -3.70085 0 0 -0 0</pose>
     </model>
-    <model name='Crosswalk_signal_0'>
+    <model name='Cattle_signal_8'>
       <link name='support_structure'>
         <pose>0 0 0 0 -0 0</pose>
         <visual name='base'>
@@ -1428,14 +1428,14 @@
         <visual name='pictogram'>
           <geometry>
             <mesh>
-              <uri>model://CrosswalkSignal/signal.dae</uri>
+              <uri>model://CattleSignal/signal.dae</uri>
             </mesh>
           </geometry>
           <material>
             <script>
-              <uri>model://CrosswalkSignal/materials/scripts</uri>
-              <uri>model://CrosswalkSignal/materials/textures</uri>
-              <name>Signal/Crosswalk</name>
+              <uri>model://CattleSignal/materials/scripts</uri>
+              <uri>model://CattleSignal/materials/textures</uri>
+              <name>Signal/Cattle</name>
             </script>
           </material>
         </visual>
@@ -1457,7 +1457,7 @@
       </link>
       <pose>2.46652 -3.68993 0 0 -0 0</pose>
     </model>
-    <model name='Hospital_signal'>
+    <model name='Cattle_signal_9'>
       <link name='support_structure'>
         <pose>0 0 0 0 -0 0</pose>
         <visual name='base'>
@@ -1552,14 +1552,14 @@
         <visual name='pictogram'>
           <geometry>
             <mesh>
-              <uri>model://HospitalSignal/signal.dae</uri>
+              <uri>model://CattleSignal/signal.dae</uri>
             </mesh>
           </geometry>
           <material>
             <script>
-              <uri>model://HospitalSignal/materials/scripts</uri>
-              <uri>model://HospitalSignal/materials/textures</uri>
-              <name>Signal/Hospital</name>
+              <uri>model://CattleSignal/materials/scripts</uri>
+              <uri>model://CattleSignal/materials/textures</uri>
+              <name>Signal/Cattle</name>
             </script>
           </material>
         </visual>
@@ -1581,7 +1581,7 @@
       </link>
       <pose>1.84299 -3.67268 0 0 -0 0</pose>
     </model>
-    <model name='Hospital_signal_0'>
+    <model name='Cattle_signal_10'>
       <link name='support_structure'>
         <pose>0 0 0 0 -0 0</pose>
         <visual name='base'>
@@ -1676,14 +1676,14 @@
         <visual name='pictogram'>
           <geometry>
             <mesh>
-              <uri>model://HospitalSignal/signal.dae</uri>
+              <uri>model://CattleSignal/signal.dae</uri>
             </mesh>
           </geometry>
           <material>
             <script>
-              <uri>model://HospitalSignal/materials/scripts</uri>
-              <uri>model://HospitalSignal/materials/textures</uri>
-              <name>Signal/Hospital</name>
+              <uri>model://CattleSignal/materials/scripts</uri>
+              <uri>model://CattleSignal/materials/textures</uri>
+              <name>Signal/Cattle</name>
             </script>
           </material>
         </visual>
@@ -1705,7 +1705,7 @@
       </link>
       <pose>1.32997 -3.63315 0 0 -0 0</pose>
     </model>
-    <model name='Park_signal'>
+    <model name='Cattle_signal_11'>
       <link name='support_structure'>
         <pose>0 0 0 0 -0 0</pose>
         <visual name='base'>
@@ -1800,14 +1800,14 @@
         <visual name='pictogram'>
           <geometry>
             <mesh>
-              <uri>model://ParkSignal/signal.dae</uri>
+              <uri>model://CattleSignal/signal.dae</uri>
             </mesh>
           </geometry>
           <material>
             <script>
-              <uri>model://ParkSignal/materials/scripts</uri>
-              <uri>model://ParkSignal/materials/textures</uri>
-              <name>Signal/Park</name>
+              <uri>model://CattleSignal/materials/scripts</uri>
+              <uri>model://CattleSignal/materials/textures</uri>
+              <name>Signal/Cattle</name>
             </script>
           </material>
         </visual>
@@ -1829,7 +1829,7 @@
       </link>
       <pose>0.862907 -3.6666 0 0 -0 0</pose>
     </model>
-    <model name='Park_signal_0'>
+    <model name='Cattle_signal_12'>
       <link name='support_structure'>
         <pose>0 0 0 0 -0 0</pose>
         <visual name='base'>
@@ -1924,14 +1924,14 @@
         <visual name='pictogram'>
           <geometry>
             <mesh>
-              <uri>model://ParkSignal/signal.dae</uri>
+              <uri>model://CattleSignal/signal.dae</uri>
             </mesh>
           </geometry>
           <material>
             <script>
-              <uri>model://ParkSignal/materials/scripts</uri>
-              <uri>model://ParkSignal/materials/textures</uri>
-              <name>Signal/Park</name>
+              <uri>model://CattleSignal/materials/scripts</uri>
+              <uri>model://CattleSignal/materials/textures</uri>
+              <name>Signal/Cattle</name>
             </script>
           </material>
         </visual>
@@ -1953,7 +1953,7 @@
       </link>
       <pose>0.501237 -3.54172 0 0 -0 0</pose>
     </model>
-    <model name='RMV_Signal'>
+    <model name='Cattle_signal_13'>
       <link name='support_structure'>
         <pose>0 0 0 0 -0 0</pose>
         <visual name='base'>
@@ -2048,14 +2048,14 @@
         <visual name='pictogram'>
           <geometry>
             <mesh>
-              <uri>model://RMVSignal/signal.dae</uri>
+              <uri>model://CattleSignal/signal.dae</uri>
             </mesh>
           </geometry>
           <material>
             <script>
-              <uri>model://RMVSignal/materials/scripts</uri>
-              <uri>model://RMVSignal/materials/textures</uri>
-              <name>Signal/RMV</name>
+              <uri>model://CattleSignal/materials/scripts</uri>
+              <uri>model://CattleSignal/materials/textures</uri>
+              <name>Signal/Cattle</name>
             </script>
           </material>
         </visual>
@@ -2077,7 +2077,7 @@
       </link>
       <pose>0.045439 -3.49118 0 0 -0 0</pose>
     </model>
-    <model name='RMV_Signal_0'>
+    <model name='Cattle_signal_14'>
       <link name='support_structure'>
         <pose>0 0 0 0 -0 0</pose>
         <visual name='base'>
@@ -2172,14 +2172,14 @@
         <visual name='pictogram'>
           <geometry>
             <mesh>
-              <uri>model://RMVSignal/signal.dae</uri>
+              <uri>model://CattleSignal/signal.dae</uri>
             </mesh>
           </geometry>
           <material>
             <script>
-              <uri>model://RMVSignal/materials/scripts</uri>
-              <uri>model://RMVSignal/materials/textures</uri>
-              <name>Signal/RMV</name>
+              <uri>model://CattleSignal/materials/scripts</uri>
+              <uri>model://CattleSignal/materials/textures</uri>
+              <name>Signal/Cattle</name>
             </script>
           </material>
         </visual>
@@ -2201,7 +2201,7 @@
       </link>
       <pose>-0.42666 -3.37031 0 0 -0 0</pose>
     </model>
-    <model name='Lights_signal'>
+    <model name='Cattle_signal_15'>
       <link name='support_structure'>
         <pose>0 0 0 0 -0 0</pose>
         <visual name='base'>
@@ -2296,14 +2296,14 @@
         <visual name='pictogram'>
           <geometry>
             <mesh>
-              <uri>model://LightsSignal/signal.dae</uri>
+              <uri>model://CattleSignal/signal.dae</uri>
             </mesh>
           </geometry>
           <material>
             <script>
-              <uri>model://LightsSignal/materials/scripts</uri>
-              <uri>model://LightsSignal/materials/textures</uri>
-              <name>Signal/Lights</name>
+              <uri>model://CattleSignal/materials/scripts</uri>
+              <uri>model://CattleSignal/materials/textures</uri>
+              <name>Signal/Cattle</name>
             </script>
           </material>
         </visual>
@@ -2325,7 +2325,7 @@
       </link>
       <pose>2.97813 -4.37486 0 0 -0 0</pose>
     </model>
-    <model name='Lights_signal_0'>
+    <model name='Cattle_signal_16'>
       <link name='support_structure'>
         <pose>0 0 0 0 -0 0</pose>
         <visual name='base'>
@@ -2420,14 +2420,14 @@
         <visual name='pictogram'>
           <geometry>
             <mesh>
-              <uri>model://LightsSignal/signal.dae</uri>
+              <uri>model://CattleSignal/signal.dae</uri>
             </mesh>
           </geometry>
           <material>
             <script>
-              <uri>model://LightsSignal/materials/scripts</uri>
-              <uri>model://LightsSignal/materials/textures</uri>
-              <name>Signal/Lights</name>
+              <uri>model://CattleSignal/materials/scripts</uri>
+              <uri>model://CattleSignal/materials/textures</uri>
+              <name>Signal/Cattle</name>
             </script>
           </material>
         </visual>
@@ -2449,7 +2449,7 @@
       </link>
       <pose>2.46512 -4.28646 0 0 -0 0</pose>
     </model>
-    <model name='Round_About_signal'>
+    <model name='Cattle_signal_17'>
       <link name='support_structure'>
         <pose>0 0 0 0 -0 0</pose>
         <visual name='base'>
@@ -2544,14 +2544,14 @@
         <visual name='pictogram'>
           <geometry>
             <mesh>
-              <uri>model://RoundAboutSignal/signal.dae</uri>
+              <uri>model://CattleSignal/signal.dae</uri>
             </mesh>
           </geometry>
           <material>
             <script>
-              <uri>model://RoundAboutSignal/materials/scripts</uri>
-              <uri>model://RoundAboutSignal/materials/textures</uri>
-              <name>Signal/RoundAbout</name>
+              <uri>model://CattleSignal/materials/scripts</uri>
+              <uri>model://CattleSignal/materials/textures</uri>
+              <name>Signal/Cattle</name>
             </script>
           </material>
         </visual>
@@ -2573,7 +2573,7 @@
       </link>
       <pose>1.8182 -4.16666 0 0 -0 0</pose>
     </model>
-    <model name='Round_About_signal_0'>
+    <model name='Cattle_signal_18'>
       <link name='support_structure'>
         <pose>0 0 0 0 -0 0</pose>
         <visual name='base'>
@@ -2668,14 +2668,14 @@
         <visual name='pictogram'>
           <geometry>
             <mesh>
-              <uri>model://RoundAboutSignal/signal.dae</uri>
+              <uri>model://CattleSignal/signal.dae</uri>
             </mesh>
           </geometry>
           <material>
             <script>
-              <uri>model://RoundAboutSignal/materials/scripts</uri>
-              <uri>model://RoundAboutSignal/materials/textures</uri>
-              <name>Signal/RoundAbout</name>
+              <uri>model://CattleSignal/materials/scripts</uri>
+              <uri>model://CattleSignal/materials/textures</uri>
+              <name>Signal/Cattle</name>
             </script>
           </material>
         </visual>
@@ -2697,7 +2697,7 @@
       </link>
       <pose>1.33034 -4.27131 0 0 -0 0</pose>
     </model>
-    <model name='Turn_Left_signal'>
+    <model name='Cattle_signal_19'>
       <link name='support_structure'>
         <pose>0 0 0 0 -0 0</pose>
         <visual name='base'>
@@ -2792,14 +2792,14 @@
         <visual name='pictogram'>
           <geometry>
             <mesh>
-              <uri>model://TurnLeftSignal/signal.dae</uri>
+              <uri>model://CattleSignal/signal.dae</uri>
             </mesh>
           </geometry>
           <material>
             <script>
-              <uri>model://TurnLeftSignal/materials/scripts</uri>
-              <uri>model://TurnLeftSignal/materials/textures</uri>
-              <name>Signal/TurnLeft</name>
+              <uri>model://CattleSignal/materials/scripts</uri>
+              <uri>model://CattleSignal/materials/textures</uri>
+              <name>Signal/Cattle</name>
             </script>
           </material>
         </visual>
@@ -2821,7 +2821,7 @@
       </link>
       <pose>0.847167 -4.23374 0 0 -0 0</pose>
     </model>
-    <model name='Turn_Left_signal_0'>
+    <model name='Cattle_signal_20'>
       <link name='support_structure'>
         <pose>0 0 0 0 -0 0</pose>
         <visual name='base'>
@@ -2916,14 +2916,14 @@
         <visual name='pictogram'>
           <geometry>
             <mesh>
-              <uri>model://TurnLeftSignal/signal.dae</uri>
+              <uri>model://CattleSignal/signal.dae</uri>
             </mesh>
           </geometry>
           <material>
             <script>
-              <uri>model://TurnLeftSignal/materials/scripts</uri>
-              <uri>model://TurnLeftSignal/materials/textures</uri>
-              <name>Signal/TurnLeft</name>
+              <uri>model://CattleSignal/materials/scripts</uri>
+              <uri>model://CattleSignal/materials/textures</uri>
+              <name>Signal/Cattle</name>
             </script>
           </material>
         </visual>
@@ -2945,7 +2945,7 @@
       </link>
       <pose>0.420707 -4.06023 0 0 -0 0</pose>
     </model>
-    <model name='Bus_signal'>
+    <model name='Cattle_signal_21'>
       <link name='support_structure'>
         <pose>0 0 0 0 -0 0</pose>
         <visual name='base'>
@@ -3040,14 +3040,14 @@
         <visual name='pictogram'>
           <geometry>
             <mesh>
-              <uri>model://BusSignal/signal.dae</uri>
+              <uri>model://CattleSignal/signal.dae</uri>
             </mesh>
           </geometry>
           <material>
             <script>
-              <uri>model://BusSignal/materials/scripts</uri>
-              <uri>model://BusSignal/materials/textures</uri>
-              <name>Signal/Bus</name>
+              <uri>model://CattleSignal/materials/scripts</uri>
+              <uri>model://CattleSignal/materials/textures</uri>
+              <name>Signal/Cattle</name>
             </script>
           </material>
         </visual>
@@ -3069,7 +3069,7 @@
       </link>
       <pose>-0.059626 -3.94339 0 0 -0 0</pose>
     </model>
-    <model name='Bus_signal_0'>
+    <model name='Cattle_signal_22'>
       <link name='support_structure'>
         <pose>0 0 0 0 -0 0</pose>
         <visual name='base'>
@@ -3164,14 +3164,14 @@
         <visual name='pictogram'>
           <geometry>
             <mesh>
-              <uri>model://BusSignal/signal.dae</uri>
+              <uri>model://CattleSignal/signal.dae</uri>
             </mesh>
           </geometry>
           <material>
             <script>
-              <uri>model://BusSignal/materials/scripts</uri>
-              <uri>model://BusSignal/materials/textures</uri>
-              <name>Signal/Bus</name>
+              <uri>model://CattleSignal/materials/scripts</uri>
+              <uri>model://CattleSignal/materials/textures</uri>
+              <name>Signal/Cattle</name>
             </script>
           </material>
         </visual>
@@ -3198,7 +3198,7 @@
       <real_time>191 205053887</real_time>
       <wall_time>1675267804 300619108</wall_time>
       <iterations>19967</iterations>
-      <model name='Bus_signal'>
+      <model name='Cattle_signal_21'>
         <pose>4.17555 2.13758 0.025 0 -0 1.4e-05</pose>
         <scale>1 1 1</scale>
         <link name='pictogram'>
@@ -3214,7 +3214,7 @@
           <wrench>0.029081 0.019502 0.403256 0 -0 0</wrench>
         </link>
       </model>
-      <model name='Bus_signal_0'>
+      <model name='Cattle_signal_22'>
         <pose>-6.4414 2.30952 0.025 3e-06 -0 0.042961</pose>
         <scale>1 1 1</scale>
         <link name='pictogram'>
@@ -3262,7 +3262,7 @@
           <wrench>-0.012804 -0.010581 -0.066444 0 -0 0</wrench>
         </link>
       </model>
-      <model name='Crosswalk_signal'>
+      <model name='Cattle_signal_7'>
         <pose>7.71611 4.58225 0.025002 -1.9e-05 -0 0.77301</pose>
         <scale>1 1 1</scale>
         <link name='pictogram'>
@@ -3278,7 +3278,7 @@
           <wrench>0.014248 -0.015066 -0.08291 0 -0 0</wrench>
         </link>
       </model>
-      <model name='Crosswalk_signal_0'>
+      <model name='Cattle_signal_8'>
         <pose>-7.99384 -0.037583 0.025 4e-06 -0 -2.81151</pose>
         <scale>1 1 1</scale>
         <link name='pictogram'>
@@ -3294,7 +3294,7 @@
           <wrench>0.005968 -0.015581 -0.067819 0 -0 0</wrench>
         </link>
       </model>
-      <model name='Depression_signal'>
+      <model name='Cattle_signal_1'>
         <pose>5.39491 5.52739 0.025 -4e-06 -0 1.58697</pose>
         <scale>1 1 1</scale>
         <link name='pictogram'>
@@ -3310,7 +3310,7 @@
           <wrench>0.020747 1.2e-05 -0.082922 0 -0 0</wrench>
         </link>
       </model>
-      <model name='Depression_signal_0'>
+      <model name='Cattle_signal_2'>
         <pose>-8.81456 1.5445 0.025001 -6e-06 -0 3.13187</pose>
         <scale>1 1 1</scale>
         <link name='pictogram'>
@@ -3326,7 +3326,7 @@
           <wrench>0.000527 0.020109 -0.404239 0 -0 0</wrench>
         </link>
       </model>
-      <model name='Hospital_signal'>
+      <model name='Cattle_signal_9'>
         <pose>2.036 3.03403 0.025001 5e-06 -0 2.80511</pose>
         <scale>1 1 1</scale>
         <link name='pictogram'>
@@ -3342,7 +3342,7 @@
           <wrench>-0.005843 -0.015553 -0.066421 0 -0 0</wrench>
         </link>
       </model>
-      <model name='Hospital_signal_0'>
+      <model name='Cattle_signal_10'>
         <pose>-5.64693 5.55419 0.025 -4e-06 -0 1.57191</pose>
         <scale>1 1 1</scale>
         <link name='pictogram'>
@@ -3358,7 +3358,7 @@
           <wrench>0.020282 0.000622 -0.331239 0 -0 0</wrench>
         </link>
       </model>
-      <model name='Lights_signal'>
+      <model name='Cattle_signal_15'>
         <pose>7.38337 -0.697614 0.025001 1.2e-05 -0 -1.11442</pose>
         <scale>1 1 1</scale>
         <link name='pictogram'>
@@ -3374,7 +3374,7 @@
           <wrench>0.014951 0.007231 -0.06644 0 -0 0</wrench>
         </link>
       </model>
-      <model name='Lights_signal_0'>
+      <model name='Cattle_signal_16'>
         <pose>-3.38551 4.96533 0.025 4e-06 -0 0.905167</pose>
         <scale>1 1 1</scale>
         <link name='pictogram'>
@@ -3390,7 +3390,7 @@
           <wrench>-0.013178 0.009654 -0.265381 0 -0 0</wrench>
         </link>
       </model>
-      <model name='Other_Dangers_signal'>
+      <model name='Cattle_signal_3'>
         <pose>3.51019 -1.14651 0.025002 -1.9e-05 -0 -1.61764</pose>
         <scale>1 1 1</scale>
         <link name='pictogram'>
@@ -3406,7 +3406,7 @@
           <wrench>-0.020728 0.000697 -0.082928 0 -0 0</wrench>
         </link>
       </model>
-      <model name='Other_Dangers_signal_0'>
+      <model name='Cattle_signal_4'>
         <pose>-5.1248 1.04292 0.025001 1e-05 -0 1.47794</pose>
         <scale>1 1 1</scale>
         <link name='pictogram'>
@@ -3422,7 +3422,7 @@
           <wrench>-0.01549 0.000824 -0.755827 0 -0 0</wrench>
         </link>
       </model>
-      <model name='Park_signal'>
+      <model name='Cattle_signal_11'>
         <pose>0.80939 -1.1885 0.025 2e-06 -0 -1.65941</pose>
         <scale>1 1 1</scale>
         <link name='pictogram'>
@@ -3438,7 +3438,7 @@
           <wrench>0.016492 -0.001748 -0.066356 0 -0 0</wrench>
         </link>
       </model>
-      <model name='Park_signal_0'>
+      <model name='Cattle_signal_12'>
         <pose>-3.13415 -1.2839 0.025 0 -0 -1.5078</pose>
         <scale>1 1 1</scale>
         <link name='pictogram'>
@@ -3454,7 +3454,7 @@
           <wrench>0.016535 0.001301 -0.066367 0 -0 0</wrench>
         </link>
       </model>
-      <model name='RMV_Signal'>
+      <model name='Cattle_signal_13'>
         <pose>6.44133 1.97575 0.025002 1.7e-05 -0 3.0593</pose>
         <scale>1 1 1</scale>
         <link name='pictogram'>
@@ -3470,7 +3470,7 @@
           <wrench>-0.001069 -0.01656 -0.066369 0 -0 0</wrench>
         </link>
       </model>
-      <model name='RMV_Signal_0'>
+      <model name='Cattle_signal_14'>
         <pose>-5.12761 3.22873 0.025001 1.2e-05 -0 -1.65765</pose>
         <scale>1 1 1</scale>
         <link name='pictogram'>
@@ -3486,7 +3486,7 @@
           <wrench>0.016556 -0.001341 -0.06644 0 -0 0</wrench>
         </link>
       </model>
-      <model name='Road_Narrow_signal'>
+      <model name='Cattle_signal_5'>
         <pose>4.75557 0.988519 0.025001 9e-06 0 1.51992</pose>
         <scale>1 1 1</scale>
         <link name='pictogram'>
@@ -3502,7 +3502,7 @@
           <wrench>-0.015586 0.000188 -0.712162 0 -0 0</wrench>
         </link>
       </model>
-      <model name='Road_Narrow_signal_0'>
+      <model name='Cattle_signal_6'>
         <pose>-4.08803 1.4013 0.025001 8e-06 -0 -2.9787</pose>
         <scale>1 1 1</scale>
         <link name='pictogram'>
@@ -3518,7 +3518,7 @@
           <wrench>0.002786 -0.01638 -0.066445 0 -0 0</wrench>
         </link>
       </model>
-      <model name='Round_About_signal'>
+      <model name='Cattle_signal_17'>
         <pose>8.5948 1.97851 0.025 2e-06 -0 -7e-05</pose>
         <scale>1 1 1</scale>
         <link name='pictogram'>
@@ -3534,7 +3534,7 @@
           <wrench>0.0002 0.016607 -0.066406 0 -0 0</wrench>
         </link>
       </model>
-      <model name='Round_About_signal_0'>
+      <model name='Cattle_signal_18'>
         <pose>-2.39073 3.51649 0.025 -2e-06 0 0.544288</pose>
         <scale>1 1 1</scale>
         <link name='pictogram'>
@@ -3550,7 +3550,7 @@
           <wrench>-0.008426 0.014304 -0.066402 0 -0 0</wrench>
         </link>
       </model>
-      <model name='Turn_Left_signal'>
+      <model name='Cattle_signal_19'>
         <pose>5.40861 3.29812 0.025001 -7e-06 -0 -1.63054</pose>
         <scale>1 1 1</scale>
         <link name='pictogram'>
@@ -3566,7 +3566,7 @@
           <wrench>-0.020631 0.001431 -0.082893 0 -0 0</wrench>
         </link>
       </model>
-      <model name='Turn_Left_signal_0'>
+      <model name='Cattle_signal_20'>
         <pose>-5.95143 -1.15058 0.025001 1.1e-05 -0 -1.58197</pose>
         <scale>1 1 1</scale>
         <link name='pictogram'>
