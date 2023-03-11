@@ -369,12 +369,11 @@ def main():
                 else:
                     tresshold_pose = round(area/500)
                
-                # if i == 17:
-                #     print(signal_name[i])
-                #     print(angle)
+                # if i == 1:
+                #     print((max_x-min_x)/image_ori.shape[1])
 
                 # If the signal is in the image and the signal is in front of the camera:
-                if min_x > -tresshold_pose and max_x < (image_ori.shape[1]+tresshold_pose) and min_y > -tresshold_pose and max_y < (image_ori.shape[0]+tresshold_pose) and points_test[i][2]>0 and angle > 100 and angle < 260 and area > 300:
+                if min_x > -tresshold_pose and max_x < (image_ori.shape[1]+tresshold_pose) and min_y > -tresshold_pose and max_y < (image_ori.shape[0]+tresshold_pose) and points_test[i][2]>0 and angle > 100 and angle < 260 and area > 300 and (max_x-min_x)/image_ori.shape[1] > 0.02:
                     
                     # Dictionary of signal
                     signal = {}
