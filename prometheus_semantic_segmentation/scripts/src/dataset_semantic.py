@@ -19,8 +19,8 @@ class DatasetSemantic(torch.utils.data.Dataset):
             self.images_original.append(image_set[0])
             self.image_label.append(image_set[1])
         self.num_images= len(self.images_original)
-        self.image_width = 224
-        self.image_height = 224
+        self.image_width = 64
+        self.image_height = 64
         # Create a set of transformations
         self.transforms = transforms.Compose([
             transforms.ToTensor(),
@@ -48,6 +48,8 @@ class DatasetSemantic(torch.utils.data.Dataset):
         img = Image.open(imgPath)
 
         img_label = Image.open(imgLabel)
+
+        img_label = img_label.convert("L")
 
         img = np.asarray(img)
 
@@ -105,19 +107,19 @@ class DatasetSemantic(torch.utils.data.Dataset):
     def __getitem__(self,index): # returns a specific x,y of the datasets
         # Get the image
         if self.augmentation == True:
-            image, label = self.augmentImage(self.images_original[index], self.image_label[index])
+            image, mask = self.augmentImage(self.images_original[index], self.image_label[index])
         else:
             image = Image.open(self.images_original[index])
             image = np.asarray(image)
-            label = Image.open(self.image_label[index])
-            label = np.asarray(label)
+            mask = Image.open(self.image_label[index])
+            mask = np.asarray(mask)
         # Preprocess the image
         image = self.pre_processing(image, self.image_width, self.image_height)
-        label = self.pre_processing(label, self.image_width, self.image_height)
-        image = self.transforms_tensor(np.array(image))
-        label = self.transforms_tensor(np.array(label))
+        mask = self.pre_processing(mask, self.image_width, self.image_height)
+        image = self.transforms(np.array(image))
+        mask = self.transforms_tensor(np.array(mask))
 
-        return image , label
+        return image , mask
        
     def __len__(self):
         return self.num_images

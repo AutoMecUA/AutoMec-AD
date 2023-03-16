@@ -15,7 +15,7 @@ class ClassificationVisualizer():
         self.title = title
         self.tensor_to_pil_image = transforms.ToPILImage()
 
-    def draw(self, inputs, labels, outputs):
+    def draw(self, inputs, masks, masks_predicted):
 
         # Setup figure
         self.figure = plt.figure(self.title)
@@ -34,21 +34,19 @@ class ClassificationVisualizer():
         plt.clf()
         
         for plot_idx, image_idx in enumerate(random_idxs, start=1):
-            if abs(outputs[image_idx].data.item() - labels[image_idx].data.item()) < 0.01:
-                color='green'
-            else:
-                color='red'
-
             image_t = inputs[image_idx,:,:,:]
+            mask_predicted_t = masks_predicted[image_idx,:,:,:]
             image_pil = self.tensor_to_pil_image(image_t)
+            mask_predicted_pil = self.tensor_to_pil_image(mask_predicted_t)
 
-            ax = self.figure.add_subplot(5,5,plot_idx) # define a 5 x 5 subplot matrix
-            plt.imshow(cv2.cvtColor(np.asarray(image_pil), cv2.COLOR_YUV2BGR))
+            ax = self.figure.add_subplot(5,10,plot_idx) # define a 5 x 5 subplot matrix
+            plt.imshow(cv2.cvtColor(np.asarray(image_pil), cv2.COLOR_BGR2RGB))
+            ax = self.figure.add_subplot(5,10,plot_idx+len(random_idxs)) # define a 5 x 5 subplot matrix
+            plt.imshow(cv2.cvtColor(np.asarray(mask_predicted_pil), cv2.COLOR_GRAY2BGR))
             ax.xaxis.set_ticklabels([])
             ax.yaxis.set_ticklabels([])
             ax.xaxis.set_ticks([])
             ax.yaxis.set_ticks([])
-            ax.set_xlabel(f'{round(outputs[image_idx].data.item()*180/pi,1)}º , {round(labels[image_idx].data.item()*180/pi,1)}º', color=color)
 
         plt.draw()
         key = plt.waitforbuttonpress(0.05)

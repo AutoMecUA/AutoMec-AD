@@ -41,7 +41,7 @@ def main():
                         help='Batch size')
     parser.add_argument('-c', '--cuda', default=0, type=int,
                         help='Number of cuda device')
-    parser.add_argument('-loss_t', '--loss_threshold', default=0.001, type=float,
+    parser.add_argument('-loss_t', '--loss_threshold', default=0.0, type=float,
                         help='Loss threshold criteria for when to stop')
     parser.add_argument('-lr', '--learning_rate', default=0.0001, type=float,
                         help='Learning rate')
@@ -54,6 +54,8 @@ def main():
                         help='How many subprocesses to use for data loading. 0 means that the data will be loaded in the main process.')
     parser.add_argument('-pff', '--prefetch_factor', type=int, default=2, 
                         help='Number of batches loaded in advance by each worker')
+    parser.add_argument('-m', '--model', default='createDeepLabv3(outputchannels=4)', type=str,
+                        help='Model to use [createDeepLabv3(outputchannels=4)]')
     parser.add_argument('-loss_f', '--loss_function', type=str, default='MSELoss()',
                         help='Type of loss function. [MSELoss()]')
 
@@ -65,7 +67,7 @@ def main():
     # Image dataset paths
     dataset_path = f'{files_path}/datasets/{args["dataset_name"]}/'
     dataset_RGB = glob.glob(dataset_path + '/leftImg8bit/train/*/*.png')
-    dataset_seg = glob.glob(dataset_path + '/gtFine/train/*/*color.png')
+    dataset_seg = glob.glob(dataset_path + '/gtFine/train/*/*labelIds.png')
     dataset = list(zip(dataset_RGB, dataset_seg))
 
     # Read YAML file
@@ -80,8 +82,7 @@ def main():
         os.makedirs(f'{files_path}/models') # Creates the folder
 
     device = f'cuda:{args["cuda"]}' if torch.cuda.is_available() else 'cpu' # cuda: 0 index of gpu
-    #model = eval(args['model']) # Instantiate model
-    model = createDeepLabv3(outputchannels=4)
+    model = eval(args['model']) # Instantiate model
     print(f'You are training using the device: ' + Fore.YELLOW + f'{device}' + Style.RESET_ALL)
 
 
@@ -220,7 +221,6 @@ def main():
             loss_visualizer.recomputeAxesRanges()
 
         print(f'{Fore.LIGHTBLUE_EX}Epoch {str(idx_epoch)} Train Loss: {str(epoch_train_loss)} Test Loss: {str(epoch_test_loss)} With learning rate: {str(scheduler.get_last_lr())} {Style.RESET_ALL}')
-
         ########################################
         # Termination criteria                 #
         ########################################
