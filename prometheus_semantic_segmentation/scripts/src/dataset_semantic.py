@@ -116,6 +116,7 @@ class DatasetSemantic(torch.utils.data.Dataset):
         # Preprocess the image
         image = self.pre_processing(image, self.image_width, self.image_height)
         mask = self.pre_processing(mask, self.image_width, self.image_height)
+        # Convert to tensor
         image = self.transforms(np.array(image))
         mask = self.transforms_tensor(np.array(mask))
 

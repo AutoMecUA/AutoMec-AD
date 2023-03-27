@@ -8,16 +8,12 @@ import pandas as pd
 from tqdm import tqdm
 from colorama import Fore, Style
 import torch
+import glob
 
 #  custom imports
-from src.dataset import Dataset
+from models.deeplabv3 import createDeepLabv3
+from src.dataset_semantic import DatasetSemantic
 from src.results import SaveResults
-from models.cnn_nvidia import Nvidia_Model
-from models.cnn_rota import Rota_Model
-from models.mobilenetv2 import MobileNetV2
-from models.inceptionV3 import InceptionV3
-from models.vgg import MyVGG
-from models.resnet import ResNet
 from src.utils import LoadModel
 from src.visualization import ClassificationVisualizer
 
@@ -34,7 +30,7 @@ def main():
                         help='folder name of the dataset')
     parser.add_argument('-r', '--results_name', type=str, required=True,
                         help='folder name of the results')
-    parser.add_argument('-fn', '--folder_name', type=str, required=True,
+    parser.add_argument('-mn', '--model_name', type=str, required=True,
                         help='folder name where the model is stored')
     parser.add_argument('-batch_size', '--batch_size', default=256, type=int,
                         help='Batch size')
@@ -43,7 +39,7 @@ def main():
     parser.add_argument('-pff', '--prefetch_factor', type=int, default=2, 
                         help='Number of batches loaded in advance by each worker')
     parser.add_argument('-m', '--model', default='Nvidia_Model()', type=str,
-                        help='Model to use [Nvidia_Model(), Rota_Model(), MobileNetV2(), InceptionV3(), MyVGG(), ResNet()]')
+                        help='Model to use [createDeepLabv3(outputchannels=1)]')
     parser.add_argument('-c', '--cuda', default=0, type=int,
                         help='Number of cuda device')
 
@@ -59,44 +55,37 @@ def main():
         print(f'{Fore.RED}The dataset does not exist{Style.RESET_ALL}')
         exit()
 
-    columns = ['img_name','steering', 'velocity'] 
-    df = pd.read_csv(os.path.join(dataset_path, 'driving_log.csv'), names = columns)
-
-    del df["velocity"] # not in use, currently
-    df.head()
-
-    print(f'{Fore.BLUE}The dataset has {len(df)} images{Style.RESET_ALL}')
+    dataset_RGB = glob.glob(dataset_path + '/leftImg8bit/train/*/*.png')
+    dataset_seg = glob.glob(dataset_path + '/gtFine/train/*/*labelIds.png')
+    dataset = list(zip(dataset_RGB, dataset_seg))
 
     device = f'cuda:{args["cuda"]}' if torch.cuda.is_available() else 'cpu' # cuda: 0 index of gpu
 
-    model_path = f'{files_path}/models/{args["folder_name"]}/{args["folder_name"]}.pkl'
+    model_path = f'{files_path}/models/{args["model_name"]}/{args["model_name"]}.pkl'
     model = eval(args['model']) # Instantiate model
     model= LoadModel(model_path,model,device)
     model.eval()
 
-    dataset_test = Dataset(df,dataset_path,augmentation=False)
+    dataset_test = DatasetSemantic(dataset,augmentation=False)
     loader_test = torch.utils.data.DataLoader(dataset=dataset_test, batch_size=args['batch_size'], shuffle=True , num_workers=args['num_workers'] , prefetch_factor=args['prefetch_factor'])
 
     # Init visualization of loss
     if args['visualize']: # Checks if the user wants to visualize the loss
         test_visualizer = ClassificationVisualizer('Test Images')
     # Init results
-    results = SaveResults(results_folder, args["folder_name"], args["dataset_name"])
+    results = SaveResults(results_folder, args["model_name"], args["dataset_name"])
     label_predicted = []
     label = []
-    for batch_idx, (image_t, label_t) in tqdm(enumerate(loader_test), total=len(loader_test), desc=Fore.GREEN + 'Testing batches' +  Style.RESET_ALL):
+    for batch_idx, (image_t, masks) in tqdm(enumerate(loader_test), total=len(loader_test), desc=Fore.GREEN + 'Testing batches' +  Style.RESET_ALL):
 
         image_t = image_t.to(device=device, dtype=torch.float)
-        label_t = label_t.to(device=device, dtype=torch.float).unsqueeze(1)
+        masks = masks.to(device=device, dtype=torch.float)
 
         # Apply the network to get the predicted ys
-        label_t_predicted = model.forward(image_t)
+        masks_predicted = model.forward(image_t)
         # Compute the error based on the predictions
-        for idx in range(len(label_t_predicted)):
-            label_predicted.append(label_t_predicted[idx].data.item())
-            label.append(label_t[idx].data.item())
         if args['visualize']:
-            test_visualizer.draw(image_t, label_t, label_t_predicted)
+            test_visualizer.draw(image_t, masks, masks_predicted['out'])
     
     results.updateCSV(label_predicted, label , len(label_predicted))
     results.saveCSV()

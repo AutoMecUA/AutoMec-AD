@@ -1,12 +1,25 @@
-from math import pi
-import random
-import matplotlib.pyplot as plt
-from torchvision import transforms
-import torch
-import numpy as np
+#!/usr/bin/python3
+
+# Imports 
+from functools import partial
+import time
+from typing import Any
 import cv2
 
+import numpy as np
+import rospy
+import yaml
+import os
+from colorama import Fore, Style
+import torch
+from torchvision import transforms
+from sensor_msgs.msg._Image import Image
+from cv_bridge.core import CvBridge
 from collections import namedtuple
+
+#  custom imports
+from models.deeplabv3 import createDeepLabv3
+from src.utils import LoadModel
 
 Label = namedtuple( 'Label' , [
 
@@ -45,15 +58,24 @@ Label = namedtuple( 'Label' , [
     ] )
 
 
-class ClassificationVisualizer():
+def imgRgbCallback(message, config):
 
-    def __init__(self, title):
-       
-        # Initial parameters
-        self.handles = {} # dictionary of handles per layer
-        self.title = title
-        self.tensor_to_pil_image = transforms.ToPILImage()
-        self.labels = [
+    config['img_rgb'] = config['bridge'].imgmsg_to_cv2(message, "passthrough")
+
+    config["begin_img"] = True
+
+def preProcess(img, img_width=64, img_height=64):  
+    img = cv2.resize(img, (img_width, img_height))  
+
+    return img 
+
+
+# Main code
+def main():
+    ########################################
+    # Initialization                       #
+    ########################################
+    labels = [
             #       name                     id    trainId   category            catId     hasInstances   ignoreInEval   color
             Label(  'unlabeled'            ,  0 ,      255 , 'void'            , 0       , False        , True         , (  0,  0,  0) ),
             Label(  'ego vehicle'          ,  1 ,      255 , 'void'            , 0       , False        , True         , (  0,  0,  0) ),
@@ -91,110 +113,79 @@ class ClassificationVisualizer():
             Label(  'bicycle'              , 33 ,       18 , 'vehicle'         , 7       , True         , False        , (119, 11, 32) ),
             Label(  'license plate'        , -1 ,       -1 , 'vehicle'         , 7       , False        , True         , (  0,  0,142) ),
         ]
-
-    def draw(self, inputs, masks, masks_predicted):
-
-        # Setup figure
-        self.figure = plt.figure(self.title)
-        plt.axis('off')
-        self.figure.canvas.manager.set_window_title(self.title)
-        self.figure.set_size_inches(10,7)
-        plt.suptitle(self.title)
-
-        inputs = inputs
-        batch_size,_,_,_ = list(inputs.shape)
-
-        if batch_size < 25:
-            random_idxs = random.sample(list(range(batch_size)), k=batch_size)
-        else:
-            random_idxs = random.sample(list(range(batch_size)), k=5*5)
-        plt.clf()
-        
-        for plot_idx, image_idx in enumerate(random_idxs, start=1):
-            image_t = inputs[image_idx,:,:,:]
-            mask_predicted_t = masks_predicted[image_idx,:,:]
-            image_pil = self.tensor_to_pil_image(image_t)
-            mask_predicted_pil = self.tensor_to_pil_image(mask_predicted_t)
-
-            mask_color = np.zeros([64, 64, 3], dtype=np.uint8)
-            for i in range(mask_color.shape[0]):
-                for j in range(mask_color.shape[1]):
-                    for label in self.labels:
-                        if np.asarray(mask_predicted_pil)[i,j] == label.trainId:
-                            mask_color[i,j,:] = label.color
-
-            ax = self.figure.add_subplot(5,10,plot_idx) # define a 5 x 5 subplot matrix
-            plt.imshow(cv2.cvtColor(np.asarray(image_pil), cv2.COLOR_BGR2RGB))
-            ax = self.figure.add_subplot(5,10,plot_idx+len(random_idxs)) # define a 5 x 5 subplot matrix
-            plt.imshow(mask_color)
-            ax.xaxis.set_ticklabels([])
-            ax.yaxis.set_ticklabels([])
-            ax.xaxis.set_ticks([])
-            ax.yaxis.set_ticks([])
-
-        plt.draw()
-        key = plt.waitforbuttonpress(0.05)
-        if not plt.fignum_exists(1):
-            print('Terminating')
-            exit(0)
             
+    config: dict[str, Any] = dict(vel=None, img_rgb=None,
+                                  bridge=None, begin_img=None)
+    
+    PIL_to_Tensor = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        ])
+
+    tensor_to_pil_image = transforms.ToPILImage()
+
+    # Defining starting values
+    config["begin_img"] = False
+    config["bridge"] = CvBridge()
+
+    win_name = 'Semantic Segmentation'
+    cv2.namedWindow(winname=win_name,flags=cv2.WINDOW_NORMAL)
+
+    image_raw_topic = rospy.get_param('~image_raw_topic', '/top_front_camera/rgb/image_raw')
+    model_name = rospy.get_param('/model_semantic_name', 'segmentation')
+
+    rospy.init_node('semantic_segmentation', anonymous=False)
+
+    # General Path
+    automec_path=os.environ.get('AUTOMEC_DATASETS')
+    path = f'{automec_path}/models/{model_name}/{model_name}.pkl'
+
+    device = f'cuda:0' if torch.cuda.is_available() else 'cpu' # cuda: 0 index of gpu
+
+    # Retrieving info from yaml
+    with open(f'{automec_path}/models/{model_name}/{model_name}.yaml') as file:
+        info_loaded = yaml.load(file, Loader=yaml.FullLoader)
+
+    rospy.loginfo('Using model: %s', path)
+    config['model'] = eval(info_loaded['model']['ml_arch']['name'])
+    config['model'] = LoadModel(path,config['model'],device)
+    config['model'].eval()
+    
+    imgRgbCallback_part = partial(imgRgbCallback, config=config)
+
+    rospy.Subscriber(image_raw_topic, Image, imgRgbCallback_part)
+
+    # Frames per second
+    rate = rospy.Rate(30)
+
+    while not rospy.is_shutdown():
+
+        if config["begin_img"] is False:
+            continue
+        preivous_time = time.time()
+        # Obtain segmented iamage
+        resized_img = preProcess(config["img_rgb"])
+        image = np.array(resized_img)
+        image = PIL_to_Tensor(image)
+        image = image.unsqueeze(0)
+        image = image.to(device, dtype=torch.float)
+        mask_predicted = config['model'](image)
+        mask_predicted_output = mask_predicted['out']
+
+        mask_predicted_pil = tensor_to_pil_image(mask_predicted_output[0,:,:,:])
+        mask_color = np.zeros([64, 64, 3], dtype=np.uint8)
+        for i in range(mask_color.shape[0]):
+            for j in range(mask_color.shape[1]):
+                for label in labels:
+                    if np.asarray(mask_predicted_pil)[i,j] == label.trainId:
+                        mask_color[i,j,:] = label.color
+
+        print(f'FPS: {1/(time.time()-preivous_time)}')
+        cv2.imshow(win_name, mask_color)
+        key = cv2.waitKey(1)
+        # Publish angle
+        rate.sleep()
 
 
-
-
-class DataVisualizer():
-
-    def __init__(self, title):
-       
-        # Initial parameters
-        self.handles = {} # dictionary of handles per layer
-        self.title = title
-         
-        # Setup figure
-        self.figure = plt.figure(title)
-        self.figure.canvas.manager.set_window_title(title)
-        self.figure.set_size_inches(4,3)
-        plt.suptitle(title)
-        plt.legend(loc='best')
-        plt.waitforbuttonpress(0.1)
-
-    def draw(self,xs,ys, layer='default', marker='.', markersize=1, color=[0.5,0.5,0.5], alpha=1, label='', x_label='', y_label=''):
-
-        xs,ys = self.toNP(xs,ys) # make sure we have np arrays
-        plt.figure(self.title)
-
-
-        if not layer in self.handles: # first time drawing this layer
-            self.handles[layer] = plt.plot(xs, ys, marker, markersize=markersize, 
-                                        color=color, alpha=alpha, label=label)
-            plt.legend(loc='best')
-
-        else: # use set to edit plot
-            plt.setp(self.handles[layer], data=(xs, ys))  # update lm
-
-        plt.xlabel(x_label)    
-        plt.ylabel(y_label)    
-        plt.draw()
-
-        key = plt.waitforbuttonpress(0.01)
-        if not plt.fignum_exists(1):
-            print('Terminating')
-            exit(0)
-
-    def toNP(self, xs, ys):
-        if torch.is_tensor(xs):
-            xs = xs.cpu().detach().numpy()
-
-        if torch.is_tensor(ys):
-            ys = ys.cpu().detach().numpy()
-
-        return xs,ys
-
-
-    def recomputeAxesRanges(self):
-
-        plt.figure(self.title)
-        ax = plt.gca()
-        ax.relim()
-        ax.autoscale_view()
-        plt.draw()
+if __name__ == '__main__':
+    main()

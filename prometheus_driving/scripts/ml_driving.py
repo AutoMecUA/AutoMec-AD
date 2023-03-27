@@ -81,7 +81,6 @@ def main():
     model_name = rospy.get_param('/model_name', '')
 
     # Defining path to model
-    s = str(pathlib.Path(__file__).parent.absolute())
     automec_path = os.environ.get('AUTOMEC_DATASETS')
     path = f'{automec_path}/models/{model_name}/{model_name}.pkl'
 

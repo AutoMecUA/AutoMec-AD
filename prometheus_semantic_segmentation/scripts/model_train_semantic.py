@@ -55,7 +55,7 @@ def main():
     parser.add_argument('-pff', '--prefetch_factor', type=int, default=2, 
                         help='Number of batches loaded in advance by each worker')
     parser.add_argument('-m', '--model', default='createDeepLabv3(outputchannels=4)', type=str,
-                        help='Model to use [createDeepLabv3(outputchannels=4)]')
+                        help='Model to use [createDeepLabv3(outputchannels=1)]')
     parser.add_argument('-loss_f', '--loss_function', type=str, default='MSELoss()',
                         help='Type of loss function. [MSELoss()]')
 
@@ -76,7 +76,7 @@ def main():
 
     model_name = args["folder_name"]
     model_path = files_path + f'/models/{args["folder_name"]}/{args["folder_name"]}.pkl'
-    folder_path =files_path + f'/models/{args["folder_name"]}'
+    folder_path = files_path + f'/models/{args["folder_name"]}'
     # Checks if the models folder exists if not create
     if not os.path.exists(f'{files_path}/models'):
         os.makedirs(f'{files_path}/models') # Creates the folder
