@@ -19,6 +19,7 @@ from collections import namedtuple
 
 #  custom imports
 from models.deeplabv3 import createDeepLabv3
+from models.yolop import yolop
 from src.utils import LoadModel
 
 Label = namedtuple( 'Label' , [
