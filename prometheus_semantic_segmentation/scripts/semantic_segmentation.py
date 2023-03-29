@@ -173,16 +173,18 @@ def main():
         mask_predicted = config['model'](image)
         mask_predicted_output = mask_predicted['out']
 
-        mask_predicted_pil = tensor_to_pil_image(mask_predicted_output[0,:,:,:])
-        mask_color = np.zeros([64, 64, 3], dtype=np.uint8)
-        for i in range(mask_color.shape[0]):
-            for j in range(mask_color.shape[1]):
-                for label in labels:
-                    if np.asarray(mask_predicted_pil)[i,j] == label.trainId:
-                        mask_color[i,j,:] = label.color
+        mask_predicted_output = mask_predicted_output.detach().cpu().numpy()
+
+        # mask_predicted_pil = tensor_to_pil_image(mask_predicted_output[0,:,:,:])
+        # mask_color = np.zeros([64, 64, 3], dtype=np.uint8)
+        # for i in range(mask_color.shape[0]):
+        #     for j in range(mask_color.shape[1]):
+        #         for label in labels:
+        #             if np.asarray(mask_predicted_pil)[i,j] == label.trainId:
+        #                 mask_color[i,j,:] = label.color
 
         print(f'FPS: {1/(time.time()-preivous_time)}')
-        cv2.imshow(win_name, mask_color)
+        cv2.imshow(win_name, mask_predicted_output)
         key = cv2.waitKey(1)
         # Publish angle
         rate.sleep()

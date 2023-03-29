@@ -43,10 +43,11 @@ def LoadModel(model_path,model,device):
     model.to(device) # move the model variable to the gpu if one exists
     return model
 
-def SaveGraph(train_losses,test_losses,folder_name):
+def SaveGraph(train_losses,test_losses,folder_name,last_saved_epoch):
     plt.figure()
     plt.plot(train_losses, label='train loss')
     plt.plot(test_losses, label='test loss')
+    plt.axvline(x = last_saved_epoch, color = 'b', label = 'last saved epoch')
     plt.xlabel("Epoch")    
     plt.ylabel("Loss")   
     plt.legend()

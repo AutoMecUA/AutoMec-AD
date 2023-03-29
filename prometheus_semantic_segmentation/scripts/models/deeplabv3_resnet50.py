@@ -14,7 +14,7 @@ def createDeepLabv3_resnet50():
     Returns:
         model: Returns the DeepLabv3 model with the ResNet101 backbone.
     """
-    Net = models.segmentation.deeplabv3_resnet50(pretrained=True)
+    Net = models.segmentation.deeplabv3_resnet50(weights=models.segmentation.DeepLabV3_ResNet50_Weights.COCO_WITH_VOC_LABELS_V1)
     Net.classifier[4] = nn.Conv2d(256, 1, kernel_size=(1, 1), stride=(1, 1)) # Change final layer to 3 classes
     # Set the model in training mode
     Net.train()
