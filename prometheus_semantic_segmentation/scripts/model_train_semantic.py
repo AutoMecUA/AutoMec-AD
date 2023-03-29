@@ -18,6 +18,7 @@ import yaml
 # Custom imports
 from src.dataset_semantic import DatasetSemantic
 from models.deeplabv3 import createDeepLabv3
+from models.deeplabv3_resnet50 import createDeepLabv3_resnet50
 from src.utils import SaveModel, SaveGraph
 from src.visualization import DataVisualizer, ClassificationVisualizer
 

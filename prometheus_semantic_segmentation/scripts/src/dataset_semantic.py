@@ -19,8 +19,8 @@ class DatasetSemantic(torch.utils.data.Dataset):
             self.images_original.append(image_set[0])
             self.image_label.append(image_set[1])
         self.num_images= len(self.images_original)
-        self.image_width = 64
-        self.image_height = 64
+        self.image_width = 112
+        self.image_height = 112
         # Create a set of transformations
         self.transforms = transforms.Compose([
             transforms.ToTensor(),
@@ -49,11 +49,16 @@ class DatasetSemantic(torch.utils.data.Dataset):
 
         img_label = Image.open(imgLabel)
 
-        img_label = img_label.convert("L")
+        #img_label = img_label.convert("L")
 
         img = np.asarray(img)
 
         img_label = np.asarray(img_label)
+
+        # win_name='Augmented Image'
+        # cv2.namedWindow(winname=win_name,flags=cv2.WINDOW_NORMAL)
+        # cv2.imshow(win_name, img_label)
+        # cv2.waitKey(0)
 
         #img = mpimg.imread(imgPath)
 

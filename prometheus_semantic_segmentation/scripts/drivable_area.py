@@ -20,7 +20,6 @@ from collections import namedtuple
 #  custom imports
 from models.deeplabv3 import createDeepLabv3
 from models.yolop import yolop
-from src.utils import LoadModel
 
 
 def imgRgbCallback(message, config):
@@ -29,7 +28,7 @@ def imgRgbCallback(message, config):
 
     config["begin_img"] = True
 
-def preProcess(img, img_width=640, img_height=640):  
+def preProcess(img, img_width=597, img_height=91):  
     img = cv2.resize(img, (img_width, img_height))  
 
     return img 
@@ -73,6 +72,7 @@ def main():
 
     rospy.loginfo('Using model: %s', path)
     config['model'] = yolop()
+    config['model'].to(device)
     config['model'].eval()
     
     imgRgbCallback_part = partial(imgRgbCallback, config=config)
@@ -87,17 +87,22 @@ def main():
         if config["begin_img"] is False:
             continue
         preivous_time = time.time()
-        # Obtain segmented iamage
+        # Obtain segmented image
         resized_img = preProcess(config["img_rgb"])
         image = np.array(resized_img)
         image = PIL_to_Tensor(image)
         image = image.unsqueeze(0)
         image = image.to(device, dtype=torch.float)
         det_out, da_seg_out,ll_seg_out = config['model'](image)
-
+        
+        _, da_seg_mask = torch.max(da_seg_out, 1)
+        da_seg_mask = da_seg_mask.cpu().int().squeeze().numpy()
+        print(da_seg_mask.shape)
+        da_seg_mask = da_seg_mask.astype(np.uint8)
+        da_seg_mask = 255*da_seg_mask
 
         print(f'FPS: {1/(time.time()-preivous_time)}')
-        cv2.imshow(win_name, da_seg_out)
+        cv2.imshow(win_name, da_seg_mask)
         key = cv2.waitKey(1)
         # Publish angle
         rate.sleep()

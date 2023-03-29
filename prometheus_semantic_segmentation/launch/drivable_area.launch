@@ -6,7 +6,6 @@
   
   <node name="drivable_area" pkg="prometheus_semantic_segmentation" type="drivable_area.py" output="screen" required="true" >
     <param name="image_raw_topic" value="$(arg image_raw_topic)" />
-    <param name="model_semantic_name" value="$(arg model_name)" />
   </node>
   
 </launch>
