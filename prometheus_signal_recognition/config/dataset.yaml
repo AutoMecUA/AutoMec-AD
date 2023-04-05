@@ -1,0 +1,18 @@
+train: Signals_all/train
+val: Signals_all/test
+nc: 13
+names: ['erro',
+    'Bus_signal',
+    'Depression_signal',
+    'Turn_Left_signal',
+    'Road_Narrow_signal',
+    'Lights_signal',
+    'Hospital_signal',
+    'Park_signal',
+    'Crosswalh_signal',
+    'Other_Dangers_signal',
+    'Round_ABout_singal',
+    'RMV_signal',
+    'Cattle_signal',
+
+]
