@@ -116,17 +116,17 @@ class ClassificationVisualizer():
             image_pil = self.tensor_to_pil_image(image_t)
             mask_predicted_pil = self.tensor_to_pil_image(mask_predicted_t)
 
-            mask_color = np.zeros([64, 64, 3], dtype=np.uint8)
-            for i in range(mask_color.shape[0]):
-                for j in range(mask_color.shape[1]):
-                    for label in self.labels:
-                        if np.asarray(mask_predicted_pil)[i,j] == label.trainId:
-                            mask_color[i,j,:] = label.color
+            # mask_color = np.zeros([112, 112, 3], dtype=np.uint8)
+            # for i in range(mask_color.shape[0]):
+            #     for j in range(mask_color.shape[1]):
+            #         for label in self.labels:
+            #             if np.asarray(mask_predicted_pil)[i,j] == label.trainId:
+            #                 mask_color[i,j,:] = label.color
 
             ax = self.figure.add_subplot(5,10,plot_idx) # define a 5 x 5 subplot matrix
-            plt.imshow(cv2.cvtColor(np.asarray(image_pil), cv2.COLOR_BGR2RGB))
+            plt.imshow(np.asarray(image_pil))
             ax = self.figure.add_subplot(5,10,plot_idx+len(random_idxs)) # define a 5 x 5 subplot matrix
-            plt.imshow(mask_color)
+            plt.imshow(mask_predicted_pil , cmap='gray')
             ax.xaxis.set_ticklabels([])
             ax.yaxis.set_ticklabels([])
             ax.xaxis.set_ticks([])

@@ -45,7 +45,7 @@ class DatasetSemantic(torch.utils.data.Dataset):
 
     def augmentImage(self,imgPath, imgLabel):
         # Function: Add randomness to the data set by applying random "filters"
-        img = Image.open(imgPath)
+        img = Image.open(imgPath).convert("RGB")
 
         img_label = Image.open(imgLabel)
 
@@ -114,7 +114,7 @@ class DatasetSemantic(torch.utils.data.Dataset):
         if self.augmentation == True:
             image, mask = self.augmentImage(self.images_original[index], self.image_label[index])
         else:
-            image = Image.open(self.images_original[index])
+            image = Image.open(self.images_original[index]).convert("RGB")
             image = np.asarray(image)
             mask = Image.open(self.image_label[index])
             mask = np.asarray(mask)

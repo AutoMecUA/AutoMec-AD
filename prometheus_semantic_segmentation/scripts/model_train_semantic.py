@@ -92,7 +92,7 @@ def main():
     maximum_num_epochs = args['max_epoch'] 
     termination_loss_threshold =  args['loss_threshold']
     loss_function = eval(args['loss_function']) # Instantiate loss function
-    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate , weight_decay=args['weight_decay'])
+    optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate , momentum=0.9 , weight_decay=args['weight_decay'])
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=args['lr_step_size'], gamma=args['lr_gamma'])
 
     ########################################
@@ -101,7 +101,7 @@ def main():
     # Sample ony a few images for development
     train_dataset,test_dataset = train_test_split(dataset,test_size=0.2)
     # Creates the train dataset
-    dataset_train = DatasetSemantic(train_dataset)
+    dataset_train = DatasetSemantic(train_dataset , augmentation=False)
     # Creates the test dataset
     dataset_test = DatasetSemantic(test_dataset , augmentation=False)
 
