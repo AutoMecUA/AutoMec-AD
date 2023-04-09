@@ -174,8 +174,8 @@ def main():
             continue
         preivous_time = time.time()
         # Obtain segmented iamage
-        #config['img_rgb'] = IMG.open('/media/andre/Andre/Automec/datasets/cityscapes/leftImg8bit/train/aachen/aachen_000000_000019_leftImg8bit.png')
-        #config['img_rgb'] = np.asarray(config['img_rgb'])
+        config['img_rgb'] = IMG.open('/media/andre/Andre/Automec/datasets/cityscapes/leftImg8bit/train/aachen/aachen_000000_000019_leftImg8bit.png')
+        config['img_rgb'] = np.asarray(config['img_rgb'])
         resized_img = preProcess(config["img_rgb"])
         image = PIL_to_Tensor(resized_img)
         image = image.unsqueeze(0)

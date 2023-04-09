@@ -101,9 +101,9 @@ def main():
     # Sample ony a few images for development
     train_dataset,test_dataset = train_test_split(dataset,test_size=0.2)
     # Creates the train dataset
-    dataset_train = DatasetSemantic(train_dataset , augmentation=False)
+    dataset_train = DatasetSemantic(train_dataset)
     # Creates the test dataset
-    dataset_test = DatasetSemantic(test_dataset , augmentation=False)
+    dataset_test = DatasetSemantic(test_dataset , augmentation=True)
 
     # Creates the batch size that suits the amount of memory the graphics can handle
     loader_train = torch.utils.data.DataLoader(dataset=dataset_train,batch_size=args['batch_size'],shuffle=True , num_workers=args['num_workers'] , prefetch_factor=args['prefetch_factor'])
