@@ -39,7 +39,7 @@ def SaveModel(model,idx_epoch,optimizer,training_loader,testing_loader,epoch_tra
 
 def LoadModel(model_path,model,device):
     checkpoint = torch.load(model_path)
-    model.load_state_dict(checkpoint['model_state_dict'])
+    model.load_state_dict(checkpoint['model_state_dict'],strict=False)
     model.to(device) # move the model variable to the gpu if one exists
     return model
 

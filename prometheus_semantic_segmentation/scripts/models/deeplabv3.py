@@ -5,7 +5,7 @@ from torchvision.models.segmentation.deeplabv3 import DeepLabHead
 from torchvision import models
 
 
-def createDeepLabv3(outputchannels=4):
+def createDeepLabv3(outputchannels=1):
     """DeepLabv3 class with custom head
     Args:
         outputchannels (int, optional): The number of output channels

@@ -20,6 +20,7 @@ from collections import namedtuple
 
 #  custom imports
 from models.deeplabv3 import createDeepLabv3
+from models.deeplabv3_v1 import deeplabv3_v1
 from models.deeplabv3_resnet50 import createDeepLabv3_resnet50
 from models.yolop import yolop
 from models.espnetv2_bdd100k_driveable import Model
@@ -125,7 +126,7 @@ def main():
     
     PIL_to_Tensor = transforms.Compose([
             transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+            #transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
         ])
 
     tensor_to_pil_image = transforms.ToPILImage()
@@ -153,6 +154,7 @@ def main():
         info_loaded = yaml.load(file, Loader=yaml.FullLoader)
 
     rospy.loginfo('Using model: %s', path)
+    print(info_loaded['model']['ml_arch']['name'])
     config['model'] = eval(info_loaded['model']['ml_arch']['name'])
     config['model'] = LoadModel(path,config['model'],device)
     config['model'].eval()
@@ -199,6 +201,7 @@ def main():
 
         print(f'FPS: {1/(time.time()-preivous_time)}')
         cv2.imshow(win_name, cv2.cvtColor(mask[mask_predicted_output] , cv2.COLOR_RGB2BGR) )
+        #cv2.imshow(win_name, np.array(mask_predicted_output))
         key = cv2.waitKey(1)
         # Publish angle
         rate.sleep()

@@ -76,7 +76,7 @@ class CNN(nn.Module):
         return out
 
 class LSTM(nn.Module):
-    def __init__(self,hidden_dim=1024 , num_layers=4):
+    def __init__(self,hidden_dim=1024 , num_layers=4 , dropout=0.20):
         super().__init__()
         self.hidden_dim = hidden_dim
         self.num_layers = num_layers
@@ -92,7 +92,7 @@ class LSTM(nn.Module):
 
         self.linear = nn.Linear(hidden_dim, 1)
 
-        self.dropout = nn.Dropout(0.20)
+        self.dropout = nn.Dropout(dropout)
         
         
     def forward(self,x):
@@ -111,6 +111,8 @@ class LSTM(nn.Module):
         lstm_out , (self.fc_h, self.fc_c) = self.lstm(x , (h0,c0))
         #print('lstm_out = ' + str(lstm_out.shape))
         out = lstm_out[:,-1,:]
+
+        out = self.dropout(out)
 
         out = self.linear(out)
 

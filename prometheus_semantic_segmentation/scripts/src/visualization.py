@@ -92,6 +92,16 @@ class ClassificationVisualizer():
             Label(  'license plate'        , -1 ,       -1 , 'vehicle'         , 7       , False        , True         , (  0,  0,142) ),
         ]
 
+        # self.labels = [
+        #     #       name                     id    trainId   category            catId     hasInstances   ignoreInEval   color
+        #     Label(  'background'            ,  0 ,      255 , 'void'            , 0       , False        , True         , (  0,  0,  0) ),
+        #     Label(  'crosswalk'             ,  1 ,      255 , 'void'            , 0       , False        , True         , (255,255,255) ),
+        #     Label(  'driveable'             ,  2 ,      255 , 'void'            , 0       , False        , True         , (128, 64,128) ),
+        #     Label(  'driveable_alt'         ,  3 ,      255 , 'void'            , 0       , False        , True         , (244, 35,232) ),
+        #     Label(  'parking'               ,  4 ,      255 , 'void'            , 0       , False        , True         , (250,170,160) ),
+        # ]
+
+
         self.mask = np.array([label.color for label in self.labels], dtype = np.uint8)
 
     def draw(self, inputs, masks, masks_predicted):
@@ -113,15 +123,19 @@ class ClassificationVisualizer():
         plt.clf()
         
         for plot_idx, image_idx in enumerate(random_idxs, start=1):
-            image_t = inputs[image_idx,:,:,:]
-            mask_predicted_t = masks_predicted[image_idx,:,:]
+            image_t = inputs[image_idx,:,:,:].detach().cpu()
+            mask_predicted_t = masks_predicted[image_idx,:,:].detach().cpu()
+            mask= masks[image_idx].detach().cpu()
             image_pil = self.tensor_to_pil_image(image_t)
-            mask_predicted_pil = self.tensor_to_pil_image(mask_predicted_t)
+            mask_predicted_pil = self.tensor_to_pil_image(mask_predicted_t[0])
+            mask=self.tensor_to_pil_image(mask)
 
-            ax = self.figure.add_subplot(5,10,plot_idx) # define a 5 x 5 subplot matrix
+            ax = self.figure.add_subplot(5,15,plot_idx) # define a 5 x 5 subplot matrix
             plt.imshow(np.asarray(image_pil))
-            ax = self.figure.add_subplot(5,10,plot_idx+len(random_idxs)) # define a 5 x 5 subplot matrix
-            plt.imshow(self.mask[mask_predicted_pil] )
+            ax = self.figure.add_subplot(5,15,plot_idx+len(random_idxs)) # define a 5 x 5 subplot matrix
+            plt.imshow(mask_predicted_pil , cmap='gray')
+            ax = self.figure.add_subplot(5,15,plot_idx+len(random_idxs)+len(random_idxs)) # define a 5 x 5 subplot matrix
+            plt.imshow(self.mask[mask])
             ax.xaxis.set_ticklabels([])
             ax.yaxis.set_ticklabels([])
             ax.xaxis.set_ticks([])
@@ -133,9 +147,6 @@ class ClassificationVisualizer():
             print('Terminating')
             exit(0)
             
-
-
-
 
 class DataVisualizer():
 
