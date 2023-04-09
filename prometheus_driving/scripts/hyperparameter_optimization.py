@@ -53,7 +53,7 @@ def main():
         lr_step_size = lr_step_size_test
         lr = lr_step_size_default
         print(Fore.BLUE + f'Running with lr={lr}, lr_step_size={lr_step_size}, dropout={dropout}, wd={wd}' + Style.RESET_ALL)
-        os.system(f'rosrun prometheus_driving model_train.py -d {args["dataset_name"]} -fn lr_{lr} -m "LSTM(dropout={dropout})" -n_epochs {args["max_epoch"]} -batch_size {args["batch_size"]} -loss_f "MSELoss()" -nw 4 -lr {lr} -lr_step_size {lr_step_size} -wd {wd} -c {args["cuda"]}')
+        os.system(f'rosrun prometheus_driving model_train.py -d {args["dataset_name"]} -fn lr_step_size_{lr} -m "LSTM(dropout={dropout})" -n_epochs {args["max_epoch"]} -batch_size {args["batch_size"]} -loss_f "MSELoss()" -nw 4 -lr {lr} -lr_step_size {lr_step_size} -wd {wd} -c {args["cuda"]}')
     
     for dropout_test in hyperparameters['dropout']:
         wd = wd_default
@@ -61,7 +61,7 @@ def main():
         lr_step_size = lr_step_size_default
         lr = lr_default
         print(Fore.BLUE + f'Running with lr={lr}, lr_step_size={lr_step_size}, dropout={dropout}, wd={wd}' + Style.RESET_ALL)
-        os.system(f'rosrun prometheus_driving model_train.py -d {args["dataset_name"]} -fn lr_{lr} -m "LSTM(dropout={dropout})" -n_epochs {args["max_epoch"]} -batch_size {args["batch_size"]} -loss_f "MSELoss()" -nw 4 -lr {lr} -lr_step_size {lr_step_size} -wd {wd} -c {args["cuda"]}')
+        os.system(f'rosrun prometheus_driving model_train.py -d {args["dataset_name"]} -fn dropout_{lr} -m "LSTM(dropout={dropout})" -n_epochs {args["max_epoch"]} -batch_size {args["batch_size"]} -loss_f "MSELoss()" -nw 4 -lr {lr} -lr_step_size {lr_step_size} -wd {wd} -c {args["cuda"]}')
 
     for wd_test in hyperparameters['wd']:
         wd = wd_test
@@ -69,7 +69,7 @@ def main():
         lr_step_size = lr_step_size_default
         lr = lr_default
         print(Fore.BLUE + f'Running with lr={lr}, lr_step_size={lr_step_size}, dropout={dropout}, wd={wd}' + Style.RESET_ALL)
-        os.system(f'rosrun prometheus_driving model_train.py -d {args["dataset_name"]} -fn lr_{lr} -m "LSTM(dropout={dropout})" -n_epochs {args["max_epoch"]} -batch_size {args["batch_size"]} -loss_f "MSELoss()" -nw 4 -lr {lr} -lr_step_size {lr_step_size} -wd {wd} -c {args["cuda"]}')
+        os.system(f'rosrun prometheus_driving model_train.py -d {args["dataset_name"]} -fn wd_{lr} -m "LSTM(dropout={dropout})" -n_epochs {args["max_epoch"]} -batch_size {args["batch_size"]} -loss_f "MSELoss()" -nw 4 -lr {lr} -lr_step_size {lr_step_size} -wd {wd} -c {args["cuda"]}')
     print(Fore.GREEN + 'Finished training all the models' + Style.RESET_ALL)
 if __name__ == '__main__':
     main()
