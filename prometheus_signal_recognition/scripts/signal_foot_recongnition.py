@@ -44,12 +44,11 @@ class image:
         self.flipImageDepth('x','y')
         rospy.loginfo("Received image message, image shape is " + str(self.image_depth_args["cv_image"].shape))
 
-
     def showImage(self):
 
         if self.begin_image == False: # Only shows after first image is processed
             return
-
+        
         cv2.namedWindow("CV_image")
         cv2.imshow("CV_image",self.image_args["cv_image"])
         pressed_key = cv2.waitKey(1) & 0xFF # To prevent NumLock issue
@@ -101,7 +100,6 @@ def main():
     # -----------------------------
     # Termination
     # -----------------------------
-
 
 if __name__ == "__main__":
     main()
