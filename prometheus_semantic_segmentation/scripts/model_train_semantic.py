@@ -12,14 +12,15 @@ from tqdm import tqdm
 from colorama import Fore, Style
 import torch
 from torch.nn import MSELoss , CrossEntropyLoss
+from src.losses import cross_entropy2d
 from torchinfo import summary
+from torchvision import transforms
 import yaml
 
 # Custom imports
 from src.dataset_semantic import DatasetSemantic
-from models.deeplabv3 import createDeepLabv3
-from models.deeplabv3_v1 import deeplabv3_v1
-from models.deeplabv3_resnet50 import createDeepLabv3_resnet50
+from models.deeplabv3_resnet50 import DeepLabv3
+from models.segnet import SegNet
 from src.utils import SaveModel, SaveGraph
 from src.visualization import DataVisualizer, ClassificationVisualizer
 
@@ -52,7 +53,7 @@ def main():
     parser.add_argument('-lr_gamma', '--lr_gamma', type=float, default=0.5,
                         help='Decay of the learning rate after step size')
     parser.add_argument('-wd', '--weight_decay', type=float, default=0, help='L2 regularizer')
-    parser.add_argument('-nw', '--num_workers', type=int, default=0, 
+    parser.add_argument('-nw', '--num_workers', type=int, default=4, 
                         help='How many subprocesses to use for data loading. 0 means that the data will be loaded in the main process.')
     parser.add_argument('-pff', '--prefetch_factor', type=int, default=2, 
                         help='Number of batches loaded in advance by each worker')
@@ -73,6 +74,7 @@ def main():
     # dataset_RGB = glob.glob(dataset_path + '/*.jpg')
     # dataset_seg = glob.glob(dataset_path + '/*mask.png')
     dataset = list(zip(dataset_RGB, dataset_seg))
+    #dataset = dataset[0:100]
 
     # Read YAML file
     with open(dataset_path + "info.yaml", 'r') as stream:
@@ -101,12 +103,27 @@ def main():
     ########################################
     # Dataset                              #
     ########################################
+    image_size = (255, 255)
+    transforms_train = transforms.Compose([
+            transforms.Resize(image_size),
+            transforms.RandomCrop(112),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+            transforms.RandomErasing(),
+    ])
+
+    transforms_test = transforms.Compose([
+            transforms.Resize(image_size),
+            transforms.CenterCrop(112),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+    ])
     # Sample ony a few images for development
     train_dataset,test_dataset = train_test_split(dataset,test_size=0.2)
     # Creates the train dataset
-    dataset_train = DatasetSemantic(train_dataset)
+    dataset_train = DatasetSemantic(train_dataset , augmentation=False , transforms=transforms_train)
     # Creates the test dataset
-    dataset_test = DatasetSemantic(test_dataset , augmentation=True)
+    dataset_test = DatasetSemantic(test_dataset , augmentation=False , transforms=transforms_test)
 
     # Creates the batch size that suits the amount of memory the graphics can handle
     loader_train = torch.utils.data.DataLoader(dataset=dataset_train,batch_size=args['batch_size'],shuffle=True , num_workers=args['num_workers'] , prefetch_factor=args['prefetch_factor'])
@@ -138,8 +155,8 @@ def main():
                 if args['summarize_model']:
                     print(summary(model, (args['batch_size'],3, 320, 160)))
                 optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-                loader_train = checkpoint['loader_train']
-                loader_test = checkpoint['loader_test']
+                #loader_train = checkpoint['loader_train']
+                #loader_test = checkpoint['loader_test']
                 idx_epoch = checkpoint['epoch'] + 1
                 epoch_train_losses = checkpoint['train_losses']
                 stored_test_loss=epoch_train_losses[-1]
@@ -170,13 +187,17 @@ def main():
         model.train() # set the model to training mode
         for batch_idx, (image_t, masks) in tqdm(enumerate(loader_train), total=len(loader_train), desc=Fore.GREEN + 'Training batches for Epoch ' + str(idx_epoch) +  Style.RESET_ALL):
             # Move the data to the GPU if one exists
-            image_t = image_t.to(device=device, dtype=torch.float)
-            masks = masks.to(device=device, dtype=torch.float)
+            image_t = image_t.to(device=device ,dtype=torch.float)
+            masks = masks.to(device=device ,dtype=torch.long)
+            masks = masks.squeeze(1)
 
             # Apply the network to get the predicted ys
-            label_t_predicted = model(image_t)
+            if args['model'] == 'DeepLabV3()':
+                label_t_predicted = model(image_t)['out']
+            else:
+                label_t_predicted = model(image_t)
             # Compute the error based on the predictions
-            loss = loss_function(label_t_predicted['out'], masks)
+            loss = loss_function(label_t_predicted, masks)
 
             # Update the model, i.e. the neural network's weights 
             optimizer.zero_grad() # resets the weights to make sure we are not accumulating
@@ -194,18 +215,22 @@ def main():
         model.eval() # set the model to evaluation mode
         for batch_idx, (image_t, masks) in tqdm(enumerate(loader_test), total=len(loader_test), desc=Fore.GREEN + 'Testing batches for Epoch ' + str(idx_epoch) +  Style.RESET_ALL):
             # Move the data to the gpu if one exists
-            image_t = image_t.to(device=device, dtype=torch.float)
-            masks = masks.to(device=device, dtype=torch.float)
+            image_t = image_t.to(device=device ,dtype=torch.float)
+            masks = masks.to(device=device , dtype=torch.long)
+            masks = masks.squeeze(1)
 
             # Apply the network to get the predicted ys
-            label_t_predicted = model(image_t)
+            if args['model'] == 'DeepLabV3()':
+                label_t_predicted = model(image_t)['out']
+            else:
+                label_t_predicted = model(image_t)
             # Compute the error based on the predictions
-            loss = loss_function(label_t_predicted['out'], masks)
+            loss = loss_function(label_t_predicted, masks)
             # Store the loss for the batch
             test_losses.append(loss.data.item())
             # Visualize the test images with the labeled data and predicted data
             if args['visualize']:
-                test_visualizer.draw(image_t, masks, label_t_predicted['out'])
+                test_visualizer.draw(image_t, masks, label_t_predicted)
 
 
         # Compute the loss for the epoch

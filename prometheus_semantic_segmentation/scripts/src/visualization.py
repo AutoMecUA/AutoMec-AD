@@ -51,8 +51,13 @@ class ClassificationVisualizer():
        
         # Initial parameters
         self.handles = {} # dictionary of handles per layer
-        self.title = title
-        self.tensor_to_pil_image = transforms.ToPILImage()
+        self.title = title 
+        mean = torch.tensor([0.485, 0.456, 0.406], dtype=torch.float32)
+        std = torch.tensor([0.229, 0.224, 0.225], dtype=torch.float32)
+        self.tensor_to_pil_image = transforms.Compose([ 
+            transforms.Normalize((-mean / std).tolist(), (1.0 / std).tolist()),
+            transforms.ToPILImage(),
+        ])
         self.labels = [
             #       name                     id    trainId   category            catId     hasInstances   ignoreInEval   color
             Label(  'unlabeled'            ,  0 ,      255 , 'void'            , 0       , False        , True         , (  0,  0,  0) ),
@@ -101,8 +106,12 @@ class ClassificationVisualizer():
         #     Label(  'parking'               ,  4 ,      255 , 'void'            , 0       , False        , True         , (250,170,160) ),
         # ]
 
+        voidClass = 19
+        self.id2trainid = np.array([label.trainId for label in self.labels if label.trainId >= 0], dtype='uint8')
+        self.id2trainid[np.where(self.id2trainid==255)] = voidClass
 
-        self.mask = np.array([label.color for label in self.labels], dtype = np.uint8)
+        self.mask = np.array([label.color for label in self.labels if label.trainId >= -1 and label.trainId <= 19] ,dtype='uint8')
+        self.mask = np.concatenate((self.mask, np.array([[0,0,0]])), axis=0)
 
     def draw(self, inputs, masks, masks_predicted):
 
@@ -124,16 +133,16 @@ class ClassificationVisualizer():
         
         for plot_idx, image_idx in enumerate(random_idxs, start=1):
             image_t = inputs[image_idx,:,:,:].detach().cpu()
-            mask_predicted_t = masks_predicted[image_idx,:,:].detach().cpu()
-            mask= masks[image_idx].detach().cpu()
             image_pil = self.tensor_to_pil_image(image_t)
-            mask_predicted_pil = self.tensor_to_pil_image(mask_predicted_t[0])
-            mask=self.tensor_to_pil_image(mask)
-
+            mask_predicted_pil = masks_predicted[image_idx,:,:,:]
+            mask_predicted_pil = mask_predicted_pil.argmax(0)
+            mask_predicted_pil = mask_predicted_pil.byte().cpu().numpy()
+            mask= masks[image_idx].detach().cpu()
+            mask = mask.numpy()
             ax = self.figure.add_subplot(5,15,plot_idx) # define a 5 x 5 subplot matrix
             plt.imshow(np.asarray(image_pil))
             ax = self.figure.add_subplot(5,15,plot_idx+len(random_idxs)) # define a 5 x 5 subplot matrix
-            plt.imshow(mask_predicted_pil , cmap='gray')
+            plt.imshow(self.mask[mask_predicted_pil])
             ax = self.figure.add_subplot(5,15,plot_idx+len(random_idxs)+len(random_idxs)) # define a 5 x 5 subplot matrix
             plt.imshow(self.mask[mask])
             ax.xaxis.set_ticklabels([])

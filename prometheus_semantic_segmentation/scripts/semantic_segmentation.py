@@ -5,6 +5,7 @@ from functools import partial
 import time
 from typing import Any
 import cv2
+from matplotlib import pyplot as plt
 
 import numpy as np
 import rospy
@@ -19,10 +20,10 @@ from cv_bridge.core import CvBridge
 from collections import namedtuple
 
 #  custom imports
-from models.deeplabv3 import createDeepLabv3
-from models.deeplabv3_v1 import deeplabv3_v1
 from models.deeplabv3_resnet50 import createDeepLabv3_resnet50
 from models.yolop import yolop
+from models.unet import unet
+from models.segnet import segnet
 from models.espnetv2_bdd100k_driveable import Model
 from src.utils import LoadModel
 
@@ -70,11 +71,6 @@ def imgRgbCallback(message, config):
     #config['img_rgb'] = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
 
     config["begin_img"] = True
-
-def preProcess(img, img_width=112, img_height=112):  
-    img = cv2.resize(img, (img_width, img_height))  
-
-    return img 
 
 
 # Main code
@@ -124,9 +120,11 @@ def main():
     config: dict[str, Any] = dict(vel=None, img_rgb=None,
                                   bridge=None, begin_img=None)
     
-    PIL_to_Tensor = transforms.Compose([
+    transforms_val = transforms.Compose([
+            transforms.Resize((112, 112)),
+            transforms.CenterCrop(112),
             transforms.ToTensor(),
-            #transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
         ])
 
     tensor_to_pil_image = transforms.ToPILImage()
@@ -139,7 +137,7 @@ def main():
     cv2.namedWindow(winname=win_name,flags=cv2.WINDOW_NORMAL)
 
     image_raw_topic = rospy.get_param('~image_raw_topic', '/top_front_camera/rgb/image_raw')
-    model_name = rospy.get_param('/model_semantic_name', 'segmentation')
+    model_name = rospy.get_param('/model_semantic_name', 'segmentation_50')
 
     rospy.init_node('semantic_segmentation', anonymous=False)
 
@@ -159,7 +157,8 @@ def main():
     config['model'] = LoadModel(path,config['model'],device)
     config['model'].eval()
 
-    mask = np.array([label.color for label in labels], dtype = np.uint8)
+    mask = np.array([label.color for label in labels if label.trainId >= -1 and label.trainId <= 19] ,dtype='uint8')
+    mask = np.concatenate((mask, np.array([[0,0,0]])), axis=0)
 
     #config['model'] = Model()
     
@@ -176,32 +175,19 @@ def main():
             continue
         preivous_time = time.time()
         # Obtain segmented iamage
-        config['img_rgb'] = IMG.open('/media/andre/Andre/Automec/datasets/cityscapes/leftImg8bit/train/aachen/aachen_000000_000019_leftImg8bit.png')
-        config['img_rgb'] = np.asarray(config['img_rgb'])
-        resized_img = preProcess(config["img_rgb"])
-        image = PIL_to_Tensor(resized_img)
+        config['img_rgb'] = IMG.open('/media/andre/Andre/Automec/datasets/cityscapes/leftImg8bit/train/aachen/aachen_000500_000019_leftImg8bit.png').convert("RGB")
+        image = transforms_val(config['img_rgb'])
         image = image.unsqueeze(0)
         image = image.to(device, dtype=torch.float)
         mask_predicted = config['model'](image)
-        mask_predicted_output = mask_predicted['out']
-
-        mask_predicted_output = mask_predicted_output.detach().cpu()
-
-        mask_predicted_output = tensor_to_pil_image(mask_predicted_output[0])
-
-        #mask_predicted_array = np.array(mask_predicted_output)
-        # print(mask_predicted_array.shape)
-
-        # mask_color = np.zeros([112, 112, 3], dtype=np.uint8)
-        # for i in range(mask_color.shape[0]):
-        #     for j in range(mask_color.shape[1]):
-        #         for label in labels:
-        #             if np.asarray(mask_predicted_array)[i,j] == label.id:
-        #                 mask_color[i,j,:] = (label.color[2], label.color[1], label.color[0])
+        mask_predicted_output = mask_predicted['out'][0]
+        mask_predicted_output = mask_predicted_output.argmax(0)
+        mask_predicted_output = mask_predicted_output.byte().cpu().numpy()
+        mask_color = mask[mask_predicted_output].astype(np.uint8)
 
         print(f'FPS: {1/(time.time()-preivous_time)}')
-        cv2.imshow(win_name, cv2.cvtColor(mask[mask_predicted_output] , cv2.COLOR_RGB2BGR) )
-        #cv2.imshow(win_name, np.array(mask_predicted_output))
+        cv2.imshow(win_name, cv2.cvtColor( mask_color, cv2.COLOR_RGB2BGR) )
+        #cv2.imshow(win_name, np.array(mask_predicted_output , dtype=np.uint8))
         key = cv2.waitKey(1)
         # Publish angle
         rate.sleep()
