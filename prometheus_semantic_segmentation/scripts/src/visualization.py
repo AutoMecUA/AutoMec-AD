@@ -97,14 +97,14 @@ class ClassificationVisualizer():
             Label(  'license plate'        , -1 ,       -1 , 'vehicle'         , 7       , False        , True         , (  0,  0,142) ),
         ]
 
-        # self.labels = [
-        #     #       name                     id    trainId   category            catId     hasInstances   ignoreInEval   color
-        #     Label(  'background'            ,  0 ,      255 , 'void'            , 0       , False        , True         , (  0,  0,  0) ),
-        #     Label(  'crosswalk'             ,  1 ,      255 , 'void'            , 0       , False        , True         , (255,255,255) ),
-        #     Label(  'driveable'             ,  2 ,      255 , 'void'            , 0       , False        , True         , (128, 64,128) ),
-        #     Label(  'driveable_alt'         ,  3 ,      255 , 'void'            , 0       , False        , True         , (244, 35,232) ),
-        #     Label(  'parking'               ,  4 ,      255 , 'void'            , 0       , False        , True         , (250,170,160) ),
-        # ]
+        self.labels = [
+            #       name                     id    trainId   category            catId     hasInstances   ignoreInEval   color
+            Label(  'background'            ,  0 ,      0 , 'void'            , 0       , False        , True         , (  0,  0,  0) ),
+            Label(  'crosswalk'             ,  1 ,      1 , 'void'            , 0       , False        , True         , (255,255,255) ),
+            Label(  'driveable'             ,  2 ,      2 , 'void'            , 0       , False        , True         , (128, 64,128) ),
+            Label(  'driveable_alt'         ,  3 ,      3 , 'void'            , 0       , False        , True         , (244, 35,232) ),
+            Label(  'parking'               ,  4 ,      4 , 'void'            , 0       , False        , True         , (250,170,160) ),
+        ]
 
         voidClass = 19
         self.id2trainid = np.array([label.trainId for label in self.labels if label.trainId >= 0], dtype='uint8')
@@ -145,10 +145,6 @@ class ClassificationVisualizer():
             plt.imshow(self.mask[mask_predicted_pil])
             ax = self.figure.add_subplot(5,15,plot_idx+len(random_idxs)+len(random_idxs)) # define a 5 x 5 subplot matrix
             plt.imshow(self.mask[mask])
-            ax.xaxis.set_ticklabels([])
-            ax.yaxis.set_ticklabels([])
-            ax.xaxis.set_ticks([])
-            ax.yaxis.set_ticks([])
 
         plt.draw()
         key = plt.waitforbuttonpress(0.05)

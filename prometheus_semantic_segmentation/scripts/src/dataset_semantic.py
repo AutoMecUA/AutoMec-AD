@@ -118,7 +118,9 @@ class DatasetSemantic(torch.utils.data.Dataset):
             image = self.transforms(image)
         else:
             image = transforms.ToTensor()(image)
-        mask = self.id2trainid[mask]
+        mask = np.array(mask, dtype=np.uint8)
+        #mask = self.id2trainid[mask]
+
 
         return image , mask
        

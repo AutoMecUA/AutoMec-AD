@@ -20,11 +20,10 @@ from cv_bridge.core import CvBridge
 from collections import namedtuple
 
 #  custom imports
-from models.deeplabv3_resnet50 import createDeepLabv3_resnet50
-from models.yolop import yolop
-from models.unet import unet
-from models.segnet import segnet
-from models.espnetv2_bdd100k_driveable import Model
+from models.deeplabv3_resnet50 import DeepLabv3
+from models.segnet import SegNet
+from models.segnetV2 import SegNetV2
+from models.unet import UNet
 from src.utils import LoadModel
 
 Label = namedtuple( 'Label' , [
@@ -68,7 +67,7 @@ def imgRgbCallback(message, config):
 
     config['img_rgb'] = config['bridge'].imgmsg_to_cv2(message, "passthrough")
 
-    #config['img_rgb'] = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
+    config['img_rgb'] = cv2.cvtColor(config['img_rgb'], cv2.COLOR_BGR2RGB)
 
     config["begin_img"] = True
 
@@ -116,19 +115,32 @@ def main():
             Label(  'bicycle'              , 33 ,       18 , 'vehicle'         , 7       , True         , False        , (119, 11, 32) ),
             Label(  'license plate'        , -1 ,       -1 , 'vehicle'         , 7       , False        , True         , (  0,  0,142) ),
         ]
+    
+    labels = [
+        #       name                     id    trainId   category            catId     hasInstances   ignoreInEval   color
+        Label(  'background'            ,  0 ,      0 , 'void'            , 0       , False        , True         , (  0,  0,  0) ),
+        Label(  'crosswalk'             ,  1 ,      1 , 'void'            , 0       , False        , True         , (255,255,255) ),
+        Label(  'driveable'             ,  2 ,      2 , 'void'            , 0       , False        , True         , (128, 64,128) ),
+        Label(  'driveable_alt'         ,  3 ,      3 , 'void'            , 0       , False        , True         , (244, 35,232) ),
+        Label(  'parking'               ,  4 ,      4 , 'void'            , 0       , False        , True         , (250,170,160) ),
+    ]
+
+    voidClass = 19
+    id2trainid = np.array([label.trainId for label in labels if label.trainId >= 0], dtype='uint8')
+    id2trainid[np.where(id2trainid==255)] = voidClass
+
+    mask = np.array([label.color for label in labels if label.trainId >= -1 and label.trainId <= 19] ,dtype='uint8')
             
     config: dict[str, Any] = dict(vel=None, img_rgb=None,
                                   bridge=None, begin_img=None)
     
     transforms_val = transforms.Compose([
+            transforms.ToPILImage(),
             transforms.Resize((112, 112)),
-            transforms.CenterCrop(112),
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
         ])
-
-    tensor_to_pil_image = transforms.ToPILImage()
-
+    
     # Defining starting values
     config["begin_img"] = False
     config["bridge"] = CvBridge()
@@ -136,10 +148,10 @@ def main():
     win_name = 'Semantic Segmentation'
     cv2.namedWindow(winname=win_name,flags=cv2.WINDOW_NORMAL)
 
-    image_raw_topic = rospy.get_param('~image_raw_topic', '/top_front_camera/rgb/image_raw')
-    model_name = rospy.get_param('/model_semantic_name', 'segmentation_50')
-
     rospy.init_node('semantic_segmentation', anonymous=False)
+    image_raw_topic = rospy.get_param('~image_raw_topic', '/top_front_camera/rgb/image_raw')
+    model_name = rospy.get_param('/model_semantic_name', 'gazebo_semantic_segnetv2')
+
 
     # General Path
     automec_path=os.environ.get('AUTOMEC_DATASETS')
@@ -157,9 +169,6 @@ def main():
     config['model'] = LoadModel(path,config['model'],device)
     config['model'].eval()
 
-    mask = np.array([label.color for label in labels if label.trainId >= -1 and label.trainId <= 19] ,dtype='uint8')
-    mask = np.concatenate((mask, np.array([[0,0,0]])), axis=0)
-
     #config['model'] = Model()
     
     imgRgbCallback_part = partial(imgRgbCallback, config=config)
@@ -175,12 +184,15 @@ def main():
             continue
         preivous_time = time.time()
         # Obtain segmented iamage
-        config['img_rgb'] = IMG.open('/media/andre/Andre/Automec/datasets/cityscapes/leftImg8bit/train/aachen/aachen_000500_000019_leftImg8bit.png').convert("RGB")
+        #config['img_rgb'] = IMG.open('/media/andre/Andre/Automec/datasets/cityscapes/leftImg8bit/train/aachen/aachen_000500_000019_leftImg8bit.png').convert("RGB")
         image = transforms_val(config['img_rgb'])
         image = image.unsqueeze(0)
         image = image.to(device, dtype=torch.float)
         mask_predicted = config['model'](image)
-        mask_predicted_output = mask_predicted['out'][0]
+        if info_loaded['model']['ml_arch']['name'] == 'DeepLabV3':
+            mask_predicted_output = mask_predicted['out'][0]
+        else:
+            mask_predicted_output = mask_predicted[0]
         mask_predicted_output = mask_predicted_output.argmax(0)
         mask_predicted_output = mask_predicted_output.byte().cpu().numpy()
         mask_color = mask[mask_predicted_output].astype(np.uint8)

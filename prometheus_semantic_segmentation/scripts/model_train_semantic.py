@@ -71,10 +71,10 @@ def main():
     files_path=os.environ.get('AUTOMEC_DATASETS')
     # Image dataset paths
     dataset_path = f'{files_path}/datasets/{args["dataset_name"]}/'
-    dataset_RGB = glob.glob(dataset_path + '/leftImg8bit/train/*/*.png')
-    dataset_seg = glob.glob(dataset_path + '/gtFine/train/*/*labelIds.png')
-    # dataset_RGB = glob.glob(dataset_path + '/*.jpg')
-    # dataset_seg = glob.glob(dataset_path + '/*mask.png')
+    # dataset_RGB = glob.glob(dataset_path + '/leftImg8bit/train/*/*.png')
+    # dataset_seg = glob.glob(dataset_path + '/gtFine/train/*/*labelIds.png')
+    dataset_RGB = glob.glob(dataset_path + '/*.jpg')
+    dataset_seg = glob.glob(dataset_path + '/*mask.png')
     dataset = list(zip(dataset_RGB, dataset_seg))
     #dataset = dataset[0:100]
 

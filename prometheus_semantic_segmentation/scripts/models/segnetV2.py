@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class SegNetV2(nn.Module):
-    def __init__(self, num_classes=21):
+    def __init__(self, num_classes=5):
         super().__init__()
         self.conv_in = ConvBlock(3, 32)
         self.down1 = DownSample(32, 64)
