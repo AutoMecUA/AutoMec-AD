@@ -108,7 +108,6 @@ def main():
     image_size = (112, 112)
     transforms_train = transforms.Compose([
             transforms.Resize(image_size),
-            transforms.RandomCrop(image_size[0]),
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
             transforms.RandomErasing(),
@@ -116,7 +115,6 @@ def main():
 
     transforms_test = transforms.Compose([
             transforms.Resize(image_size),
-            transforms.CenterCrop(image_size[0]),
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ])
