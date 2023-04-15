@@ -21,6 +21,8 @@ import yaml
 from src.dataset_semantic import DatasetSemantic
 from models.deeplabv3_resnet50 import DeepLabv3
 from models.segnet import SegNet
+from models.segnetV2 import SegNetV2
+from models.unet import UNet
 from src.utils import SaveModel, SaveGraph
 from src.visualization import DataVisualizer, ClassificationVisualizer
 
@@ -103,10 +105,10 @@ def main():
     ########################################
     # Dataset                              #
     ########################################
-    image_size = (255, 255)
+    image_size = (112, 112)
     transforms_train = transforms.Compose([
             transforms.Resize(image_size),
-            transforms.RandomCrop(112),
+            transforms.RandomCrop(image_size[0]),
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
             transforms.RandomErasing(),
@@ -114,7 +116,7 @@ def main():
 
     transforms_test = transforms.Compose([
             transforms.Resize(image_size),
-            transforms.CenterCrop(112),
+            transforms.CenterCrop(image_size[0]),
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ])
@@ -155,8 +157,8 @@ def main():
                 if args['summarize_model']:
                     print(summary(model, (args['batch_size'],3, 320, 160)))
                 optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-                #loader_train = checkpoint['loader_train']
-                #loader_test = checkpoint['loader_test']
+                loader_train = checkpoint['loader_train']
+                loader_test = checkpoint['loader_test']
                 idx_epoch = checkpoint['epoch'] + 1
                 epoch_train_losses = checkpoint['train_losses']
                 stored_test_loss=epoch_train_losses[-1]
