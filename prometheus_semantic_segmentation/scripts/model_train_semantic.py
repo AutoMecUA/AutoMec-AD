@@ -59,10 +59,10 @@ def main():
                         help='How many subprocesses to use for data loading. 0 means that the data will be loaded in the main process.')
     parser.add_argument('-pff', '--prefetch_factor', type=int, default=2, 
                         help='Number of batches loaded in advance by each worker')
-    parser.add_argument('-m', '--model', default='createDeepLabv3(outputchannels=4)', type=str,
-                        help='Model to use [createDeepLabv3(outputchannels=1)]')
-    parser.add_argument('-loss_f', '--loss_function', type=str, default='MSELoss()',
-                        help='Type of loss function. [MSELoss()]')
+    parser.add_argument('-m', '--model', default='SegNetV2()', type=str,
+                        help='Model to use [SegNetV2(), SegNet(), UNet(), DeepLabv3()]')
+    parser.add_argument('-loss_f', '--loss_function', type=str, default='CrossEntropyLoss()',
+                        help='Type of loss function. [CrossEntropyLoss() , cross_entropy2d]')
 
     arglist = [x for x in sys.argv[1:] if not x.startswith('__')]
     args = vars(parser.parse_args(args=arglist))
@@ -71,12 +71,9 @@ def main():
     files_path=os.environ.get('AUTOMEC_DATASETS')
     # Image dataset paths
     dataset_path = f'{files_path}/datasets/{args["dataset_name"]}/'
-    # dataset_RGB = glob.glob(dataset_path + '/leftImg8bit/train/*/*.png')
-    # dataset_seg = glob.glob(dataset_path + '/gtFine/train/*/*labelIds.png')
     dataset_RGB = glob.glob(dataset_path + '/*.jpg')
     dataset_seg = glob.glob(dataset_path + '/*mask.png')
     dataset = list(zip(dataset_RGB, dataset_seg))
-    #dataset = dataset[0:100]
 
     # Read YAML file
     with open(dataset_path + "info.yaml", 'r') as stream:

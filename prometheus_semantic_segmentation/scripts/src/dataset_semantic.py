@@ -34,8 +34,6 @@ class DatasetSemantic(torch.utils.data.Dataset):
             image = transforms.ToTensor()(image)
         mask = np.array(mask, dtype=np.uint8)
  
-
-
         return image , mask
        
     def __len__(self):
