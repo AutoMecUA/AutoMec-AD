@@ -17,6 +17,7 @@
 #include <Adafruit_PWMServoDriver.h>
 #include <ros.h>
 #include <std_msgs/Int16.h>
+#include <std_msgs/Int64.h>
 #include <std_msgs/String.h>
 
 // PCA9685 definitions
@@ -36,8 +37,8 @@
 // Encoder Definitions
 #define bodyEncoderLeftFunctionA bodyEncoderLeftCounterA
 #define bodyEncoderLeftFunctionB bodyEncoderLeftCounterB
-#define bodyEncoderLeftPinA 34 // A pin the interrupt pin
-#define bodyEncoderLeftPinB 35 // B pin the interrupt pin
+#define bodyEncoderLeftPinA 32 // A pin the interrupt pin
+#define bodyEncoderLeftPinB 33 // B pin the interrupt pin
 
 // encoder pulses
 volatile signed int bodyEncoderLeftTotalPulses = 0;
@@ -93,8 +94,8 @@ ros::Subscriber<std_msgs::Int16> sub_vel("pub_vel", servo_vel);
 ros::Subscriber<std_msgs::Int16> sub_dif_front("dif_front_cmd", servo_dif_front);
 ros::Subscriber<std_msgs::Int16> sub_dif_back("dif_back_cmd", servo_dif_back);
 ros::Subscriber<std_msgs::Int16> sub_gearbox("gearbox_cmd", servo_gearbox);
-std_msgs::Int16 int16_msg;
-ros::Publisher pub_encoder("encoder_msg", &int16_msg);
+std_msgs::Int64 int64_msg;
+ros::Publisher pub_encoder("encoder_msg", &int64_msg);
 
 // Arduino initialization
 void setup() {
@@ -132,8 +133,8 @@ void setup() {
 }
 
 void loop() {
-  int16_msg.data = bodyEncoderLeftTotalPulses;
-  pub_encoder.publish( &int16_msg );
+  int64_msg.data = bodyEncoderLeftTotalPulses;
+  pub_encoder.publish( &int64_msg );
   nh.spinOnce();
   delay(1);
 }
