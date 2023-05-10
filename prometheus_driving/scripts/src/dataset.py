@@ -25,14 +25,14 @@ class Dataset(torch.utils.data.Dataset):
         self.image_filenames_original = self.image_filenames_original.values.tolist()
         self.labels_original = dataset['steering'].values.tolist()
         self.num_images= len(self.image_filenames_original)
-        self.image_width = 320
-        self.image_height = 160
+        self.image_width = 256
+        self.image_height = 256
         # Create a set of transformations
         self.transforms = transforms.Compose([
             transforms.ToTensor()
         ])
 
-    def pre_processing(self,img, img_width=320, img_height=160, normalization="yes"):
+    def pre_processing(self,img, img_width=256, img_height=256, normalization="yes"):
         # Cropping Region of intrest, Ajust with Gazebo and use Andre Code in the Future
         img = cv2.cvtColor(img, cv2.COLOR_BGR2YUV) # For better jornalization 
         

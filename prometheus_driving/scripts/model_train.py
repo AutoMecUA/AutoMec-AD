@@ -24,6 +24,7 @@ from models.vgg import MyVGG
 from models.resnet import ResNet
 from models.resnet_imported import ResNetV1
 from models.lstm import LSTM
+from models.transformer import MyViT
 from src.utils import SaveModel, SaveGraph
 from src.visualization import DataVisualizer, ClassificationVisualizer
 
