@@ -5,7 +5,7 @@ import numpy as np
 # Following tutorial on https://medium.com/mlearning-ai/vision-transformers-from-scratch-pytorch-a-step-by-step-guide-96c3313c2e0c
 
 class MyViT(nn.Module):
-    def __init__(self, chw = (3,256,256), n_patches=8, n_blocks=2, hidden_d=8, n_heads=2, out_d=1):
+    def __init__(self, chw = (3,256,256), n_patches=16, n_blocks=4, hidden_d=512, n_heads=4, out_d=1):
         # Super constructor
         super(MyViT, self).__init__()
         

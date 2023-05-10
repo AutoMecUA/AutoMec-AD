@@ -25,6 +25,7 @@ from models.vgg import MyVGG
 from models.resnet import ResNet
 from models.lstm import LSTM
 from models.resnet_imported import ResNetV1
+from models.transformer import MyViT
 from src.utils import LoadModel
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # or any {'0', '1', '2'}
@@ -36,7 +37,7 @@ def preProcess(img):
     img = cv2.cvtColor(img, cv2.COLOR_RGB2YUV)
     img = cv2.GaussianBlur(img,  (3, 3), 0)
     #img = img[40:, :]  #cut the 40 first lines
-    img = cv2.resize(img, (320, 160))
+    img = cv2.resize(img, (256, 256))
     img = img/255
     return img
 
