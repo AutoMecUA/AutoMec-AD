@@ -31,7 +31,7 @@ class image:
 
         #! If I assign directly to cv_image key, it will show flickers of the non flipped image 
         self.image_args["processing_image"] = self.bridge.imgmsg_to_cv2(image_msg,"bgr8") # Passthrough means wtv the encoding was before, it will be retained
-        self.flipImage('x','y')
+        # self.flipImage('x','y')
         rospy.loginfo("Received image message, image shape is " + str(self.image_args["cv_image"].shape))
 
 
@@ -41,7 +41,7 @@ class image:
 
         #! If I assign directly to cv_image key, it will show flickers of the non flipped image
         self.image_depth_args["processing_image_depth"] = self.bridge.imgmsg_to_cv2(image_msg,desired_encoding='passthrough') # Passthrough means wtv the encoding was before, it will be retained
-        self.flipImageDepth('x','y')
+        # self.flipImageDepth('x','y')
         rospy.loginfo("Received image message, image shape is " + str(self.image_depth_args["cv_image"].shape))
 
     def showImage(self):
@@ -64,6 +64,7 @@ class image:
         for arg in args:
             try:
                 if arg == 'x':
+                    'OPPA GANGNAM STYLE'
                     self.image_args["processing_image_depth"] = cv2.flip(self.image_args["processing_image_depth"],1)
                 elif arg == 'y':
                     self.image_args["processing_image_depth"] = cv2.flip(self.image_args["processing_image_depth"],0)
@@ -89,14 +90,16 @@ def main():
     # -----------------------------
     # Initialization
     # -----------------------------
+    rate = rospy.Rate(10) # 10hz
     rospy.init_node("foot_recognition", anonymous=False)
     bottom_front_camera = image()
 
     # -----------------------------
     # Processing
     # -----------------------------
-    while(1):
-        bottom_front_camera.showImage()
+    while not rospy.is_shutdown():
+        rate.sleep()
+    #bottom_front_camera.showImage()
     # -----------------------------
     # Termination
     # -----------------------------
