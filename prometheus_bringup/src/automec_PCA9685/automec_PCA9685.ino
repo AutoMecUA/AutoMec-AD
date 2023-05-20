@@ -67,7 +67,7 @@ void servo_vel( const std_msgs::Int16 & cmd_msg){
 
 // Function that will generate the pwm when receive a message from ROS
 void servo_dif_front( const std_msgs::Int16 & cmd_msg){
-  int dif_frontms = map(cmd_msg.data, 0, 180, SERVOMIN, SERVOMAX);   // scale it to use it with the servo library (value between 0 and 180)
+  int dif_frontms = map(cmd_msg.data, 0, 180, SERVOMIN, SERVOMAX);   // scale it to use it with the servo library (value between 50 (closed) and 130 (open))
   pwm.writeMicroseconds(dif_front, dif_frontms);  
   //digitalWrite(LED_BUILTIN, HIGH-digitalRead(LED_BUILTIN));  //toggle led  
   // 50 is closed, 110 is open
@@ -75,7 +75,7 @@ void servo_dif_front( const std_msgs::Int16 & cmd_msg){
 
 // Function that will generate the pwm when receive a message from ROS
 void servo_dif_back( const std_msgs::Int16 & cmd_msg){
-  int dif_backms = map(cmd_msg.data, 0, 180, SERVOMIN, SERVOMAX);   // scale it to use it with the servo library (value between 0 and 180)
+  int dif_backms = map(cmd_msg.data, 0, 180, SERVOMIN, SERVOMAX);   // scale it to use it with the servo library (value between 50 (open) and 130 (closed))
   pwm.writeMicroseconds(dif_back, dif_backms);  
   //digitalWrite(LED_BUILTIN, HIGH-digitalRead(LED_BUILTIN));  //toggle led  
   // 70 is open, 120 is closed
@@ -83,7 +83,7 @@ void servo_dif_back( const std_msgs::Int16 & cmd_msg){
 
 // Function that will generate the pwm when receive a message from ROS
 void servo_gearbox( const std_msgs::Int16 & cmd_msg){
-  int gearboxms = map(cmd_msg.data, 0, 180, SERVOMIN, SERVOMAX);   // scale it to use it with the servo library (value between 0 and 180)
+  int gearboxms = map(cmd_msg.data, 0, 180, SERVOMIN, SERVOMAX);   // scale it to use it with the servo library (value between 40 (high speed) and 120 (low speed))
   pwm.writeMicroseconds(gearbox, gearboxms);  
   //digitalWrite(LED_BUILTIN, HIGH-digitalRead(LED_BUILTIN));  //toggle led  
 }
@@ -116,11 +116,12 @@ void setup() {
   pwm.writeMicroseconds(ESC, escms);  // Generates the PWM wave
   int servoms = map(90, 0, 180, SERVOMIN, SERVOMAX);   // scale it to use it with the servo library (value between 0 and 180)
   pwm.writeMicroseconds(dir, servoms); // Generates the PWM wave
-  int dif_frontms = map(50, 0, 180, SERVOMIN, SERVOMAX);   // scale it to use it with the servo library (value between 0 and 180)
+  int dif_frontms = map(50, 0, 180, SERVOMIN, SERVOMAX);   // scale it to use it with the servo library (value between 50 (closed) and 130 (open))
   pwm.writeMicroseconds(dif_front, dif_frontms); // Generates the PWM wave
-  int dif_backms = map(120, 0, 180, SERVOMIN, SERVOMAX);   // scale it to use it with the servo library (value between 0 and 180)
-  pwm.writeMicroseconds(dif_back, servoms); // Generates the PWM wave
-  pwm.writeMicroseconds(gearbox, servoms); // Generates the PWM wave
+  int dif_backms = map(120, 0, 180, SERVOMIN, SERVOMAX);   // scale it to use it with the servo library  (value between 50 (opem) and 130 (closed))
+  pwm.writeMicroseconds(dif_back, dif_backms); // Generates the PWM wave
+  int dif_gearboxms = map(120, 0, 180, SERVOMIN, SERVOMAX);   // scale it to use it with the servo library (value between 40 (high speed) and 120 (low speed))
+  pwm.writeMicroseconds(gearbox, dif_gearboxms); // Generates the PWM wave
 
   // Encoder
   pinMode(bodyEncoderLeftPinA,INPUT_PULLUP);

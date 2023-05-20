@@ -5,6 +5,7 @@
     <arg name="sim" default="false" doc="launch a simulated environment"/>
     <arg name="controller" default="false" doc="control the robot with a controller"/>
     <arg name="linear_velocity" default="1" doc="linear_velocity of the robot"/>
+    <arg name="joy_number" default="0" dev="Number of js device to use as controller"/>
 
     <!-- Set global parameteres -->
     <param name="simulated_environment" type="bool" value="$(arg sim)"/>
@@ -28,7 +29,9 @@
     </group>
 
     <!-- defining way of controlling-->
-    <include if="$(arg controller)" file="$(find prometheus_bringup)/launch/include/joy_teleop.launch"/>
+    <include if="$(arg controller)" file="$(find prometheus_bringup)/launch/include/joy_teleop.launch"> 
+        <arg name="joy_number" value="$(arg joy_number)"/>
+    </include>
     
     <group unless="$(arg controller)">
         <node if="$(arg sim)" name="rqt_robot_steering" pkg="rqt_robot_steering" type="rqt_robot_steering"/>

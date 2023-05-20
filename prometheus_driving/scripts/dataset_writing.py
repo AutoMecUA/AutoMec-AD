@@ -7,7 +7,6 @@ import shutil
 from datetime import datetime
 from functools import partial
 from typing import Any
-
 import cv2
 import pandas as pd
 import rospy
@@ -88,7 +87,8 @@ def main():
 
     s = str(pathlib.Path(__file__).parent.absolute())
     date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-    data_path = f'{s}/../data/' + env + "-" + datetime.now().strftime("%d-%m-%Hh%Mm%Ss")
+    automec_path = os.environ.get('AUTOMEC_DATASETS')
+    data_path = f'{automec_path}/datasets/' + env + "-" + datetime.now().strftime("%d-%m-%Hh%Mm%Ss")
 
     rospy.loginfo(data_path)
 
