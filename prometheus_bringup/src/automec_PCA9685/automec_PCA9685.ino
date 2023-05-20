@@ -74,7 +74,7 @@ void servo_dif_front( const std_msgs::Int16 & cmd_msg){
 
 // Function that will generate the pwm when receive a message from ROS
 void servo_dif_back( const std_msgs::Int16 & cmd_msg){
-  int dif_backms = map(cmd_msg.data, 0, 180, SERVOMIN, SERVOMAX);   // scale it to use it with the servo library (value between 50 (opem) and 130 (closed))
+  int dif_backms = map(cmd_msg.data, 0, 180, SERVOMIN, SERVOMAX);   // scale it to use it with the servo library (value between 50 (open) and 130 (closed))
   pwm.writeMicroseconds(dif_back, dif_backms);  
   //digitalWrite(LED_BUILTIN, HIGH-digitalRead(LED_BUILTIN));  //toggle led  
   // 70 is open, 120 is closed
