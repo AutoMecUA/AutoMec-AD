@@ -5,7 +5,7 @@
     <arg name="sim" default="false" doc="launch a simulated environment"/>
     <arg name="controller" default="false" doc="control the robot with a controller"/>
     <arg name="linear_velocity" default="1" doc="linear_velocity of the robot"/>
-    <arg name="joy_number" default="0" dev="Number of js device to use as controller"/>
+    <arg name="joy_number" default="0" doc="Number of js device to use as controller"/>
 
     <!-- Set global parameteres -->
     <param name="simulated_environment" type="bool" value="$(arg sim)"/>

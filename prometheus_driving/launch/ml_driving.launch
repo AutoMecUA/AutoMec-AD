@@ -1,6 +1,6 @@
 <launch>
 
-  <arg name="image_raw_topic" default="/top_front_camera/rgb/image_raw"/>
+  <arg name="image_raw_topic" default="/top_front_camera/rgb/image_color"/>
   <arg name="model_steering_topic" default="/model_steering"/>
   <arg name="model_name" default=""/>
 

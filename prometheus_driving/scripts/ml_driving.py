@@ -77,7 +77,8 @@ def main():
     rospy.init_node('ml_driving', anonymous=False)
 
     # Getting parameters
-    image_raw_topic = rospy.get_param('~image_raw_topic', '/top_front_camera/rgb/image_raw')
+    image_raw_topic = rospy.get_param('~image_raw_topic', '/top_front_camera/rgb/image_color')
+    image_raw_topic= '/top_front_camera/rgb/image_color'
     model_steering_topic = rospy.get_param('~model_steering_topic', '/model_steering')
     model_name = rospy.get_param('/model_name', '')
 
