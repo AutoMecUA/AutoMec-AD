@@ -37,7 +37,7 @@ def preProcess(img):
     img = cv2.cvtColor(img, cv2.COLOR_RGB2YUV)
     img = cv2.GaussianBlur(img,  (3, 3), 0)
     #img = img[40:, :]  #cut the 40 first lines
-    img = cv2.resize(img, (256, 256))
+    img = cv2.resize(img, (320, 160))
     img = img/255
     return img
 
