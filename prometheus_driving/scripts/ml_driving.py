@@ -35,8 +35,7 @@ def imgRgbCallback(message, config):
 
     config['img_rgb'] = config['bridge'].imgmsg_to_cv2(message, "passthrough")
 
-    cv2.imshow('image', config['img_rgb'])
-    cv2.waitKey(1)
+    config['img_rgb'] = cv2.cvtColor(config['img_rgb'], cv2.COLOR_BGR2RGB)
 
     config["begin_img"] = True
 
@@ -101,6 +100,7 @@ def main():
     image_size = info_loaded['model']['image_size']
 
     config['transforms'] = transforms.Compose([
+                            transforms.ToPILImage(),
                             transforms.Resize(image_size),
                             transforms.CenterCrop(image_size),
                             transforms.ToTensor(),
@@ -125,11 +125,9 @@ def main():
         if config["begin_img"] is False:
             continue
 
-        resized_img = config["img_rgb"]
+        image= config["img_rgb"]
 
         # Predict angle
-        image = np.array([resized_img])
-        image = image[0,:,:,:]
         image = config['transforms'](image)
         image = image.unsqueeze(0)
         image = image.to(device, dtype=torch.float)
