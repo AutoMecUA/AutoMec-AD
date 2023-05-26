@@ -31,21 +31,12 @@ from src.utils import LoadModel
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # or any {'0', '1', '2'}
 
 
-def preProcess(img):
-    # Define Region of interest
-    #img = img[60:135, :, :]
-    img = cv2.cvtColor(img, cv2.COLOR_RGB2YUV)
-    img = cv2.GaussianBlur(img,  (3, 3), 0)
-    #img = img[40:, :]  #cut the 40 first lines
-    img = cv2.resize(img, (320, 160))
-    img = img/255
-    return img
-
-
-
 def imgRgbCallback(message, config):
 
     config['img_rgb'] = config['bridge'].imgmsg_to_cv2(message, "passthrough")
+
+    cv2.imshow('image', config['img_rgb'])
+    cv2.waitKey(1)
 
     config["begin_img"] = True
 
@@ -54,7 +45,7 @@ def modelSteeringCallback(message, config):
     automec_path = os.environ.get('AUTOMEC_DATASETS')
     path = f'{automec_path}/models/{model_name}/{model_name}.pkl'
     # Retrieving info from yaml
-    with open(f'{automec_path}/models/{model_name}/{model_name}.yaml') as file:
+    with open(f'{automec_path}/models/{model_name}/config.yaml') as file:
         info_loaded = yaml.load(file, Loader=yaml.FullLoader)
 
     rospy.loginfo('Using model: %s', path)
@@ -63,6 +54,16 @@ def modelSteeringCallback(message, config):
     model = LoadModel(path,model,device)
     model.eval()
     config['model'] = model
+    rgb_mean = info_loaded['model']['rgb_mean']
+    rgb_std = info_loaded['model']['rgb_std']
+    image_size = info_loaded['model']['image_size']
+
+    config['transforms'] = transforms.Compose([
+                            transforms.Resize(image_size),
+                            transforms.CenterCrop(image_size),
+                            transforms.ToTensor(),
+                            transforms.Normalize(rgb_mean, rgb_std)
+                            ])
 
 
 def main():
@@ -78,7 +79,7 @@ def main():
 
     # Getting parameters
     image_raw_topic = rospy.get_param('~image_raw_topic', '/top_front_camera/rgb/image_color')
-    image_raw_topic= '/top_front_camera/rgb/image_color'
+    #image_raw_topic= '/top_front_camera/rgb/image_color'
     model_steering_topic = rospy.get_param('~model_steering_topic', '/model_steering')
     model_name = rospy.get_param('/model_name', '')
 
@@ -87,7 +88,7 @@ def main():
     path = f'{automec_path}/models/{model_name}/{model_name}.pkl'
 
     # Retrieving info from yaml
-    with open(f'{automec_path}/models/{model_name}/{model_name}.yaml') as file:
+    with open(f'{automec_path}/models/{model_name}/config.yaml') as file:
         info_loaded = yaml.load(file, Loader=yaml.FullLoader)
 
     rospy.loginfo('Using model: %s', path)
@@ -95,10 +96,16 @@ def main():
     config['model'] = eval(info_loaded['model']['ml_arch']['name'])
     config['model'] = LoadModel(path,config['model'],device)
     config['model'].eval()
+    rgb_mean = info_loaded['model']['rgb_mean']
+    rgb_std = info_loaded['model']['rgb_std']
+    image_size = info_loaded['model']['image_size']
 
-    PIL_to_Tensor = transforms.Compose([
-                    transforms.ToTensor()
-                    ])
+    config['transforms'] = transforms.Compose([
+                            transforms.Resize(image_size),
+                            transforms.CenterCrop(image_size),
+                            transforms.ToTensor(),
+                            transforms.Normalize(rgb_mean, rgb_std)
+                            ])
 
     # Partials
     imgRgbCallback_part = partial(imgRgbCallback, config=config)
@@ -118,12 +125,12 @@ def main():
         if config["begin_img"] is False:
             continue
 
-        resized_img = preProcess(config["img_rgb"])
+        resized_img = config["img_rgb"]
 
         # Predict angle
         image = np.array([resized_img])
         image = image[0,:,:,:]
-        image = PIL_to_Tensor(image)
+        image = config['transforms'](image)
         image = image.unsqueeze(0)
         image = image.to(device, dtype=torch.float)
         label_t_predicted = config['model'].forward(image)

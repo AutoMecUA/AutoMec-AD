@@ -87,7 +87,7 @@ class LSTM(nn.Module):
         d = OrderedDict(feature_extraction.named_children())
         self.feature_extraction = nn.Sequential(d)
         
-        self.lstm = nn.LSTM(input_size=128, hidden_size=hidden_dim,
+        self.lstm = nn.LSTM(input_size=1600, hidden_size=hidden_dim,
                           num_layers=self.num_layers, batch_first=True) #lstm
 
         self.linear = nn.Linear(hidden_dim, 1)
@@ -105,7 +105,7 @@ class LSTM(nn.Module):
         #print(x.size()) # (B*T), C, H, W)
         x = self.feature_extraction(x).squeeze()
         #print(x.size()) # (B*T), d)  
-        x = x.view(s[0], s[1], -1)  # x: BxTxd
+        x = x.view(s[0], 1 , -1)  # x: BxTxd
         #print(x.size())
         
         lstm_out , (self.fc_h, self.fc_c) = self.lstm(x , (h0,c0))

@@ -43,7 +43,7 @@ class ClassificationVisualizer():
             image_pil = self.tensor_to_pil_image(image_t)
 
             ax = self.figure.add_subplot(5,5,plot_idx) # define a 5 x 5 subplot matrix
-            plt.imshow(cv2.cvtColor(np.asarray(image_pil), cv2.COLOR_YUV2BGR))
+            plt.imshow(cv2.cvtColor(np.asarray(image_pil), cv2.COLOR_RGB2BGR))
             ax.xaxis.set_ticklabels([])
             ax.yaxis.set_ticklabels([])
             ax.xaxis.set_ticks([])

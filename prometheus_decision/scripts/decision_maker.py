@@ -99,7 +99,7 @@ def main():
     # Retrieving info from yaml
     automec_path = os.environ.get('AUTOMEC_DATASETS')
 
-    with open(f'{automec_path}/models/{model_name}/{model_name}.yaml') as file:
+    with open(f'{automec_path}/models/{model_name}/config.yaml') as file:
         info_loaded = yaml.load(file, Loader=yaml.FullLoader)
         linear_velocity = info_loaded['dataset']['linear_velocity'] 
     
