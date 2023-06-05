@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
 
+"""
+    Script for writing a dataset for training a Deep-learning model.
+    The image is obtained from the topic specified in the parameter 'image_raw_topic'.
+    The steering angle is obtained from the topic specified in the parameter 'twist_cmd_topic'.
+    The dataset is saved in the default path to the Automec folder set in the Environment variable.
+"""
+
 # Imports
 import os
 import pathlib
@@ -17,8 +24,13 @@ from geometry_msgs.msg._Twist import Twist
 from sensor_msgs.msg._Image import Image
 
 
-# Calback Function to receive the cmd values
+# Callback Function to receive the cmd values
 def twistMsgCallback(message, config: dict):
+    """Callback for receiving the velocity and steering values from the car.
+        Args:
+            message (Twist): ROS Twist message.
+            config (dict): Dictionary with the configuration.
+    """
 
     config['angular'] = float(message.angular.z)
     config['linear'] = float(message.linear.x)
@@ -28,6 +40,11 @@ def twistMsgCallback(message, config: dict):
 
 # Callback function to receive image
 def imgRgbCallback(message, config: dict):
+    """Callback for receiving the image from the car.
+        Args:
+            message (Image): ROS Image message.
+            config (dict): Dictionary with the configuration.
+    """
     config['img_rgb'] = config['bridge'].imgmsg_to_cv2(message, "bgr8")
 
     config['begin_img'] = True

@@ -1,5 +1,13 @@
 #!/usr/bin/python3
 
+"""
+    Script for training a Deep-learning model that takes an image and retrieves a steering angle.
+    The model is saved in a .pkl file.
+    The dataset is loaded from the path specified in the parameter 'dataset_name'.
+    The model is saved in the path specified in the parameter 'folder_name'.
+    The script uses the PyTorch framework.
+"""
+
 # Imports 
 import argparse
 import os
@@ -62,8 +70,8 @@ def main():
                         help='How many subprocesses to use for data loading. 0 means that the data will be loaded in the main process.')
     parser.add_argument('-pff', '--prefetch_factor', type=int, default=2, 
                         help='Number of batches loaded in advance by each worker')
-    parser.add_argument('-m', '--model', default='Nvidia_Model()', type=str,
-                        help='Model to use [Nvidia_Model(), Rota_Model(), MobileNetV2(), InceptionV3(), MyVGG(), ResNet()]')
+    parser.add_argument('-m', '--model', default='LSTM()', type=str,
+                        help='Model to use [Nvidia_Model(), Rota_Model(), MobileNetV2(), InceptionV3(), MyVGG(), ResNet(), LSTM(), MyViT()]')
     parser.add_argument('-cs', '--crop_size', default=300, type=int,
                         help='Crop size of the image')
     parser.add_argument('-loss_f', '--loss_function', type=str, default='MSELoss()',
@@ -103,24 +111,26 @@ def main():
     rgb_mean = [config_stats['R']['mean'], config_stats['G']['mean'], config_stats['B']['mean']]
     rgb_std = [config_stats['R']['std'], config_stats['G']['std'], config_stats['B']['std']]
 
-    # Augmentation
+    ########################################
+    # Transforms                           #
+    ########################################
     rgb_transform_train = transforms.Compose([
         transforms.Resize(args['crop_size']),
-        transforms.RandomCrop(args['crop_size']),
+        transforms.CenterCrop(args['crop_size']),
         transforms.ToTensor(),
         transforms.GaussianBlur(15, sigma=(0.1, 2.0)),
         transforms.RandomAffine(degrees=5, translate=(0.1, 0.1), scale=(0.9, 1.1), shear=5),
         transforms.RandomAutocontrast(0.5),
         transforms.ColorJitter(brightness=[0.5,2], hue=0),
         transforms.RandomErasing(),
-        transforms.Normalize(rgb_mean, rgb_std),
+        #transforms.Normalize(rgb_mean, rgb_std),
     ])
 
     rgb_transform_test = transforms.Compose([
         transforms.Resize(args['crop_size']),
         transforms.CenterCrop(args['crop_size']),
         transforms.ToTensor(),
-        transforms.Normalize(rgb_mean, rgb_std)
+        #transforms.Normalize(rgb_mean, rgb_std)
     ])
 
 
@@ -193,7 +203,7 @@ def main():
     if not os.path.exists(folder_path) or ans.lower() in ['overwrite', 'o']: # If the model does not exist
         print(Fore.YELLOW + f'Starting from scratch.' + Style.RESET_ALL)
         os.makedirs(folder_path)
-        idx_epoch = 0
+        idx_epoch = 1
         epoch_train_losses = []
         epoch_test_losses = []
         stored_test_loss=1e2

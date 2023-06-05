@@ -54,3 +54,4 @@ def SaveGraph(train_losses,test_losses,folder_name,last_saved_epoch):
     plt.ylabel("Loss")   
     plt.legend()
     plt.savefig(f'{folder_name}/losses.png')
+    plt.close()

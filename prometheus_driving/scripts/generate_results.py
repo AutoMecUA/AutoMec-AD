@@ -1,5 +1,13 @@
 #!/usr/bin/python3
 
+"""
+    Script for generating results from a Deep-learning model used for predicting the steering angle.
+    Calculating the mean squared error and the mean absolute error.
+    The model is loaded from a .pkl file and the image is obtained from a ROS topic.
+    The model is loaded from the path specified in the argument -fn.
+    This code doesn't have much utility due to testing the model in simulation/reality is more effective so can be deleted
+"""
+
 # Imports 
 import argparse
 import os

@@ -1,5 +1,12 @@
 #!/usr/bin/python3
 
+"""
+    Script for hyperparameter optimization.
+    The hyperparameters to optimize are defined in the dictionary 'hyperparameters'.
+    The dataset is loaded from the path specified in the parameter 'dataset_name'.
+    The hyperparameters are saved in the default path to the Automec folder set in the Environment variable.
+"""
+
 # Imports 
 import os
 from colorama import Fore, Style
@@ -39,6 +46,9 @@ def main():
         'wd': [0.0001, 0.001, 0.01, 0.1],
     }
 
+    ###############################################
+    # Run training with different hyperparameters #
+    ###############################################
     for lr_test in hyperparameters['lr']:
         wd = wd_default
         dropout = dropout_default
@@ -70,6 +80,9 @@ def main():
         lr = lr_default
         print(Fore.BLUE + f'Running with lr={lr}, lr_step_size={lr_step_size}, dropout={dropout}, wd={wd}' + Style.RESET_ALL)
         os.system(f'rosrun prometheus_driving model_train.py -d {args["dataset_name"]} -fn wd_{wd} -m "LSTM(dropout={dropout})" -n_epochs {args["max_epoch"]} -batch_size {args["batch_size"]} -loss_f "MSELoss()" -nw 4 -lr {lr} -lr_step_size {lr_step_size} -wd {wd} -c {args["cuda"]}')
+    
     print(Fore.GREEN + 'Finished training all the models' + Style.RESET_ALL)
+
+
 if __name__ == '__main__':
     main()

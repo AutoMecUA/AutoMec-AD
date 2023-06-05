@@ -1,12 +1,19 @@
 #!/usr/bin/python3
 
+"""
+    Script for training a Deep-learning model that takes an image and produces a segmentation mask.
+    The model is saved in a .pkl file.
+    The dataset is loaded from the path specified in the parameter 'dataset_name'.
+    The model is saved in the path specified in the parameter 'folder_name'.
+    The script uses the PyTorch framework.
+"""
+
 # Imports 
 import argparse
 import glob
 import os
 from statistics import mean
 import sys
-import pandas as pd
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 from colorama import Fore, Style
@@ -183,7 +190,7 @@ def main():
     if not os.path.exists(folder_path) or ans.lower() in ['overwrite', 'o']: # If the model does not exist
         print(Fore.YELLOW + f'Starting from scratch.' + Style.RESET_ALL)
         os.makedirs(folder_path)
-        idx_epoch = 0
+        idx_epoch = 1
         epoch_train_losses = []
         epoch_test_losses = []
         stored_test_loss=1e2

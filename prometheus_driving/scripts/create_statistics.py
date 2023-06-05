@@ -1,5 +1,11 @@
 #!/usr/bin/python3
 
+"""
+    Script for creating statistics of a dataset, calculating the rgb mean and the rgb std.
+    The dataset is loaded from the path specified in the parameter 'dataset_name'.
+    The statistics are saved in the default path to the Automec folder set in the Environment variable.
+"""
+
 # Imports 
 import argparse
 import os
@@ -27,14 +33,14 @@ def main():
     arglist = [x for x in sys.argv[1:] if not x.startswith('__')]
     args = vars(parser.parse_args(args=arglist))
 
-    # General Path
+    # Dataset Path
     files_path=os.environ.get('AUTOMEC_DATASETS')
-    # Image dataset paths
     dataset_path = f'{files_path}/datasets/{args["dataset_name"]}/'
     if not os.path.exists(dataset_path):
         print(f'{Fore.RED}The dataset does not exist{Style.RESET_ALL}')
         exit()
 
+    # Loads the steering and velocity values from the driving_log.csv file to create the dataset class
     columns = ['img_name','steering', 'velocity'] 
     df = pd.read_csv(os.path.join(dataset_path, 'driving_log.csv'), names = columns)
 
@@ -43,13 +49,14 @@ def main():
 
     print(f'{Fore.BLUE}The dataset has {len(df)} images{Style.RESET_ALL}')
 
+    # Create dataset object
     dataset = Dataset(df,dataset_path)
 
-    # Read YAML file
+    # Read YAML file with dataset info
     with open(dataset_path + "info.yaml", 'r') as stream:
         config = yaml.safe_load(stream)
     
-    
+    # Create statistics dictionary
     config['statistics'] = {'B' : {'max'  : np.empty((len(dataset))),
                                     'min'  : np.empty((len(dataset))),
                                     'mean' : np.empty((len(dataset))),
@@ -63,6 +70,9 @@ def main():
                                     'mean' : np.empty((len(dataset))),
                                     'std'  : np.empty((len(dataset)))}}
     
+    ########################################
+    # Process each frame                   #
+    ########################################
     for idx in range(len(dataset)):
         
         print(f'creating stats of frame {idx}')
@@ -70,17 +80,9 @@ def main():
         # Load RGB image
         cv_image = cv2.imread(f'{dataset.image_filenames_original[idx]}', cv2.IMREAD_UNCHANGED)
         
-        #cv2.imshow('fig', cv_image)
-        #cv2.waitKey(0)
-        
-        #print(cv_image.shape)
-        
         blue_image = cv_image[:,:,0]/255
         green_image = cv_image[:,:,1]/255
         red_image = cv_image[:,:,2]/255
-        
-        # cv2.imshow('fig', green_image)
-        # cv2.waitKey(0)
         
         ## B channel
         config['statistics']['B']['max'][idx] = np.max(blue_image)
@@ -100,7 +102,9 @@ def main():
         config['statistics']['R']['mean'][idx] = np.mean(red_image)
         config['statistics']['R']['std'][idx] = np.std(red_image)
                     
-    
+    ########################################
+    # Save statistics                      #
+    ########################################
     config['statistics']['B']['max']  = round(float(np.mean(config['statistics']['B']['max'])),5)
     config['statistics']['B']['min']  = round(float(np.mean(config['statistics']['B']['min'])),5)
     config['statistics']['B']['mean'] = round(float(np.mean(config['statistics']['B']['mean'])),5)

@@ -1,5 +1,12 @@
 #!/usr/bin/python3
 
+"""
+    Script for retrieving the segmentation mask using a Deep-learning model.
+    The model is loaded from a .pkl file and the image is obtained from a ROS topic.
+    The model is loaded from the path specified in the parameter 'model_name'.
+    The image is obtained from the topic specified in the parameter 'image_raw_topic'.
+"""
+
 # Imports 
 from functools import partial
 import time
@@ -26,6 +33,7 @@ from models.segnetV2 import SegNetV2
 from models.unet import UNet
 from src.utils import LoadModel
 
+# Creates the structure for the labels in the segmentation mask
 Label = namedtuple( 'Label' , [
 
     'name'        , # The identifier of this label, e.g. 'car', 'person', ... .
@@ -64,6 +72,12 @@ Label = namedtuple( 'Label' , [
 
 
 def imgRgbCallback(message, config):
+    """Callback for changing the image.
+    The output is an RGB image.
+    Args:
+        message (Image): ROS Image message.
+        config (dict): Dictionary with the configuration. 
+    """
 
     config['img_rgb'] = config['bridge'].imgmsg_to_cv2(message, "passthrough")
 
@@ -77,6 +91,7 @@ def main():
     ########################################
     # Initialization                       #
     ########################################
+    # TODO load this labels from the model 
     labels = [
         #       name                     id    trainId   category            catId     hasInstances   ignoreInEval   color
         Label(  'background'            ,  0 ,      0 , 'void'            , 0       , False        , True         , (  0,  0,  0) ),
@@ -95,25 +110,26 @@ def main():
     config["begin_img"] = False
     config["bridge"] = CvBridge()
 
+    # Initializes the opencv window that will display the segmentation mask
     win_name = 'Semantic Segmentation'
     cv2.namedWindow(winname=win_name,flags=cv2.WINDOW_NORMAL)
 
+    # Initializes the ROS node and gets the parameters
     rospy.init_node('semantic_segmentation', anonymous=False)
     image_raw_topic = rospy.get_param('~image_raw_topic', '/top_front_camera/rgb/image_raw')
     model_name = rospy.get_param('/model_semantic_name', '')
 
-    # General Path
+    # Path to the model folder
     automec_path=os.environ.get('AUTOMEC_DATASETS')
     path = f'{automec_path}/models/{model_name}/{model_name}.pkl'
-
-    device = f'cuda:0' if torch.cuda.is_available() else 'cpu' # cuda: 0 index of gpu
 
     # Retrieving info from yaml
     with open(f'{automec_path}/models/{model_name}/config.yaml') as file:
         info_loaded = yaml.load(file, Loader=yaml.FullLoader)
 
+    # Loads the model
     rospy.loginfo('Using model: %s', path)
-    print(info_loaded['model']['ml_arch']['name'])
+    device = f'cuda:0' if torch.cuda.is_available() else 'cpu' # cuda: 0 index of gpu
     config['model'] = eval(info_loaded['model']['ml_arch']['name'])
     config['model'] = LoadModel(path,config['model'],device)
     config['model'].eval()
@@ -121,7 +137,7 @@ def main():
     rgb_std = info_loaded['model']['rgb_std']
     image_size = info_loaded['model']['image_size']
 
-    # Pre-processing
+    # Configures the transforms for Pre-processing the image
     config['transforms'] = transforms.Compose([
         transforms.ToPILImage(),
         transforms.Resize(image_size),
@@ -130,24 +146,25 @@ def main():
         transforms.Normalize(rgb_mean, rgb_std)
     ])
     
+    # Subscribes to the image topic
     imgRgbCallback_part = partial(imgRgbCallback, config=config)
-
     rospy.Subscriber(image_raw_topic, Image, imgRgbCallback_part)
 
     # Frames per second
     rate = rospy.Rate(30)
 
     ###########################
-    # Obtains the mask        #
+    # Main Loop               #
     ###########################
     while not rospy.is_shutdown():
         # Checks if there is an image in the buffer
         if config["begin_img"] is False:
             continue
-        
-        image= config["img_rgb"]
-        # Obtain segmented iamage
-        image = config['transforms'](image)
+
+        #########################
+        # Obtains the mask      #
+        #########################
+        image = config['transforms'](config["img_rgb"])
         image = image.unsqueeze(0)
         image = image.to(device, dtype=torch.float)
         mask_predicted = config['model'](image)
@@ -159,9 +176,11 @@ def main():
         mask_predicted_output = mask_predicted_output.byte().cpu().numpy()
         mask_color = mask[mask_predicted_output].astype(np.uint8)
 
+        #########################
+        # Displays the mask     #
+        #########################
         cv2.imshow(win_name, cv2.cvtColor( mask_color, cv2.COLOR_RGB2BGR) )
         key = cv2.waitKey(1)
-        # Publish angle
         rate.sleep()
 
 

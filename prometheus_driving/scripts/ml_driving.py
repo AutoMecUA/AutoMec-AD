@@ -1,5 +1,14 @@
 #!/usr/bin/env python3
 
+"""
+    Script for driving the car using a Deep-learning model.
+    The model is loaded from a .pkl file and the image is obtained from a ROS topic.
+    The model is loaded from the path specified in the parameter 'model_name'.
+    The image is obtained from the topic specified in the parameter 'image_raw_topic'.
+    The steering angle is published in the topic specified in the parameter 'model_steering_topic'.
+    The model can be changed by publishing the name of the model in the topic '/set_model'.
+"""
+
 # Imports
 from functools import partial
 from typing import Any
@@ -32,6 +41,11 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # or any {'0', '1', '2'}
 
 
 def imgRgbCallback(message, config):
+    """Callback for changing the image.
+    Args:
+        message (Image): ROS Image message.
+        config (dict): Dictionary with the configuration. 
+    """
 
     config['img_rgb'] = config['bridge'].imgmsg_to_cv2(message, "passthrough")
 
@@ -40,6 +54,13 @@ def imgRgbCallback(message, config):
     config["begin_img"] = True
 
 def modelSteeringCallback(message, config):
+    """Callback for changing the model.
+    Args:
+        message (String): ROS String message containing the model name.
+        config (dict): Dictionary with the configuration.
+    """
+
+    # Gets the information necessary to run the model
     model_name = message.data
     automec_path = os.environ.get('AUTOMEC_DATASETS')
     path = f'{automec_path}/models/{model_name}/{model_name}.pkl'
@@ -47,6 +68,7 @@ def modelSteeringCallback(message, config):
     with open(f'{automec_path}/models/{model_name}/config.yaml') as file:
         info_loaded = yaml.load(file, Loader=yaml.FullLoader)
 
+    # Loads the model
     rospy.loginfo('Using model: %s', path)
     device = f'cuda:0' if torch.cuda.is_available() else 'cpu' # cuda: 0 index of gpu
     model = eval(info_loaded['model']['ml_arch']['name'])
@@ -57,6 +79,7 @@ def modelSteeringCallback(message, config):
     rgb_std = info_loaded['model']['rgb_std']
     image_size = info_loaded['model']['image_size']
 
+    # Sets the transforms to preprocess the image
     config['transforms'] = transforms.Compose([
         transforms.Resize(image_size),
         transforms.CenterCrop(image_size),
@@ -66,9 +89,11 @@ def modelSteeringCallback(message, config):
 
 
 def main():
-    config: dict[str, Any] = dict(vel=None, img_rgb=None,
-                                  bridge=None, begin_img=None)
+    ############################
+    # Initialization           #
+    ############################
     # Defining starting values
+    config: dict[str, Any] = dict(vel=None, img_rgb=None, bridge=None, begin_img=None)
     config["begin_img"] = False
     config["vel"] = 0
     config["bridge"] = CvBridge()
@@ -78,7 +103,6 @@ def main():
 
     # Getting parameters
     image_raw_topic = rospy.get_param('~image_raw_topic', '/top_front_camera/rgb/image_color')
-    #image_raw_topic= '/top_front_camera/rgb/image_color'
     model_steering_topic = rospy.get_param('~model_steering_topic', '/model_steering')
     model_name = rospy.get_param('/model_name', '')
 
@@ -89,7 +113,7 @@ def main():
     # Retrieving info from yaml
     with open(f'{automec_path}/models/{model_name}/config.yaml') as file:
         info_loaded = yaml.load(file, Loader=yaml.FullLoader)
-
+    # Loads the model
     rospy.loginfo('Using model: %s', path)
     device = f'cuda:0' if torch.cuda.is_available() else 'cpu' # cuda: 0 index of gpu
     config['model'] = eval(info_loaded['model']['ml_arch']['name'])
@@ -98,7 +122,7 @@ def main():
     rgb_mean = info_loaded['model']['rgb_mean']
     rgb_std = info_loaded['model']['rgb_std']
     image_size = info_loaded['model']['image_size']
-
+    # Sets the transforms to preprocess the image
     config['transforms'] = transforms.Compose([
                             transforms.ToPILImage(),
                             transforms.Resize(image_size),
@@ -120,15 +144,18 @@ def main():
     # Frames per second
     rate = rospy.Rate(30)
 
+    ############################
+    # Main loop                #
+    ############################
     while not rospy.is_shutdown():
-
+        # If there is no image, do nothing
         if config["begin_img"] is False:
             continue
 
-        image= config["img_rgb"]
-
-        # Predict angle
-        image = config['transforms'](image)
+        ############################
+        # Predicts the steering    #
+        ############################
+        image = config['transforms'](config["img_rgb"])
         image = image.unsqueeze(0)
         image = image.to(device, dtype=torch.float)
         label_t_predicted = config['model'].forward(image)
