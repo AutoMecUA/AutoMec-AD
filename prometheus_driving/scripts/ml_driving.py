@@ -58,11 +58,11 @@ def modelSteeringCallback(message, config):
     image_size = info_loaded['model']['image_size']
 
     config['transforms'] = transforms.Compose([
-                            transforms.Resize(image_size),
-                            transforms.CenterCrop(image_size),
-                            transforms.ToTensor(),
-                            transforms.Normalize(rgb_mean, rgb_std)
-                            ])
+        transforms.Resize(image_size),
+        transforms.CenterCrop(image_size),
+        transforms.ToTensor(),
+        transforms.Normalize(rgb_mean, rgb_std)
+    ])
 
 
 def main():

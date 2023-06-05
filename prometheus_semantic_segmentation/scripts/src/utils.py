@@ -5,7 +5,7 @@ import os
 import yaml
 
 
-def SaveModel(model,idx_epoch,optimizer,training_loader,testing_loader,epoch_train_losses,epoch_test_losses,folder_path,device,modelname,cnn_model_name,epochs,batch_size_val,val_loss,test_loss,model_evaluation,data_loaded):
+def SaveModel(model,idx_epoch,optimizer,training_loader,testing_loader,epoch_train_losses,epoch_test_losses,folder_path,device,modelname,cnn_model_name,epochs,batch_size_val,val_loss,test_loss,model_evaluation,data_loaded , image_size , rgb_mean, rgb_std):
     model.to('cpu')
     torch.save({
         'epoch': idx_epoch,
@@ -29,11 +29,13 @@ def SaveModel(model,idx_epoch,optimizer,training_loader,testing_loader,epoch_tra
                        "batch_size_val":batch_size_val,
                        "val_loss":val_loss, "tes_loss":test_loss},
             model_eval = model_evaluation,
-            #comments = ml_comments
+            image_size = image_size,
+            rgb_mean = rgb_mean,
+            rgb_std = rgb_std
         ),
         dataset = data_loaded['dataset']
     )
-    with open(f'{folder_path}/{modelname}.yaml', 'w') as outfile: #info
+    with open(f'{folder_path}/config.yaml', 'w') as outfile: #info
         yaml.dump(info_data, outfile, default_flow_style=False, sort_keys=False)
 
 

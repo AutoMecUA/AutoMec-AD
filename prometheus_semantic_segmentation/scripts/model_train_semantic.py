@@ -61,6 +61,8 @@ def main():
                         help='Number of batches loaded in advance by each worker')
     parser.add_argument('-m', '--model', default='SegNetV2()', type=str,
                         help='Model to use [SegNetV2(), SegNet(), UNet(), DeepLabv3()]')
+    parser.add_argument('-cs', '--crop_size', default=112, type=int,
+                        help='Crop size of the image')
     parser.add_argument('-loss_f', '--loss_function', type=str, default='CrossEntropyLoss()',
                         help='Type of loss function. [CrossEntropyLoss() , cross_entropy2d]')
 
@@ -90,7 +92,6 @@ def main():
     model = eval(args['model']) # Instantiate model
     print(f'You are training using the device: ' + Fore.YELLOW + f'{device}' + Style.RESET_ALL)
 
-
     # Define hyper parameters
     learning_rate = args['learning_rate']
     maximum_num_epochs = args['max_epoch'] 
@@ -100,27 +101,40 @@ def main():
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=args['lr_step_size'], gamma=args['lr_gamma'])
 
     ########################################
-    # Dataset                              #
+    # Transforms                           #
     ########################################
-    image_size = (112, 112)
+    config_stats = data_loaded['statistics']
+    rgb_mean = [config_stats['R']['mean'], config_stats['G']['mean'], config_stats['B']['mean']]
+    rgb_std = [config_stats['R']['std'], config_stats['G']['std'], config_stats['B']['std']]
+
     transforms_train = transforms.Compose([
-            transforms.Resize(image_size),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-            transforms.RandomErasing(),
+        transforms.Resize(args['crop_size']),
+        transforms.RandomCrop(args['crop_size']),
+        transforms.ToTensor(),
+        transforms.GaussianBlur(15, sigma=(0.1, 2.0)),
+        transforms.RandomAffine(degrees=5, translate=(0.1, 0.1), scale=(0.9, 1.1), shear=5),
+        transforms.RandomAutocontrast(0.5),
+        transforms.ColorJitter(brightness=[0.5,2], hue=0),
+        transforms.RandomErasing(),
+        transforms.Normalize(rgb_mean, rgb_std),
     ])
 
     transforms_test = transforms.Compose([
-            transforms.Resize(image_size),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        transforms.Resize(args['crop_size']),
+        transforms.CenterCrop(args['crop_size']),
+        transforms.ToTensor(),
+        transforms.Normalize(rgb_mean, rgb_std)
     ])
+
+    ########################################
+    # Dataset                              #
+    ########################################
     # Sample ony a few images for development
     train_dataset,test_dataset = train_test_split(dataset,test_size=0.2)
     # Creates the train dataset
-    dataset_train = DatasetSemantic(train_dataset , augmentation=False , transforms=transforms_train)
+    dataset_train = DatasetSemantic(train_dataset , augmentation=False , transforms=transforms_train , image_size = args['crop_size'])
     # Creates the test dataset
-    dataset_test = DatasetSemantic(test_dataset , augmentation=False , transforms=transforms_test)
+    dataset_test = DatasetSemantic(test_dataset , augmentation=False , transforms=transforms_test , image_size = args['crop_size'])
 
     # Creates the batch size that suits the amount of memory the graphics can handle
     loader_train = torch.utils.data.DataLoader(dataset=dataset_train,batch_size=args['batch_size'],shuffle=True , num_workers=args['num_workers'] , prefetch_factor=args['prefetch_factor'])
@@ -258,7 +272,7 @@ def main():
                 last_saved_epoch = idx_epoch
                 print(Fore.BLUE + 'Saving model at Epoch ' + str(idx_epoch) + ' Loss ' + str(epoch_test_loss) + Style.RESET_ALL)
                 SaveGraph(epoch_train_losses,epoch_test_losses,folder_path,last_saved_epoch)
-                SaveModel(model,idx_epoch,optimizer,loader_train,loader_test,epoch_train_losses,epoch_test_losses,folder_path,device,model_name,args['model'],idx_epoch,args['batch_size'],train_losses[-1],test_losses[-1],args['loss_function'],data_loaded) # Saves the model
+                SaveModel(model,idx_epoch,optimizer,loader_train,loader_test,epoch_train_losses,epoch_test_losses,folder_path,device,model_name,args['model'],idx_epoch,args['batch_size'],train_losses[-1],test_losses[-1],args['loss_function'],data_loaded,  args['crop_size'], rgb_mean, rgb_std) # Saves the model
             else:
                 print(Fore.BLUE + 'Not saved, current loos '+ str(epoch_test_loss) + '. Previous model is better, previous loss ' + str(stored_test_loss) + '.' + Style.RESET_ALL)
             break
@@ -268,7 +282,7 @@ def main():
                 last_saved_epoch = idx_epoch
                 print(Fore.BLUE + 'Saving model at Epoch ' + str(idx_epoch) + ' Loss ' + str(epoch_test_loss) + Style.RESET_ALL)
                 SaveGraph(epoch_train_losses,epoch_test_losses,folder_path,last_saved_epoch)
-                SaveModel(model,idx_epoch,optimizer,loader_train,loader_test,epoch_train_losses,epoch_test_losses,folder_path,device,model_name,args['model'],idx_epoch,args['batch_size'],train_losses[-1],test_losses[-1],args['loss_function'],data_loaded) # Saves the model
+                SaveModel(model,idx_epoch,optimizer,loader_train,loader_test,epoch_train_losses,epoch_test_losses,folder_path,device,model_name,args['model'],idx_epoch,args['batch_size'],train_losses[-1],test_losses[-1],args['loss_function'],data_loaded,  args['crop_size'], rgb_mean, rgb_std) # Saves the model
             else:
                 print(Fore.BLUE + 'Not saved, current loos '+ str(epoch_test_loss) + '. Previous model is better, previous loss ' + str(stored_test_loss) + '.' + Style.RESET_ALL)
             break
@@ -281,7 +295,7 @@ def main():
             if epoch_test_loss < stored_test_loss: # checks if the previous model is better than the new one
                 last_saved_epoch = idx_epoch
                 print(Fore.BLUE + 'Saving model at Epoch ' + str(idx_epoch) + ' Loss ' + str(epoch_test_loss) + Style.RESET_ALL)
-                SaveModel(model,idx_epoch,optimizer,loader_train,loader_test,epoch_train_losses,epoch_test_losses,folder_path,device,model_name,args['model'],idx_epoch,args['batch_size'],train_losses[-1],test_losses[-1],args['loss_function'],data_loaded) # Saves the model
+                SaveModel(model,idx_epoch,optimizer,loader_train,loader_test,epoch_train_losses,epoch_test_losses,folder_path,device,model_name,args['model'],idx_epoch,args['batch_size'],train_losses[-1],test_losses[-1],args['loss_function'],data_loaded,  args['crop_size'], rgb_mean, rgb_std) # Saves the model
                 stored_test_loss=epoch_test_loss
                 
             else: 

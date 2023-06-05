@@ -91,13 +91,6 @@ def main():
     config: dict[str, Any] = dict(vel=None, img_rgb=None,
                                   bridge=None, begin_img=None)
     
-    transforms_val = transforms.Compose([
-            transforms.ToPILImage(),
-            transforms.Resize((112, 112)),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-        ])
-    
     # Defining starting values
     config["begin_img"] = False
     config["bridge"] = CvBridge()
@@ -107,7 +100,7 @@ def main():
 
     rospy.init_node('semantic_segmentation', anonymous=False)
     image_raw_topic = rospy.get_param('~image_raw_topic', '/top_front_camera/rgb/image_raw')
-    model_name = rospy.get_param('/model_semantic_name', 'gazebo_segnetv2')
+    model_name = rospy.get_param('/model_semantic_name', '')
 
     # General Path
     automec_path=os.environ.get('AUTOMEC_DATASETS')
@@ -116,7 +109,7 @@ def main():
     device = f'cuda:0' if torch.cuda.is_available() else 'cpu' # cuda: 0 index of gpu
 
     # Retrieving info from yaml
-    with open(f'{automec_path}/models/{model_name}/{model_name}.yaml') as file:
+    with open(f'{automec_path}/models/{model_name}/config.yaml') as file:
         info_loaded = yaml.load(file, Loader=yaml.FullLoader)
 
     rospy.loginfo('Using model: %s', path)
@@ -124,6 +117,18 @@ def main():
     config['model'] = eval(info_loaded['model']['ml_arch']['name'])
     config['model'] = LoadModel(path,config['model'],device)
     config['model'].eval()
+    rgb_mean = info_loaded['model']['rgb_mean']
+    rgb_std = info_loaded['model']['rgb_std']
+    image_size = info_loaded['model']['image_size']
+
+    # Pre-processing
+    config['transforms'] = transforms.Compose([
+        transforms.ToPILImage(),
+        transforms.Resize(image_size),
+        transforms.CenterCrop(image_size),
+        transforms.ToTensor(),
+        transforms.Normalize(rgb_mean, rgb_std)
+    ])
     
     imgRgbCallback_part = partial(imgRgbCallback, config=config)
 
@@ -132,13 +137,17 @@ def main():
     # Frames per second
     rate = rospy.Rate(30)
 
+    ###########################
+    # Obtains the mask        #
+    ###########################
     while not rospy.is_shutdown():
-
+        # Checks if there is an image in the buffer
         if config["begin_img"] is False:
             continue
-        preivous_time = time.time()
+        
+        image= config["img_rgb"]
         # Obtain segmented iamage
-        image = transforms_val(config['img_rgb'])
+        image = config['transforms'](image)
         image = image.unsqueeze(0)
         image = image.to(device, dtype=torch.float)
         mask_predicted = config['model'](image)
@@ -150,7 +159,6 @@ def main():
         mask_predicted_output = mask_predicted_output.byte().cpu().numpy()
         mask_color = mask[mask_predicted_output].astype(np.uint8)
 
-        print(f'FPS: {1/(time.time()-preivous_time)}')
         cv2.imshow(win_name, cv2.cvtColor( mask_color, cv2.COLOR_RGB2BGR) )
         key = cv2.waitKey(1)
         # Publish angle

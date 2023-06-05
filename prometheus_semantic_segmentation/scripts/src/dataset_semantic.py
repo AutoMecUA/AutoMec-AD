@@ -7,7 +7,7 @@ from PIL import Image
 from torchvision import transforms
 
 class DatasetSemantic(torch.utils.data.Dataset):
-    def __init__(self,dataset,augmentation=True ,transforms=None):
+    def __init__(self,dataset,augmentation=True ,transforms=None , image_size=112):
         # Image dataset paths
         self.augmentation = augmentation
         self.images_original = []
@@ -18,6 +18,7 @@ class DatasetSemantic(torch.utils.data.Dataset):
 
         self.num_images= len(self.images_original)
         self.transforms = transforms
+        self.image_size = (image_size,image_size)
 
     def __getitem__(self,index): # returns a specific x,y of the datasets
         # Get the image
@@ -25,7 +26,7 @@ class DatasetSemantic(torch.utils.data.Dataset):
 
         mask = Image.open(self.image_label[index])
 
-        mask = mask.resize((112, 112), Image.NEAREST)
+        mask = mask.resize(self.image_size, Image.NEAREST)
 
         # Convert to tensor
         if self.transforms is not None:

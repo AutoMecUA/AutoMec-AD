@@ -2,7 +2,9 @@
 
   <arg name="image_raw_topic" default="/top_front_camera/rgb/image_raw"/>
   <arg name="model_name" default=""/>
+  
   <!-- Set global parameteres -->
+  <param name="model_semantic_name" value="$(arg model_name)" />
   
   <node name="semantic_segmentation" pkg="prometheus_semantic_segmentation" type="semantic_segmentation.py" output="screen" required="true" >
     <param name="image_raw_topic" value="$(arg image_raw_topic)" />
