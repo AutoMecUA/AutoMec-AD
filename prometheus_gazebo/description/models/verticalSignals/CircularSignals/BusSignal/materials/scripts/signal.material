@@ -1,0 +1,13 @@
+material Signal/Bus
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture bus.png
+      }
+    }
+  }
+}
