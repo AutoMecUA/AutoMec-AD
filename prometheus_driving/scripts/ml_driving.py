@@ -14,7 +14,6 @@ from functools import partial
 from typing import Any
 
 import cv2
-import numpy as np
 import rospy
 import yaml
 from sensor_msgs.msg._Image import Image
@@ -22,7 +21,6 @@ from std_msgs.msg import Float32 , String
 from cv_bridge.core import CvBridge
 import torch
 from torchvision import transforms
-import pathlib
 import os
 
 # Custom imports

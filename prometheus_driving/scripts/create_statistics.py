@@ -11,7 +11,6 @@ import argparse
 import os
 import sys
 import pandas as pd
-from tqdm import tqdm
 from colorama import Fore, Style
 import numpy as np
 import cv2
