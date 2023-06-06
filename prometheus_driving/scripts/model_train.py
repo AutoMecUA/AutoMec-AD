@@ -86,6 +86,7 @@ def main():
     dataset_path = f'{files_path}/datasets/{args["dataset_name"]}/'
     columns = ['img_name','steering', 'velocity'] 
     df = pd.read_csv(os.path.join(dataset_path, 'driving_log.csv'), names = columns)
+    df = df.sort_index()
 
     del df["velocity"] # not in use, currently
     df.head()
@@ -118,19 +119,18 @@ def main():
         transforms.Resize(args['crop_size']),
         transforms.CenterCrop(args['crop_size']),
         transforms.ToTensor(),
-        transforms.GaussianBlur(15, sigma=(0.1, 2.0)),
+        transforms.GaussianBlur((7, 13), sigma=(0.1, 2.0)),
         transforms.RandomAffine(degrees=5, translate=(0.1, 0.1), scale=(0.9, 1.1), shear=5),
         transforms.RandomAutocontrast(0.5),
         transforms.ColorJitter(brightness=[0.5,2], hue=0),
-        transforms.RandomErasing(),
-        #transforms.Normalize(rgb_mean, rgb_std),
+        transforms.Normalize(rgb_mean, rgb_std),
     ])
 
     rgb_transform_test = transforms.Compose([
         transforms.Resize(args['crop_size']),
         transforms.CenterCrop(args['crop_size']),
         transforms.ToTensor(),
-        #transforms.Normalize(rgb_mean, rgb_std)
+        transforms.Normalize(rgb_mean, rgb_std)
     ])
 
 
@@ -146,6 +146,7 @@ def main():
     # Dataset                              #
     ########################################
     if args['model'] == 'LSTM()':
+        print(f'{Fore.BLUE}You are training a LSTM model so shuffle is disabled {Style.RESET_ALL} ')
         shuffle = False
     else:
         shuffle = True

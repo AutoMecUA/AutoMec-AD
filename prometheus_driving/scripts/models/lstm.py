@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+import torch
 from torch import nn , zeros , cuda , device
 from torch.autograd import Variable 
 from collections import OrderedDict
@@ -41,12 +42,12 @@ class CNN(nn.Module):
         )
 
         self.layer5 = nn.Sequential(
-            nn.Conv2d(64,64, kernel_size=3),
-            nn.BatchNorm2d(64),
+            nn.Conv2d(64,128, kernel_size=3),
+            nn.BatchNorm2d(128),
             nn.ELU(),
             #nn.MaxPool2d(2),
             nn.AvgPool2d(3, stride=2),
-            nn.Flatten()
+            #nn.Flatten()
         )
 
         self.relu = nn.ReLU()
@@ -78,37 +79,36 @@ class CNN(nn.Module):
 class LSTM(nn.Module):
     def __init__(self,hidden_dim=1024 , num_layers=4 , dropout=0.20):
         super().__init__()
+        # TODO Calculate the hidden dim based on the input image size
         self.hidden_dim = hidden_dim
         self.num_layers = num_layers
         self.device = f'cuda:0' if cuda.is_available() else 'cpu' # cuda: 0 index of gpu
 
-        feature_extraction = CNN()
-
-        d = OrderedDict(feature_extraction.named_children())
-        self.feature_extraction = nn.Sequential(d)
+        self.feature_extraction = CNN()
         
-        self.lstm = nn.LSTM(input_size=1600, hidden_size=hidden_dim,
+        self.lstm = nn.LSTM(input_size=128, hidden_size=hidden_dim,
                           num_layers=self.num_layers, batch_first=True) #lstm
+        
 
         self.linear = nn.Linear(hidden_dim, 1)
 
         self.dropout = nn.Dropout(dropout)
         
-        
     def forward(self,x):
         s = x.size()
         #print(s)
-        h0 = zeros(self.num_layers, x.size(0), self.hidden_dim).to(device(self.device)) # we have to have a hidden value for each unit of all rnn-layers.
-        c0 = zeros(self.num_layers, x.size(0), self.hidden_dim).to(device(self.device))
+        h0 = torch.autograd.Variable(zeros(self.num_layers, x.size(0), self.hidden_dim).to(device(self.device))) # we have to have a hidden value for each unit of all rnn-layers.
+        c0 = torch.autograd.Variable(zeros(self.num_layers, x.size(0), self.hidden_dim).to(device(self.device)))
         
         #x = x.view(-1, *s[2:]) # x: (B*T)x(C)x(H)x(W))
         #print(x.size()) # (B*T), C, H, W)
-        x = self.feature_extraction(x).squeeze()
+        x = self.feature_extraction(x) # x: (B*T), d)
         #print(x.size()) # (B*T), d)  
-        x = x.view(s[0], 1 , -1)  # x: BxTxd
-        #print(x.size())
+        x = x.view(x.size(0) , x.size(1) , -1)  # x: BxTxd
+        x = x.permute(0, 2, 1) # [b,L,c]
+        #print(x.size()) 
         
-        lstm_out , (self.fc_h, self.fc_c) = self.lstm(x , (h0,c0))
+        lstm_out , _ = self.lstm(x , (h0,c0))
         #print('lstm_out = ' + str(lstm_out.shape))
         out = lstm_out[:,-1,:]
 

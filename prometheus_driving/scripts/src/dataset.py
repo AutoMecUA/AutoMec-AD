@@ -18,7 +18,7 @@ from PIL import Image
 class Dataset(torch.utils.data.Dataset):
     def __init__(self,dataset,dataset_path, transform=None):
         # Image dataset paths
-        images_path = dataset_path + '/IMG/'
+        images_path = dataset_path + 'IMG/'
         self.image_filenames_original = images_path + dataset['img_name']
         self.image_filenames_original = self.image_filenames_original.values.tolist()
         self.labels_original = dataset['steering'].values.tolist()
