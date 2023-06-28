@@ -15,7 +15,8 @@ def twistMsgCallback(message, **kwargs):
 
     if linear > 0:
         message.linear.x = float(kwargs['linear_velocity'])
-
+    elif linear < 0:
+        message.linear.x = -float(kwargs['linear_velocity'])
     else:
         message.linear.x = 0
 

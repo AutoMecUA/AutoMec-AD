@@ -22,6 +22,8 @@ def twistMsgCallback(message, **kwargs):
 
     if linear == 1:
         vel = kwargs['vel_max']
+    elif linear == -1:
+        vel = -kwargs['vel_max']
     else:
         vel = kwargs['vel_center']
 
