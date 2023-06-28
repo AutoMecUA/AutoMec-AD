@@ -64,11 +64,13 @@
         <!-- Kinect sensors -->
         <include file="$(find prometheus_bringup)/launch/include/kinect.launch">
             <arg name="frame_id" value="top_front_camera"/>
+            <arg name="device_serial" value="A00366816279045A"/>  <!-- Use the serial from the camera to choose which camera to connect too, the serial can be found when the code is executed -->
         </include>
 
-        <!-- <include file="$(find prometheus_bringup)/launch/include/kinect.launch">
+        <include file="$(find prometheus_bringup)/launch/include/kinect.launch">
             <arg name="frame_id" value="bottom_front_camera"/>
-        </include> -->
+            <arg name="device_serial" value="A00366910546052A"/>  <!-- Use the serial from the camera to choose which camera to connect too, the serial can be found when the code is executed -->
+        </include>
 
         <!-- Connect with microcontroller -->
         <include file="$(find prometheus_bringup)/launch/include/rosserial.launch"/>
