@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 
+"""
+    Script to establish a connection between the xbox controller and the car that publishes the commands to the topic '/cmd_vel'.
+    The topic to publish the commands can be changed by setting the parameter 'twist_cmd_topic'.
+    The topic to subscribe to the xbox controller can be changed by setting the parameter 'joy_topic'.
+"""
+
 # Imports
 from functools import partial
 
@@ -10,14 +16,22 @@ from sensor_msgs.msg import Joy
 
 # Direction Callback Function
 def messageReceivedCallbackJoy(message, **kwargs):
+    """
+    Callback function for the controller that receives the joy message and publishes to the car.
+    Args:
+        message (Joy): ROS Joy message.
+        kwargs (dict): Dictionary with the configuration.
+    """
 
     angular = message.axes[0]/3
 
     # The R2 trigger rest's at 1, and goes up to -1 as its pressed
     if(message.axes[4] < 0): 
         linear = round(abs(message.axes[4]), 1) # For scaling vel
-    elif message.buttons[8] == 1:
+    elif message.axes[3] > 0:
         linear = 1
+    elif message.axes[3] < 0:
+        linear = -1
     else:
         linear = 0
 

@@ -1,15 +1,7 @@
 /*
- * rosserial Servo Control Example
- *
- * This sketch demonstrates the control of hobby R/C servos
- * using ROS and the arduino
- * 
- * For the full tutorial write up, visit
- * www.ros.org/wiki/rosserial_arduino_demos
- *
- * For more information on the Arduino Servo Library
- * Checkout :
- * http://www.arduino.cc/en/Reference/Servo
+  * This code is responsible for the arduino board.
+  * It receives the messages from ROS and generates the PWM wave to control the servos.
+  * It also reads the encoder pulses and publish it to ROS.
  */
 
 

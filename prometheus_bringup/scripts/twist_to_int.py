@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
 
+"""
+    Script to convert Twist messages to Int16 messages for the Arduino
+    The topic where the Twist messages are subscribed is defined by the parameter 'twist_cmd_topic'.
+    The topic where the Int16 messages are published is defined by the parameter 'int_dir_topic' and 'int_vel_topic'.
+"""
+
 # Imports
 from functools import partial
-
 import rospy
 from std_msgs.msg import Int16
 from geometry_msgs.msg import Twist
@@ -10,8 +15,12 @@ from geometry_msgs.msg import Twist
 
 def twistMsgCallback(message, **kwargs):
     """
-    Twist Callback Function
+        Twist Callback Function for the Arduino that receives the twist message and publishes to the Arduino.
+        Args:
+            message (Twist): ROS Twist message.
+            kwargs (dict): Dictionary with the configuration.
     """
+
     linear = float(message.linear.x)
     angular = float(message.angular.z)
 
@@ -23,7 +32,7 @@ def twistMsgCallback(message, **kwargs):
     if linear == 1:
         vel = kwargs['vel_max']
     elif linear == -1:
-        vel = 70
+        vel = kwargs['vel_min']
     else:
         vel = kwargs['vel_center']
 
@@ -41,7 +50,7 @@ def main():
     twist_cmd_topic = rospy.get_param('~twist_cmd_topic', '/ackermann_steering_controller/cmd_vel') 
     int_dir_topic = rospy.get_param('~int_dir_topic', '/pub_dir')
     int_vel_topic = rospy.get_param('~int_vel_topic', '/pub_vel')
-    int_vel_max = rospy.get_param('~int_vel_max', 70)
+    int_vel_limit = rospy.get_param('~int_vel_limit', 30)
 
     # Define initial variables
     kwargs: dict[str, object] = dict(
@@ -66,9 +75,9 @@ def main():
     kwargs['ba2'] = ang_center - int(kwargs['ma2']) * 0
 
     # Velocity
-    kwargs['vel_max'] = int_vel_max
     kwargs['vel_center'] = 90
-    
+    kwargs['vel_max'] = kwargs['vel_center'] + int_vel_limit
+    kwargs['vel_min'] = kwargs['vel_center'] - int_vel_limit
     # Partials
     twistMsgCallback_part = partial(twistMsgCallback, **kwargs)
 

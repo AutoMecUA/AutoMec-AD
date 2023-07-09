@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 
+"""
+    Script that receives the Twist message from the controller or android app and publishes it to the steering controller package of the car.
+    The topic where the Twist messages are subscribed is defined by the parameter 'twist_tmp_topic'.
+    The topic where the Twist messages are published is defined by the parameter 'twist_cmd_topic'.
+"""
+
 
 from functools import partial
 from typing import Any
@@ -8,6 +14,12 @@ import rospy
 
 
 def twistCallBack(message, config):
+    """
+        Twist Callback Function that receives the twist message and stores it in the config dictionary.
+        Args:
+            message (Twist): ROS Twist message.
+            config (dict): Dictionary with the configuration.
+    """
     config['twist'] = message
 
 
@@ -21,7 +33,7 @@ def main():
     rospy.init_node('vel_repeater', anonymous=False)
     
     # Getting parameters
-    twist_cmd_topic = rospy.get_param('~twist_cmd_topic', '/cmd_vel')
+    twist_cmd_topic = rospy.get_param('~twist_cmd_topic', '/ackermann_steering_controller/cmd_vel')
     twist_tmp_topic = rospy.get_param('~twist_tmp_topic', '/cmd_vel_tmp')
     rate_int = rospy.get_param('~rate_int', '30')
 

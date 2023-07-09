@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
 
+"""
+    Script that receives the Twist messages from the controller or android app and caps the linear velocity.
+    This is important in case of the android app because the app sends a value between -1 and 1, and to have a constant speed we need to cap the value.
+    The topic where the Twist messages are subscribed is defined by the parameter 'twist_input_topic'.
+    The topic where the Twist messages are published is defined by the parameter 'twist_tmp_topic'.
+"""
+
 # Imports
 from functools import partial
 
@@ -9,7 +16,10 @@ from geometry_msgs.msg import Twist
 
 def twistMsgCallback(message, **kwargs):
     """
-    Twist Callback Function
+    Twist Callback Function that receives the temporary twist messages and caps its linear velocity.
+    Args:
+        message (Twist): ROS Twist message.
+        kwargs (dict): Dictionary with the configuration.
     """
     linear = float(message.linear.x)
 
