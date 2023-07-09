@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
 
+"""
+    This script is the central decision making node of the car for the autonomous driving.
+    Script that will receive all the controls and decide what to do.
+    The topic where the Twist messages are published is defined by the parameter 'twist_cmd_topic'.
+    The topic where the image is subscribed is defined by the parameter 'image_raw_topic'.
+    The topic where the signal is subscribed is defined by the parameter 'signal_cmd_topic'.
+    The topic where the crosswalk sureness is subscribed is defined by the parameter 'crosswalk_sureness_topic'.
+    The topic where the model steering is subscribed is defined by the parameter 'model_steering_topic'.
+"""
+
 # Imports
 from functools import partial
 import os
@@ -37,18 +47,42 @@ def cv2PutText(img: np.ndarray, text: str) -> np.ndarray:
 
 
 def modelSteeringCallback(message, config):
+    """
+    Callback function for the model steering that receives the model steering and stores it in the config dictionary.
+    Args:
+        message (Float32): ROS Float32 message.
+        config (dict): Dictionary with the configuration.
+    """
     config['steering'] = message.data
 
 
 def crosswalkSurenessCallback(message, config):
+    """
+    Callback function for the crosswalk sureness that receives the crosswalk sureness and stores it in the config dictionary.
+    Args:
+        message (Float32): ROS Float32 message.
+        config (dict): Dictionary with the configuration.
+    """
     config['crosswalk'] = message.data
 
 
 def signalCallback(message, config):
+    """
+    Callback function for the signal that receives the signal and stores it in the config dictionary.
+    Args:
+        message (String): ROS String message.
+        config (dict): Dictionary with the configuration.
+    """
     config['signal'] = message.data
 
 
 def imgRgbCallback(message, config):
+    """
+    Callback function for the image that receives the image and stores it in the config dictionary while converting it to cv2.
+    Args:
+        message (Image): ROS Image message.
+        config (dict): Dictionary with the configuration.
+    """
 
     config['img_rgb'] = config['bridge'].imgmsg_to_cv2(message, "bgr8")
 
