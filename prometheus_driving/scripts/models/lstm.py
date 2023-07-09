@@ -3,15 +3,12 @@ import torch
 from torch import nn , zeros , cuda , device
 from torch.autograd import Variable 
 from collections import OrderedDict
-# Definition of the model. For now a 1 neuron network
-
 
 class CNN(nn.Module):
     def __init__(self):
         super().__init__()        
         # bx3x224x224 input images
         self.layer1 = nn.Sequential(
-            # 3 input channels, 16 output depth, padding and stride
             nn.Conv2d(3,24,kernel_size=5, stride=2),
             # normalizes the batch data setting the average to 0 and std to 1
             nn.BatchNorm2d(24),
@@ -47,14 +44,8 @@ class CNN(nn.Module):
             nn.ELU(),
             #nn.MaxPool2d(2),
             nn.AvgPool2d(3, stride=2),
-            #nn.Flatten()
+            nn.Flatten()
         )
-
-        self.relu = nn.ReLU()
-        self.elu = nn.ELU()
-        
-        #self.fc1 = nn.Linear(27456,1152)
-        #self.fc2 = nn.Linear(1152,512)
 
         self.dropout = nn.Dropout(0.20)
         
@@ -82,35 +73,48 @@ class LSTM(nn.Module):
         # TODO Calculate the hidden dim based on the input image size
         self.hidden_dim = hidden_dim
         self.num_layers = num_layers
+        self.first_time = True
         self.device = f'cuda:0' if cuda.is_available() else 'cpu' # cuda: 0 index of gpu
 
         self.feature_extraction = CNN()
         
-        self.lstm = nn.LSTM(input_size=128, hidden_size=hidden_dim,
+        self.lstm = nn.LSTM(input_size=2048, hidden_size=hidden_dim,
                           num_layers=self.num_layers, batch_first=True) #lstm
         
 
         self.linear = nn.Linear(hidden_dim, 1)
 
         self.dropout = nn.Dropout(dropout)
+
+    def init_hidden(self, batch_size=70):
+        # This method generates the first hidden state of zeros which we'll use in the forward pass
+        # We'll send the tensor holding the hidden state to the device we specified earlier as well
+        hidden = (torch.zeros(self.num_layers, batch_size, self.hidden_dim).to(device(self.device)).detach(),
+                torch.zeros(self.num_layers, batch_size, self.hidden_dim).to(device(self.device)).detach())
+        
+        return hidden
+
+
         
     def forward(self,x):
         s = x.size()
         #print(s)
-        h0 = torch.autograd.Variable(zeros(self.num_layers, x.size(0), self.hidden_dim).to(device(self.device))) # we have to have a hidden value for each unit of all rnn-layers.
-        c0 = torch.autograd.Variable(zeros(self.num_layers, x.size(0), self.hidden_dim).to(device(self.device)))
+        if self.first_time:
+            self.hidden = self.init_hidden(s[0])
+            self.first_time = False
+
         
         #x = x.view(-1, *s[2:]) # x: (B*T)x(C)x(H)x(W))
         #print(x.size()) # (B*T), C, H, W)
         x = self.feature_extraction(x) # x: (B*T), d)
         #print(x.size()) # (B*T), d)  
-        x = x.view(x.size(0) , x.size(1) , -1)  # x: BxTxd
-        x = x.permute(0, 2, 1) # [b,L,c]
+        x = x.view(x.size(0) , 1 , -1)  # x: BxTxd
         #print(x.size()) 
         
-        lstm_out , _ = self.lstm(x , (h0,c0))
+        lstm_out , self.hidden = self.lstm(x , self.hidden)
         #print('lstm_out = ' + str(lstm_out.shape))
         out = lstm_out[:,-1,:]
+        self.hidden = (self.hidden[0].detach(), self.hidden[1].detach())
 
         out = self.dropout(out)
 

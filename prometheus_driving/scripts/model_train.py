@@ -156,11 +156,11 @@ def main():
     # Creates the train dataset
     dataset_train = Dataset(train_dataset,dataset_path, transform=rgb_transform_train)
     # Creates the batch size that suits the amount of memory the graphics can handle
-    loader_train = torch.utils.data.DataLoader(dataset=dataset_train,batch_size=args['batch_size'],shuffle=shuffle , num_workers=args['num_workers'] , prefetch_factor=args['prefetch_factor'])
+    loader_train = torch.utils.data.DataLoader(dataset=dataset_train,batch_size=args['batch_size'],shuffle=shuffle , num_workers=args['num_workers'] , prefetch_factor=args['prefetch_factor'] , drop_last=True)
     # Creates the test dataset
     dataset_test = Dataset(test_dataset , dataset_path , transform=rgb_transform_test)
     # Creates the batch size that suits the amount of memory the graphics can handle
-    loader_test = torch.utils.data.DataLoader(dataset=dataset_test, batch_size=args['batch_size'], shuffle=shuffle , num_workers=args['num_workers'] , prefetch_factor=args['prefetch_factor'])
+    loader_test = torch.utils.data.DataLoader(dataset=dataset_test, batch_size=args['batch_size'], shuffle=shuffle , num_workers=args['num_workers'] , prefetch_factor=args['prefetch_factor'] , drop_last=True)
 
     ########################################
     # Training                             #
@@ -174,7 +174,7 @@ def main():
     ans = ''
     if os.path.exists(folder_path): # Checks to see if the model exists
         print(Fore.YELLOW + f'Model already exists! Do you want to resume training?' + Style.RESET_ALL)
-        ans = input(Fore.YELLOW + "Y" + Style.RESET_ALL + "ES/" + Fore.YELLOW + "n" + Style.RESET_ALL + "o/"+ Fore.YELLOW + "o" + Style.RESET_ALL + "verwrite: ") # Asks the user if they want to resume training
+        ans = input(Fore.YELLOW + "Y" + Style.RESET_ALL + "ES/" + Fore.YELLOW + "n" + Style.RESET_ALL + "o/"+ Fore.YELLOW + "o" + Style.RESET_ALL + "overwrite: ") # Asks the user if they want to resume training
         if ans.lower() in ['', 'yes','y']: # If the user wants to resume training
             try:
                 checkpoint = torch.load(model_path)
