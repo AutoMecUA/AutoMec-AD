@@ -105,11 +105,11 @@ class LSTM(nn.Module):
 
         
         #x = x.view(-1, *s[2:]) # x: (B*T)x(C)x(H)x(W))
-        #print(x.size()) # (B*T), C, H, W)
+        # print(x.size()) # (B*T), C, H, W)
         x = self.feature_extraction(x) # x: (B*T), d)
-        #print(x.size()) # (B*T), d)  
+        # print(x.size()) # (B*T), d)  
         x = x.view(x.size(0) , 1 , -1)  # x: BxTxd
-        #print(x.size()) 
+        # print(x.size()) 
         
         lstm_out , self.hidden = self.lstm(x , self.hidden)
         #print('lstm_out = ' + str(lstm_out.shape))

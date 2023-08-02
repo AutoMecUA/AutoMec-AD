@@ -30,6 +30,10 @@ def twistMsgCallback(message, **kwargs):
     else:
         message.linear.x = 0
 
+    # If the velocity is set to variable it multiplies the max vel by the percentage of throttle
+    if not kwargs['constant_vel']:
+        message.linear.x *=linear
+
     # Publish messages
     kwargs['PubTwist'].publish(message)
 
@@ -43,9 +47,11 @@ def main():
     velocity = rospy.get_param('/linear_velocity', '1') 
     twist_input_topic = rospy.get_param('~twist_input_topic', '/cmd_vel') 
     twist_tmp_topic = rospy.get_param('~twist_tmp_topic', '/cmd_vel_tmp') 
+    constant_vel = rospy.get_param('/constant_vel',True)
+
 
     # Define initial variables
-    kwargs: dict[str, object] = dict(PubTwist=None, linear_velocity=velocity)
+    kwargs: dict[str, object] = dict(PubTwist=None, linear_velocity=velocity,constant_vel=constant_vel)
 
     # Define publishers
     kwargs["PubTwist"] = rospy.Publisher(twist_tmp_topic, Twist, queue_size=10)

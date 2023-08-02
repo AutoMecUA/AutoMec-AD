@@ -27,7 +27,7 @@ def messageReceivedCallbackJoy(message, **kwargs):
 
     # The R2 trigger rest's at 1, and goes up to -1 as its pressed
     if(message.axes[4] < 0): 
-        linear = round(abs(message.axes[4]), 1) # For scaling vel
+        linear = round(abs(message.axes[4]), 1) # For scaling vel, linear belongs in [0,1]
     elif message.axes[3] > 0:
         linear = 1
     elif message.axes[3] < 0:

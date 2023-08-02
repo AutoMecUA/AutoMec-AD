@@ -223,6 +223,7 @@ def main():
             label_t = label_t.to(device=device, dtype=torch.float).unsqueeze(1)
 
             # Apply the network to get the predicted ys
+            #print(image_t.shape) # [batch_size,3,300,300]
             label_t_predicted = model(image_t)
  
             # Compute the error based on the predictions

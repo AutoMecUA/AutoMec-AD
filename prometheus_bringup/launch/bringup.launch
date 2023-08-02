@@ -6,11 +6,13 @@
     <arg name="controller" default="false" doc="control the robot with a controller"/>
     <arg name="linear_velocity" default="1" doc="linear_velocity of the robot"/>
     <arg name="joy_number" default="0" doc="Number of js device to use as controller"/>
+    <arg name="constant_vel" default="true" doc="Velocity constant or variable"/>
 
     <!-- Set global parameteres -->
     <param name="simulated_environment" type="bool" value="$(arg sim)"/>
     <param name="used_urdf" type="string" value="$(arg urdf)"/>
     <param name="linear_velocity" type="string" value="$(arg linear_velocity)"/>
+    <param name="constant_vel" type="bool" value="$(arg constant_vel)"/>
 
     <!-- Initialize car model -->
     <include file="$(find prometheus_bringup)/launch/include/model.launch">
