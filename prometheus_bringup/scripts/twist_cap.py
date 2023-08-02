@@ -32,7 +32,7 @@ def twistMsgCallback(message, **kwargs):
 
     # If the velocity is set to variable it multiplies the max vel by the percentage of throttle
     if not kwargs['constant_vel']:
-        message.linear.x *=linear
+        message.linear.x *=abs(linear)
 
     # Publish messages
     kwargs['PubTwist'].publish(message)

@@ -25,15 +25,26 @@ def messageReceivedCallbackJoy(message, **kwargs):
 
     angular = message.axes[0]/3
 
-    # The R2 trigger rest's at 1, and goes up to -1 as its pressed
-    if(message.axes[4] < 0): 
-        linear = round(abs(message.axes[4]), 1) # For scaling vel, linear belongs in [0,1]
-    elif message.axes[3] > 0:
-        linear = 1
-    elif message.axes[3] < 0:
-        linear = -1
+
+    #This uses half of the throw of the trigger
+    # if(message.axes[4] < 0): 
+    #     # For scaling vel, linear belongs in [0,1]
+    #     linear = round(abs(message.axes[4]), 1) 
+
+    #! The R2 trigger rest's at 1, and goes up to -1 as its pressed
+    #This uses the entire throw of the trigger
+    if(message.axes[4] < 1 and message.axes[4] >= -1 ): 
+        linear = round(1-((message.axes[4]+1)/2), 1) 
+        # print(linear)
+    elif(message.axes[5] < 1 and message.axes[5] >= -1 ): 
+        linear = -round(1-((message.axes[5]+1)/2), 1) 
+    # elif message.axes[3] > 0:
+    #     linear = 1
+    # elif message.axes[3] < 0:
+    #     linear = -1
     else:
         linear = 0
+
 
     twist_cmd = Twist()  # Message type twist
     twist_cmd.linear.x = linear
