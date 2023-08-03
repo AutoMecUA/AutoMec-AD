@@ -31,6 +31,7 @@ def twistMsgCallback(message, **kwargs):
         message.linear.x = 0
 
     # If the velocity is set to variable it multiplies the max vel by the percentage of throttle
+    #TODO This should only be the case in manual driving, in ML the linear vel should be output of the network
     if not kwargs['constant_vel']:
         message.linear.x *=abs(linear)
 

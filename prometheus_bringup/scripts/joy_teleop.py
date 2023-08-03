@@ -23,7 +23,8 @@ def messageReceivedCallbackJoy(message, **kwargs):
         kwargs (dict): Dictionary with the configuration.
     """
 
-    angular = message.axes[0]/3
+    # angular = message.axes[0]/3
+    angular = message.axes[0]/6
 
 
     #This uses half of the throw of the trigger
