@@ -18,6 +18,7 @@ import rospy
 import yaml
 from sensor_msgs.msg._Image import Image
 from std_msgs.msg import Float32 , String
+from geometry_msgs.msg import Twist
 from cv_bridge.core import CvBridge
 import torch
 from torchvision import transforms
@@ -37,6 +38,9 @@ from src.utils import LoadModel
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # or any {'0', '1', '2'}
 
+def cmdVelCallback(message,config):
+    
+    config['vel'] = message.linear.x 
 
 def imgRgbCallback(message, config):
     """Callback for changing the image.
@@ -101,6 +105,7 @@ def main():
 
     # Getting parameters
     image_raw_topic = rospy.get_param('~image_raw_topic', '/top_front_camera/rgb/image_color')
+    cmd_vel_topic = rospy.get_param('~cmd_vel_topic', '/cmd_vel_tmp')
     model_steering_topic = rospy.get_param('~model_steering_topic', '/model_steering')
     model_name = rospy.get_param('/model_name', '')
 
@@ -133,10 +138,13 @@ def main():
     imgRgbCallback_part = partial(imgRgbCallback, config=config)
 
     changeModelCallback = partial(modelSteeringCallback, config=config)
+    
+    cmdVelCallback_part  = partial(cmdVelCallback, config=config)
 
     # Subscribe and publish topics
     rospy.Subscriber(image_raw_topic, Image, imgRgbCallback_part)
     rospy.Subscriber('/set_model', String, changeModelCallback)
+    rospy.Subscriber(cmd_vel_topic, Twist, cmdVelCallback_part)
     model_steering_pub = rospy.Publisher(model_steering_topic, Float32, queue_size=10)
 
     # Frames per second
@@ -156,10 +164,14 @@ def main():
         image = config['transforms'](config["img_rgb"])
         image = image.unsqueeze(0)
         image = image.to(device, dtype=torch.float)
-        label_t_predicted = config['model'].forward(image)
+        label_t_predicted = config['model'].forward(image,config['vel'])
         steering = float(label_t_predicted)
         # Publish angle
         model_steering_pub.publish(steering)
+
+        print(config['vel'])
+
+
         rate.sleep()
 
 

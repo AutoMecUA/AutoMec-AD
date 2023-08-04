@@ -1,6 +1,7 @@
 <launch>
 
   <arg name="image_raw_topic" default="/top_front_camera/rgb/image_color"/>
+  <arg name="cmd_vel_topic" default="/cmd_vel_tmp"/>
   <arg name="model_steering_topic" default="/model_steering"/>
   <arg name="model_name" default=""/>
 
@@ -10,6 +11,7 @@
   <node name="ml_driving" pkg="prometheus_driving" type="ml_driving.py" output="screen" required="true" >
     <param name="image_raw_topic" value="$(arg image_raw_topic)" />
     <param name="model_steering_topic" value="$(arg model_steering_topic)"/>
+    <param name="cmd_vel_topic" value="$(arg cmd_vel_topic)"/>
   </node>
   
 </launch>

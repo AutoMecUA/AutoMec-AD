@@ -88,7 +88,7 @@ def main():
     df = pd.read_csv(os.path.join(dataset_path, 'driving_log.csv'), names = columns)
     df = df.sort_index()
 
-    del df["velocity"] # not in use, currently
+    # del df["velocity"] # not in use, currently
     df.head()
 
     # Read YAML file
@@ -153,6 +153,7 @@ def main():
     # Sample ony a few images for development
     #df = df[0:700]
     train_dataset,test_dataset = train_test_split(df,test_size=0.2)
+
     # Creates the train dataset
     dataset_train = Dataset(train_dataset,dataset_path, transform=rgb_transform_train)
     # Creates the batch size that suits the amount of memory the graphics can handle
@@ -217,14 +218,14 @@ def main():
         # Train batch by batch
         train_losses = []
         model.train() # set the model to training mode
-        for batch_idx, (image_t, label_t) in tqdm(enumerate(loader_train), total=len(loader_train), desc=Fore.GREEN + 'Training batches for Epoch ' + str(idx_epoch) +  Style.RESET_ALL):
+        for batch_idx, (image_t, label_t,vel) in tqdm(enumerate(loader_train), total=len(loader_train), desc=Fore.GREEN + 'Training batches for Epoch ' + str(idx_epoch) +  Style.RESET_ALL):
             # Move the data to the GPU if one exists
             image_t = image_t.to(device=device, dtype=torch.float)
             label_t = label_t.to(device=device, dtype=torch.float).unsqueeze(1)
 
             # Apply the network to get the predicted ys
             #print(image_t.shape) # [batch_size,3,300,300]
-            label_t_predicted = model(image_t)
+            label_t_predicted = model(image_t,vel)
  
             # Compute the error based on the predictions
             loss = loss_function(label_t_predicted, label_t)
@@ -243,13 +244,13 @@ def main():
         # Run test in batches 
         test_losses = []
         model.eval() # set the model to evaluation mode
-        for batch_idx, (image_t, label_t) in tqdm(enumerate(loader_test), total=len(loader_test), desc=Fore.GREEN + 'Testing batches for Epoch ' + str(idx_epoch) +  Style.RESET_ALL):
+        for batch_idx, (image_t, label_t,vel) in tqdm(enumerate(loader_test), total=len(loader_test), desc=Fore.GREEN + 'Testing batches for Epoch ' + str(idx_epoch) +  Style.RESET_ALL):
             # Move the data to the gpu if one exists
             image_t = image_t.to(device=device, dtype=torch.float)
             label_t = label_t.to(device=device, dtype=torch.float).unsqueeze(1)
 
             # Apply the network to get the predicted ys
-            label_t_predicted = model(image_t)
+            label_t_predicted = model(image_t,vel)
             # Compute the error based on the predictions
             loss = loss_function(label_t_predicted, label_t)
             # Store the loss for the batch

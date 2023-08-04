@@ -27,13 +27,17 @@ class Dataset(torch.utils.data.Dataset):
         self.image_height = 256
         self.transforms = transform
 
+        self.velocity = dataset['velocity'].values.tolist()
+
     def __getitem__(self,index): # returns a specific x,y of the datasets
         # Get the image
         image = Image.open(self.image_filenames_original[index])
         label = self.labels_original[index]
         image = self.transforms(image)
+        velocity = self.velocity[index]
 
-        return image , label
+
+        return image , label,velocity
        
     def __len__(self):
         return self.num_images

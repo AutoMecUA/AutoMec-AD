@@ -81,7 +81,6 @@ class LSTM(nn.Module):
         self.lstm = nn.LSTM(input_size=2048, hidden_size=hidden_dim,
                           num_layers=self.num_layers, batch_first=True) #lstm
         
-
         self.linear = nn.Linear(hidden_dim, 1)
 
         self.dropout = nn.Dropout(dropout)
@@ -96,7 +95,7 @@ class LSTM(nn.Module):
 
 
         
-    def forward(self,x):
+    def forward(self,x,vel):
         s = x.size()
         #print(s)
         if self.first_time:
@@ -105,7 +104,7 @@ class LSTM(nn.Module):
 
         
         #x = x.view(-1, *s[2:]) # x: (B*T)x(C)x(H)x(W))
-        # print(x.size()) # (B*T), C, H, W)
+        # print(f'first is {x.size()}') # (B*T), C, H, W)
         x = self.feature_extraction(x) # x: (B*T), d)
         # print(x.size()) # (B*T), d)  
         x = x.view(x.size(0) , 1 , -1)  # x: BxTxd
