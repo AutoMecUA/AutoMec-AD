@@ -77,8 +77,9 @@ class LSTM(nn.Module):
         self.device = f'cuda:0' if cuda.is_available() else 'cpu' # cuda: 0 index of gpu
 
         self.feature_extraction = CNN()
+        self.extra_inputs = 1 # vel
         
-        self.lstm = nn.LSTM(input_size=2048, hidden_size=hidden_dim,
+        self.lstm = nn.LSTM(input_size=2048 + self.extra_inputs, hidden_size=hidden_dim,
                           num_layers=self.num_layers, batch_first=True) #lstm
         
         self.linear = nn.Linear(hidden_dim, 1)
@@ -108,8 +109,15 @@ class LSTM(nn.Module):
         x = self.feature_extraction(x) # x: (B*T), d)
         # print(x.size()) # (B*T), d)  
         x = x.view(x.size(0) , 1 , -1)  # x: BxTxd
-        # print(x.size()) 
-        
+        # print(x.size()) #[1,1,2048] 
+        # print(vel.size()) 
+        vel_tensor = vel.view(vel.size(0),1,-1).to(device(self.device)).type(torch.float)
+
+        # print(vel_tensor.size()) #[1,1,1]
+        x = torch.cat((x,vel_tensor),dim=-1)
+        # print(x.size()) [1,1,2049]
+
+
         lstm_out , self.hidden = self.lstm(x , self.hidden)
         #print('lstm_out = ' + str(lstm_out.shape))
         out = lstm_out[:,-1,:]

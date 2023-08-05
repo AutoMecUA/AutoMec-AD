@@ -164,12 +164,12 @@ def main():
         image = config['transforms'](config["img_rgb"])
         image = image.unsqueeze(0)
         image = image.to(device, dtype=torch.float)
-        label_t_predicted = config['model'].forward(image,config['vel'])
+        label_t_predicted = config['model'].forward(image,torch.tensor([config['vel']]))
         steering = float(label_t_predicted)
         # Publish angle
         model_steering_pub.publish(steering)
 
-        print(config['vel'])
+        # print(config['vel'])
 
 
         rate.sleep()
