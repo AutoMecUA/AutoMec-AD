@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 
+""""
+This script is used to label the dataset for the signal recognition.
+It will save the images and the labels in the folder specified in the config file.
+"""
+
 # Imports
 import rospy
 import cv2
