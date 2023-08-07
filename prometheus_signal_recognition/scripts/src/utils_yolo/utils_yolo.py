@@ -252,51 +252,18 @@ for orientation in ExifTags.TAGS.keys():
     if ExifTags.TAGS[orientation] == 'Orientation':
         break
 
-class LoadImages:
-    # YOLOv5 image/video dataloader, i.e. `python detect.py --source image.jpg/vid.mp4`
-    def __init__(self, path, img_size=640, stride=32, auto=True):
-        p = str(Path(path).resolve())  # os-agnostic absolute path
-        if '*' in p:
-            files = sorted(glob.glob(p, recursive=True))  # glob
-        elif os.path.isfile(p):
-            files = [p]  # files
-        else:
-            raise Exception(f'ERROR: {p} does not exist')
+def LoadImages(path, img_size=640, stride=32, auto=True):
+   
+    img0 = cv2.imread(path)  # BGR
 
-        images = [x for x in files if x.split('.')[-1].lower() in IMG_FORMATS]
-        self.ni = len(images)
+    # Padded resize
+    img = letterbox(img0, img_size, stride=stride, auto=auto)[0]
 
-        self.img_size = img_size
-        self.stride = stride
-        self.files = images 
-        self.mode = 'image'
-        self.auto = auto
-       
-        assert self.ni > 0, f'No images or videos found in {p}. ' \
-                            f'Supported formats are:\nimages: {IMG_FORMATS}\nvideos: {VID_FORMATS}'
-
-    def __iter__(self):
-        self.count = 0
-        return self
-
-    def __next__(self):
-        if self.count == self.ni:
-            raise StopIteration
-        path = self.files[self.count]
-
-        self.count += 1
-        img0 = cv2.imread(path)  # BGR
-        assert img0 is not None, f'Image Not Found {path}'
-        s = f'image {self.count}/{self.ni} {path}: '
-
-        # Padded resize
-        img = letterbox(img0, self.img_size, stride=self.stride, auto=self.auto)[0]
-
-        # Convert
-        img = img.transpose((2, 0, 1))[::-1]  # HWC to CHW, BGR to RGB
-        img = np.ascontiguousarray(img)
-
-        return path, img, img0, s
+    # Convert
+    img = img.transpose((2, 0, 1))[::-1]  # HWC to CHW, BGR to RGB
+    img = np.ascontiguousarray(img)
+    
+    return path, img, img0
 
 ################################################################################
 # Model validation metrics                                                     #

@@ -262,7 +262,7 @@ def check_version(current='0.0.0', minimum='0.0.0', name='version ', pinned=Fals
         LOGGER.warning(s)
     return result
 
-
+#! DELETE!
 @try_except
 def check_requirements(requirements=ROOT / 'requirements.txt', exclude=(), install=True):
     # Check installed dependencies meet requirements (pass *.txt file or list of packages)
