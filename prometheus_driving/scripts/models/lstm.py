@@ -83,6 +83,8 @@ class LSTM(nn.Module):
                           num_layers=self.num_layers, batch_first=True) #lstm
         
         self.linear = nn.Linear(hidden_dim, 1)
+        
+        # self.linear2 = nn.Linear(2, 1)
 
         self.dropout = nn.Dropout(dropout)
 
@@ -118,7 +120,7 @@ class LSTM(nn.Module):
         # print(x.size()) [1,1,2049]
 
 
-        lstm_out , self.hidden = self.lstm(x , self.hidden)
+        lstm_out , self.hidden  = self.lstm(x , self.hidden)
         #print('lstm_out = ' + str(lstm_out.shape))
         out = lstm_out[:,-1,:]
         self.hidden = (self.hidden[0].detach(), self.hidden[1].detach())
