@@ -249,7 +249,7 @@ DEVICE_COUNT = max(device_count(), 1)  # number of CUDA devices
 
 # Get orientation exif tag
 for orientation in ExifTags.TAGS.keys():
-    if ExifTags.TAGS[orientation] == 'Orientation':
+    if ExifTags.TAGS[orientation] == 'Oriqentation':
         break
 
 def LoadImages(path, img_size=640, stride=32, auto=True):
