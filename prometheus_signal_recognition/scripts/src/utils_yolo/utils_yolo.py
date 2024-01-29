@@ -48,7 +48,7 @@ try:
 except ImportError:
     thop = None
 
-from src.utils_yolo.general import (LOGGER, Timeout, check_requirements,  check_version, clip_coords, colorstr, emojis, increment_path, is_ascii, is_chinese, resample_segments, segment2box, try_except, user_config_dir, xywh2xyxy, xyxy2xywh)
+from src.utils_yolo.general import (clip_coords, colorstr, increment_path, is_ascii, resample_segments, segment2box, xywh2xyxy, xyxy2xywh)
 from torch.utils.data import DataLoader, Dataset, dataloader, distributed
 
 ################################################################################
@@ -215,7 +215,7 @@ def model_info(model, verbose=False, img_size=640):
     except (ImportError, Exception):
         fs = ''
 
-    LOGGER.info(f"Model Summary: {len(list(model.modules()))} layers, {n_p} parameters, {n_g} gradients{fs}")
+    #LOGGER.info(f"Model Summary: {len(list(model.modules()))} layers, {n_p} parameters, {n_g} gradients{fs}")
 
 def scale_img(img, ratio=1.0, same_shape=False, gs=32):  # img(16,3,256,416)
     # scales img(bs,3,y,x) by ratio constrained to gs-multiple
@@ -252,18 +252,6 @@ for orientation in ExifTags.TAGS.keys():
     if ExifTags.TAGS[orientation] == 'Oriqentation':
         break
 
-def LoadImages(path, img_size=640, stride=32, auto=True):
-   
-    img0 = cv2.imread(path)  # BGR
-
-    # Padded resize
-    img = letterbox(img0, img_size, stride=stride, auto=auto)[0]
-
-    # Convert
-    img = img.transpose((2, 0, 1))[::-1]  # HWC to CHW, BGR to RGB
-    img = np.ascontiguousarray(img)
-    
-    return path, img, img0
 
 ################################################################################
 # Model validation metrics                                                     #
@@ -381,7 +369,7 @@ def get_token(cookie="./cookie"):
 ################################################################################
 
 # Settings
-CONFIG_DIR = user_config_dir()  # Ultralytics settings dir
+#CONFIG_DIR = user_config_dir()  # Ultralytics settings dir
 RANK = int(os.getenv('RANK', -1))
 matplotlib.rc('font', **{'size': 11})
 matplotlib.use('Agg')  # for writing to files only
@@ -408,12 +396,12 @@ colors = Colors()  # create instance for 'from utils.plots import colors'
 def check_font(font='Arial.ttf', size=10):
     # Return a PIL TrueType Font, downloading to CONFIG_DIR if necessary
     font = Path(font)
-    font = font if font.exists() else (CONFIG_DIR / font.name)
+    font = font #if font.exists() else (CONFIG_DIR / font.name)
     try:
         return ImageFont.truetype(str(font) if font.exists() else font.name, size)
     except Exception as e:  # download if missing
         url = "https://ultralytics.com/assets/" + font.name
-        LOGGER.info(f'Downloading {url} to {font}...')
+        #LOGGER.info(f'Downloading {url} to {font}...')
         torch.hub.download_url_to_file(url, str(font), progress=False)
         try:
             return ImageFont.truetype(str(font), size)
@@ -427,12 +415,12 @@ class Annotator:
     # YOLOv5 Annotator for train/val mosaics and jpgs and detect/hub inference annotations
     def __init__(self, im, line_width=None, font_size=None, font='Arial.ttf', pil=False, example='abc'):
         assert im.data.contiguous, 'Image not contiguous. Apply np.ascontiguousarray(im) to Annotator() input images.'
-        self.pil = pil or not is_ascii(example) or is_chinese(example)
+        self.pil = pil or not is_ascii(example) #or is_chinese(example)
         if self.pil:  # use PIL
             self.im = im if isinstance(im, Image.Image) else Image.fromarray(im)
             self.draw = ImageDraw.Draw(self.im)
-            self.font = check_font(font='Arial.Unicode.ttf' if is_chinese(example) else font,
-                                   size=font_size or max(round(sum(self.im.size) / 2 * 0.035), 12))
+            self.font = font #check_font(font='Arial.Unicode.ttf' if is_chinese(example) else font,
+                             #      size=font_size or max(round(sum(self.im.size) / 2 * 0.035), 12))
         else:  # use cv2
             self.im = im
         self.lw = line_width or max(round(sum(im.shape) / 2 * 0.003), 2)  # line width

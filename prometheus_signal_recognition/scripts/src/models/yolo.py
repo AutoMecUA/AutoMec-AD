@@ -19,7 +19,7 @@ if str(ROOT) not in sys.path:
 
 from models.common import *
 #from models.experimental import *
-from src.utils_yolo.general import LOGGER, check_version, check_yaml, make_divisible, print_args
+from src.utils_yolo.general import LOGGER, check_yaml, make_divisible
 from src.utils_yolo.utils_yolo import (check_anchor_order, feature_visualization, fuse_conv_and_bn, initialize_weights,model_info,scale_img,select_device,time_sync)
 
 try:
@@ -69,10 +69,7 @@ class Detect(nn.Module):
 
     def _make_grid(self, nx=20, ny=20, i=0):
         d = self.anchors[i].device
-        if check_version(torch.__version__, '1.10.0'):  # torch>=1.10.0 meshgrid workaround for torch>=0.7 compatibility
-            yv, xv = torch.meshgrid([torch.arange(ny, device=d), torch.arange(nx, device=d)], indexing='ij')
-        else:
-            yv, xv = torch.meshgrid([torch.arange(ny, device=d), torch.arange(nx, device=d)])
+        yv, xv = torch.meshgrid([torch.arange(ny, device=d), torch.arange(nx, device=d)])
         grid = torch.stack((xv, yv), 2).expand((1, self.na, ny, nx, 2)).float()
         anchor_grid = (self.anchors[i].clone() * self.stride[i]) \
             .view((1, self.na, 1, 1, 2)).expand((1, self.na, ny, nx, 2)).float()
@@ -237,7 +234,6 @@ class Model(nn.Module):
                 m.anchor_grid = list(map(fn, m.anchor_grid))
         return self
 
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--cfg', type=str, default='yolov5s.yaml', help='model.yaml')
@@ -246,7 +242,7 @@ if __name__ == '__main__':
     parser.add_argument('--test', action='store_true', help='test all yolo*.yaml')
     opt = parser.parse_args()
     opt.cfg = check_yaml(opt.cfg)  # check YAML
-    print_args(FILE.stem, opt)
+    #print_args(FILE.stem, opt)
     device = select_device(opt.device)
 
     # Create model

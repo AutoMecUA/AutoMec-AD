@@ -22,7 +22,7 @@ from PIL import Image
 from torch.cuda import amp
 
 
-from src.utils_yolo.general import (LOGGER, check_requirements, check_suffix, check_version, colorstr, increment_path, make_divisible, non_max_suppression, scale_coords, xywh2xyxy, xyxy2xywh)
+from src.utils_yolo.general import (LOGGER, check_suffix, colorstr, increment_path, make_divisible, non_max_suppression, scale_coords, xywh2xyxy, xyxy2xywh)
 from src.utils_yolo.utils_yolo import (letterbox, Annotator, colors, save_one_box, copy_attr,
                                 time_sync)
 

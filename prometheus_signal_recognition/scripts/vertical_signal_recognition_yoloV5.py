@@ -24,7 +24,7 @@ ROOT = FILE.parents[0]  # YOLOv5 root directory
 # My imports
 from src.models.common import DetectMultiBackend
 from src.utils_yolo.general import non_max_suppression, scale_coords, check_img_size
-from src.utils_yolo.utils_yolo import time_sync, letterbox, LoadImages, Annotator, colors, select_device
+from src.utils_yolo.utils_yolo import time_sync, letterbox, Annotator, colors
 
 
 def imgRgbCallback(message, config):
@@ -49,7 +49,6 @@ def run(weights=ROOT / 'yolov5s.pt',  # model.pt path(s)
         max_det=1000,  # maximum detections per image
         device='',  # cuda device, i.e. 0 or 0,1,2,3 or cpu
         save_crop=False,  # save cropped prediction boxes
-        nosave=False,  # do not save images/videos
         classes=None,  # filter by class: --class 0, or --class 0 2 3
         agnostic_nms=False,  # class-agnostic NMS
         augment=False,  # augmented inference
@@ -64,7 +63,8 @@ def run(weights=ROOT / 'yolov5s.pt',  # model.pt path(s)
         ):
     
     # Load model
-    device = select_device(device)
+    #device = select_device(device)
+    device = 'cuda:0' if torch.cuda.is_available() else 'cpu'   #cuda: 0 index of gpu
     model = DetectMultiBackend(weights, device=device, dnn=dnn, data=data)
     names, pt = model.names, model.pt
 

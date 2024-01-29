@@ -3,22 +3,14 @@
 General utils
 """
 
-import contextlib
 import glob
 import logging
 import math
 import os
-import platform
-import random
 import re
-import shutil
-import signal
 import time
 import urllib
-from itertools import repeat
-from multiprocessing.pool import ThreadPool
 from pathlib import Path
-from subprocess import check_output
 from zipfile import ZipFile
 
 import cv2
@@ -28,7 +20,6 @@ import pkg_resources as pkg
 import torch
 import torchvision
 import yaml
-
 
 # Settings
 FILE = Path(__file__).resolve()
@@ -42,264 +33,19 @@ pd.options.display.max_columns = 10
 cv2.setNumThreads(0)  # prevent OpenCV from multithreading (incompatible with PyTorch DataLoader)
 os.environ['NUMEXPR_MAX_THREADS'] = str(NUM_THREADS)  # NumExpr max threads
 
-def fitness(x):
-    # Model fitness as a weighted combination of metrics
-    w = [0.0, 0.0, 0.1, 0.9]  # weights for [P, R, mAP@0.5, mAP@0.5:0.95]
-    return (x[:, :4] * w).sum(1)
-
-
-def box_iou(box1, box2):
-    # https://github.com/pytorch/vision/blob/master/torchvision/ops/boxes.py
-    """
-    Return intersection-over-union (Jaccard index) of boxes.
-    Both sets of boxes are expected to be in (x1, y1, x2, y2) format.
-    Arguments:
-        box1 (Tensor[N, 4])
-        box2 (Tensor[M, 4])
-    Returns:
-        iou (Tensor[N, M]): the NxM matrix containing the pairwise
-            IoU values for every element in boxes1 and boxes2
-    """
-
-    def box_area(box):
-        # box = 4xn
-        return (box[2] - box[0]) * (box[3] - box[1])
-
-    area1 = box_area(box1.T)
-    area2 = box_area(box2.T)
-
-    # inter(N,M) = (rb(N,M,2) - lt(N,M,2)).clamp(0).prod(2)
-    inter = (torch.min(box1[:, None, 2:], box2[:, 2:]) - torch.max(box1[:, None, :2], box2[:, :2])).clamp(0).prod(2)
-    return inter / (area1[:, None] + area2 - inter)  # iou = inter / (area1 + area2 - inter)
-
-
-def is_kaggle():
-    # Is environment a Kaggle Notebook?
-    try:
-        assert os.environ.get('PWD') == '/kaggle/working'
-        assert os.environ.get('KAGGLE_URL_BASE') == 'https://www.kaggle.com'
-        return True
-    except AssertionError:
-        return False
-
-
 def set_logging(name=None, verbose=VERBOSE):
     # Sets level and returns logger
-    if is_kaggle():
-        for h in logging.root.handlers:
-            logging.root.removeHandler(h)  # remove all handlers associated with the root logger object
     rank = int(os.getenv('RANK', -1))  # rank in world for Multi-GPU trainings
     logging.basicConfig(format="%(message)s", level=logging.INFO if (verbose and rank in (-1, 0)) else logging.WARNING)
     return logging.getLogger(name)
 
-
 LOGGER = set_logging('yolov5')  # define globally (used in train.py, val.py, detect.py, etc.)
-
-
-class Timeout(contextlib.ContextDecorator):
-    # Usage: @Timeout(seconds) decorator or 'with Timeout(seconds):' context manager
-    def __init__(self, seconds, *, timeout_msg='', suppress_timeout_errors=True):
-        self.seconds = int(seconds)
-        self.timeout_message = timeout_msg
-        self.suppress = bool(suppress_timeout_errors)
-
-    def _timeout_handler(self, signum, frame):
-        raise TimeoutError(self.timeout_message)
-
-    def __enter__(self):
-        signal.signal(signal.SIGALRM, self._timeout_handler)  # Set handler for SIGALRM
-        signal.alarm(self.seconds)  # start countdown for SIGALRM to be raised
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        signal.alarm(0)  # Cancel SIGALRM if it's scheduled
-        if self.suppress and exc_type is TimeoutError:  # Suppress TimeoutError
-            return True
-
-
-class WorkingDirectory(contextlib.ContextDecorator):
-    # Usage: @WorkingDirectory(dir) decorator or 'with WorkingDirectory(dir):' context manager
-    def __init__(self, new_dir):
-        self.dir = new_dir  # new dir
-        self.cwd = Path.cwd().resolve()  # current dir
-
-    def __enter__(self):
-        os.chdir(self.dir)
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        os.chdir(self.cwd)
-
-
-def try_except(func):
-    # try-except function. Usage: @try_except decorator
-    def handler(*args, **kwargs):
-        try:
-            func(*args, **kwargs)
-        except Exception as e:
-            print(e)
-
-    return handler
-
-
-def print_args(name, opt):
-    # Print argparser arguments
-    LOGGER.info(colorstr(f'{name}: ') + ', '.join(f'{k}={v}' for k, v in vars(opt).items()))
-
-
-def user_config_dir(dir='Ultralytics', env_var='YOLOV5_CONFIG_DIR'):
-    # Return path of user configuration directory. Prefer environment variable if exists. Make dir if required.
-    env = os.getenv(env_var)
-    if env:
-        path = Path(env)  # use environment variable
-    else:
-        cfg = {'Windows': 'AppData/Roaming', 'Linux': '.config', 'Darwin': 'Library/Application Support'}  # 3 OS dirs
-        path = Path.home() / cfg.get(platform.system(), '')  # OS-specific config dir
-        path = (path if is_writeable(path) else Path('/tmp')) / dir  # GCP and AWS lambda fix, only /tmp is writeable
-    path.mkdir(exist_ok=True)  # make if required
-    return path
-
-
-def is_writeable(dir, test=False):
-    # Return True if directory has write permissions, test opening a file with write permissions if test=True
-    if test:  # method 1
-        file = Path(dir) / 'tmp.txt'
-        try:
-            with open(file, 'w'):  # open file with write permissions
-                pass
-            file.unlink()  # remove file
-            return True
-        except OSError:
-            return False
-    else:  # method 2
-        return os.access(dir, os.R_OK)  # possible issues on Windows
-
-
-def is_docker():
-    # Is environment a Docker container?
-    return Path('/workspace').exists()  # or Path('/.dockerenv').exists()
-
-
-def is_colab():
-    # Is environment a Google Colab instance?
-    try:
-        import google.colab
-        return True
-    except ImportError:
-        return False
-
-
 
 def is_ascii(s=''):
     # Is string composed of all ASCII (no UTF) characters? (note str().isascii() introduced in python 3.7)
     s = str(s)  # convert list, tuple, None, etc. to str
     return len(s.encode().decode('ascii', 'ignore')) == len(s)
 
-
-def is_chinese(s='人工智能'):
-    # Is string composed of any Chinese characters?
-    return re.search('[\u4e00-\u9fff]', s)
-
-
-def emojis(str=''):
-    # Return platform-dependent emoji-safe version of string
-    return str.encode().decode('ascii', 'ignore') if platform.system() == 'Windows' else str
-
-
-def file_size(path):
-    # Return file/dir size (MB)
-    path = Path(path)
-    if path.is_file():
-        return path.stat().st_size / 1E6
-    elif path.is_dir():
-        return sum(f.stat().st_size for f in path.glob('**/*') if f.is_file()) / 1E6
-    else:
-        return 0.0
-
-
-def check_online():
-    # Check internet connectivity
-    import socket
-    try:
-        socket.create_connection(("1.1.1.1", 443), 5)  # check host accessibility
-        return True
-    except OSError:
-        return False
-
-
-@try_except
-@WorkingDirectory(ROOT)
-def check_git_status():
-    # Recommend 'git pull' if code is out of date
-    msg = ', for updates see https://github.com/ultralytics/yolov5'
-    s = colorstr('github: ')  # string
-    assert Path('.git').exists(), s + 'skipping check (not a git repository)' + msg
-    assert not is_docker(), s + 'skipping check (Docker image)' + msg
-    assert check_online(), s + 'skipping check (offline)' + msg
-
-    cmd = 'git fetch && git config --get remote.origin.url'
-    url = check_output(cmd, shell=True, timeout=5).decode().strip().rstrip('.git')  # git fetch
-    branch = check_output('git rev-parse --abbrev-ref HEAD', shell=True).decode().strip()  # checked out
-    n = int(check_output(f'git rev-list {branch}..origin/master --count', shell=True))  # commits behind
-    if n > 0:
-        s += f"⚠️ YOLOv5 is out of date by {n} commit{'s' * (n > 1)}. Use `git pull` or `git clone {url}` to update."
-    else:
-        s += f'up to date with {url} ✅'
-    LOGGER.info(emojis(s))  # emoji-safe
-
-
-def check_python(minimum='3.6.2'):
-    # Check current python version vs. required python version
-    check_version(platform.python_version(), minimum, name='Python ', hard=True)
-
-
-def check_version(current='0.0.0', minimum='0.0.0', name='version ', pinned=False, hard=False, verbose=False):
-    # Check version vs. required version
-    current, minimum = (pkg.parse_version(x) for x in (current, minimum))
-    result = (current == minimum) if pinned else (current >= minimum)  # bool
-    s = f'{name}{minimum} required by YOLOv5, but {name}{current} is currently installed'  # string
-    if hard:
-        assert result, s  # assert min requirements met
-    if verbose and not result:
-        LOGGER.warning(s)
-    return result
-
-#! DELETE!
-@try_except
-def check_requirements(requirements=ROOT / 'requirements.txt', exclude=(), install=True):
-    # Check installed dependencies meet requirements (pass *.txt file or list of packages)
-    prefix = colorstr('red', 'bold', 'requirements:')
-    check_python()  # check python version
-    if isinstance(requirements, (str, Path)):  # requirements.txt file
-        file = Path(requirements)
-        assert file.exists(), f"{prefix} {file.resolve()} not found, check failed."
-        with file.open() as f:
-            requirements = [f'{x.name}{x.specifier}' for x in pkg.parse_requirements(f) if x.name not in exclude]
-    else:  # list or tuple of packages
-        requirements = [x for x in requirements if x not in exclude]
-
-    n = 0  # number of packages updates
-    for r in requirements:
-        try:
-            pkg.require(r)
-        except Exception as e:  # DistributionNotFound or VersionConflict if requirements not met
-            s = f"{prefix} {r} not found and is required by YOLOv5"
-            if install:
-                LOGGER.info(f"{s}, attempting auto-update...")
-                try:
-                    assert check_online(), f"'pip install {r}' skipped (offline)"
-                    LOGGER.info(check_output(f"pip install '{r}'", shell=True).decode())
-                    n += 1
-                except Exception as e:
-                    LOGGER.warning(f'{prefix} {e}')
-            else:
-                LOGGER.info(f'{s}. Please install and rerun your command.')
-
-    if n:  # if packages updated
-        source = file.resolve() if 'file' in locals() else requirements
-        s = f"{prefix} {n} package{'s' * (n > 1)} updated per {source}\n" \
-            f"{prefix} ⚠️ {colorstr('bold', 'Restart runtime or rerun command for updates to take effect')}\n"
-        LOGGER.info(emojis(s))
-
-#! I'm using
 def check_img_size(imgsz, s=32, floor=0):
     # Verify image size is a multiple of stride s in each dimension
     if isinstance(imgsz, int):  # integer i.e. img_size=640
@@ -309,7 +55,6 @@ def check_img_size(imgsz, s=32, floor=0):
     if new_size != imgsz:
         LOGGER.warning(f'WARNING: --img-size {imgsz} must be multiple of max stride {s}, updating to {new_size}')
     return new_size
-
 
 def check_imshow():
     # Check if environment supports image displays
@@ -367,13 +112,11 @@ def check_file(file, suffix=''):
         return files[0]  # return file
 
 
-
 def make_divisible(x, divisor):
     # Returns nearest x divisible by divisor
     if isinstance(divisor, torch.Tensor):
         divisor = int(divisor.max())  # to int
     return math.ceil(x / divisor) * divisor
-
 
 def colorstr(*input):
     # Colors a string https://en.wikipedia.org/wiki/ANSI_escape_code, i.e.  colorstr('blue', 'hello world')
@@ -399,7 +142,6 @@ def colorstr(*input):
               'underline': '\033[4m'}
     return ''.join(colors[x] for x in args) + f'{string}' + colors['end']
 
-
 def xyxy2xywh(x):
     # Convert nx4 boxes from [x1, y1, x2, y2] to [x, y, w, h] where xy1=top-left, xy2=bottom-right
     y = x.clone() if isinstance(x, torch.Tensor) else np.copy(x)
@@ -408,7 +150,6 @@ def xyxy2xywh(x):
     y[:, 2] = x[:, 2] - x[:, 0]  # width
     y[:, 3] = x[:, 3] - x[:, 1]  # height
     return y
-
 
 def xywh2xyxy(x):
     # Convert nx4 boxes from [x, y, w, h] to [x1, y1, x2, y2] where xy1=top-left, xy2=bottom-right
@@ -419,14 +160,12 @@ def xywh2xyxy(x):
     y[:, 3] = x[:, 1] + x[:, 3] / 2  # bottom right y
     return y
 
-
 def segment2box(segment, width=640, height=640):
     # Convert 1 segment label to 1 box label, applying inside-image constraint, i.e. (xy1, xy2, ...) to (xyxy)
     x, y = segment.T  # segment xy
     inside = (x >= 0) & (y >= 0) & (x <= width) & (y <= height)
     x, y, = x[inside], y[inside]
     return np.array([x.min(), y.min(), x.max(), y.max()]) if any(x) else np.zeros((1, 4))  # xyxy
-
 
 def resample_segments(segments, n=1000):
     # Up-sample an (n,2) segment
@@ -435,7 +174,6 @@ def resample_segments(segments, n=1000):
         xp = np.arange(len(s))
         segments[i] = np.concatenate([np.interp(x, xp, s[:, i]) for i in range(2)]).reshape(2, -1).T  # segment xy
     return segments
-
 
 def scale_coords(img1_shape, coords, img0_shape, ratio_pad=None):
     # Rescale coords (xyxy) from img1_shape to img0_shape
@@ -452,7 +190,6 @@ def scale_coords(img1_shape, coords, img0_shape, ratio_pad=None):
     clip_coords(coords, img0_shape)
     return coords
 
-
 def clip_coords(boxes, shape):
     # Clip bounding xyxy bounding boxes to image shape (height, width)
     if isinstance(boxes, torch.Tensor):  # faster individually
@@ -464,7 +201,6 @@ def clip_coords(boxes, shape):
         boxes[:, [0, 2]] = boxes[:, [0, 2]].clip(0, shape[1])  # x1, x2
         boxes[:, [1, 3]] = boxes[:, [1, 3]].clip(0, shape[0])  # y1, y2
 
-#! I'm using
 def non_max_suppression(prediction, conf_thres=0.25, iou_thres=0.45, classes=None, agnostic=False, multi_label=False,
                         labels=(), max_det=300):
     """Runs Non-Maximum Suppression (NMS) on inference results
@@ -554,7 +290,6 @@ def non_max_suppression(prediction, conf_thres=0.25, iou_thres=0.45, classes=Non
 
     return output
 
-#! I'm using
 def strip_optimizer(f='best.pt', s=''):  # from utils.general import *; strip_optimizer()
     # Strip optimizer from 'f' to finalize training, optionally save as 's'
     x = torch.load(f, map_location=torch.device('cpu'))
@@ -570,8 +305,6 @@ def strip_optimizer(f='best.pt', s=''):  # from utils.general import *; strip_op
     mb = os.path.getsize(s or f) / 1E6  # filesize
     LOGGER.info(f"Optimizer stripped from {f},{(' saved as %s,' % s) if s else ''} {mb:.1f}MB")
 
-
-#! I'm using
 def increment_path(path, exist_ok=False, sep='', mkdir=False):
     # Increment file or directory path, i.e. runs/exp --> runs/exp{sep}2, runs/exp{sep}3, ... etc.
     path = Path(path)  # os-agnostic
@@ -585,5 +318,3 @@ def increment_path(path, exist_ok=False, sep='', mkdir=False):
     if mkdir:
         path.mkdir(parents=True, exist_ok=True)  # make directory
     return path
-
-
