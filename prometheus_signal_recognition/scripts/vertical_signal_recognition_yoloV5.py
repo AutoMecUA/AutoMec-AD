@@ -79,7 +79,6 @@ def run(weights=ROOT / 'yolov5s.pt',  # model.pt path(s)
     im = im.transpose((2, 0, 1))[::-1]  # HWC to CHW, BGR to RGB
     im = np.ascontiguousarray(im)
 
-    cv2.imshow('image 2', im.transpose(1,2,0))  
     t1 = time_sync()
     im = torch.from_numpy(im).to(device)
     im = im.half() if half else im.float()  # uint8 to fp16/32

@@ -1,44 +1,28 @@
 # import
 import math
-import random
 import cv2
 import numpy as np
 import torch
 import yaml
 from tqdm import tqdm
-import glob
-import hashlib
 import json
 import os
-import shutil
 import time
-from itertools import repeat
-from multiprocessing.pool import Pool, ThreadPool
+from multiprocessing.pool import Pool
 from pathlib import Path
 from threading import Thread
 from zipfile import ZipFile
 import torch.nn.functional as F
-from PIL import ExifTags, Image, ImageOps, ImageDraw, ImageFont
-from tqdm import tqdm
-import platform
+from PIL import ExifTags, Image, ImageDraw, ImageFont
 import subprocess
 import urllib
 import requests
-import contextlib
-import logging
 import re
-import signal
 from subprocess import check_output
-import pandas as pd
-import pkg_resources as pkg
 import torchvision
-import warnings
 import matplotlib.pyplot as plt
 from copy import copy
 import matplotlib
-import seaborn as sn
-import datetime
-from contextlib import contextmanager
 from copy import deepcopy
 import torch.distributed as dist
 import torch.nn as nn
@@ -48,7 +32,7 @@ try:
 except ImportError:
     thop = None
 
-from src.utils_yolo.general import (clip_coords, colorstr, increment_path, is_ascii, resample_segments, segment2box, xywh2xyxy, xyxy2xywh)
+from src.utils_yolo.general import (clip_coords, colorstr, increment_path, is_ascii, xywh2xyxy, xyxy2xywh)
 from torch.utils.data import DataLoader, Dataset, dataloader, distributed
 
 ################################################################################
@@ -125,34 +109,8 @@ def device_count():
         return 0
 
 def select_device(device='', batch_size=0, newline=True):
-    # device = 'cpu' or '0' or '0,1,2,3'
-    s = f'YOLOv5 🚀 {git_describe() or date_modified()} torch {torch.__version__} '  # string
-    device = str(device).strip().lower().replace('cuda:', '')  # to string, 'cuda:0' to '0'
-    cpu = device == 'cpu'
-    if cpu:
-        os.environ['CUDA_VISIBLE_DEVICES'] = '-1'  # force torch.cuda.is_available() = False
-    elif device:  # non-cpu device requested
-        nd = device_count()  # number of CUDA devices
-        assert nd > int(max(device.split(','))), f'Invalid `--device {device}` request, valid devices are 0 - {nd - 1}'
-        os.environ['CUDA_VISIBLE_DEVICES'] = device  # set environment variable - must be before assert is_available()
-        assert torch.cuda.is_available(), 'CUDA is not available, use `--device cpu` or do not pass a --device'
-
-    cuda = not cpu and torch.cuda.is_available()
-    if cuda:
-        devices = device.split(',') if device else '0'  # range(torch.cuda.device_count())  # i.e. 0,1,6,7
-        n = len(devices)  # device count
-        if n > 1 and batch_size > 0:  # check batch_size is divisible by device_count
-            assert batch_size % n == 0, f'batch-size {batch_size} not multiple of GPU count {n}'
-        space = ' ' * (len(s) + 1)
-        for i, d in enumerate(devices):
-            p = torch.cuda.get_device_properties(i)
-            s += f"{'' if i == 0 else space}CUDA:{d} ({p.name}, {p.total_memory / 1024 ** 2:.0f}MiB)\n"  # bytes to MB
-    else:
-        s += 'CPU\n'
-
-    if not newline:
-        s = s.rstrip()
-    LOGGER.info(s.encode().decode('ascii', 'ignore') if platform.system() == 'Windows' else s)  # emoji-safe
+    device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
+    
     return torch.device('cuda:0' if cuda else 'cpu')
 
 def time_sync():

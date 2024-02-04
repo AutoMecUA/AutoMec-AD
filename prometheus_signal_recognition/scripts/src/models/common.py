@@ -3,28 +3,20 @@
 Common modules
 """
 
-import json
 import math
-import platform
 import warnings
-from collections import OrderedDict, namedtuple
 from copy import copy
 from pathlib import Path
 
 import cv2
 import numpy as np
 import pandas as pd
-import requests
 import torch
 import torch.nn as nn
 import yaml
 from PIL import Image
-from torch.cuda import amp
 
-
-from src.utils_yolo.general import (LOGGER, check_suffix, colorstr, increment_path, make_divisible, non_max_suppression, scale_coords, xywh2xyxy, xyxy2xywh)
-from src.utils_yolo.utils_yolo import (letterbox, Annotator, colors, save_one_box, copy_attr,
-                                time_sync)
+from src.utils_yolo.utils_yolo import (attempt_download)
 
 class Conv(nn.Module):
     # Standard convolution
@@ -39,7 +31,6 @@ class Conv(nn.Module):
 
     def forward_fuse(self, x):
         return self.act(self.conv(x))
-
 
 class DWConv(Conv):
     # Depth-wise convolution class
@@ -89,7 +80,6 @@ class SPPF(nn.Module):
             y2 = self.m(y1)
             return self.cv2(torch.cat([x, y1, y2, self.m(y2)], 1))
 
-
 class Concat(nn.Module):
     # Concatenate a list of tensors along dimension
     def __init__(self, dimension=1):
@@ -99,13 +89,12 @@ class Concat(nn.Module):
     def forward(self, x):
         return torch.cat(x, self.d)
 
-#! I'm using
 class DetectMultiBackend(nn.Module):
     # YOLOv5 MultiBackend class for python inference on various backends
     def __init__(self, weights='yolov5s.pt', device=None, dnn=False, data=None):
         #   PyTorch:      weights = *.pt
   
-        from src.models.experimental import attempt_load  # scoped to avoid circular import
+        from src.models.common import attempt_load  # scoped to avoid circular import
 
         super().__init__()
         w = str(weights[0] if isinstance(weights, list) else weights)
@@ -143,3 +132,47 @@ class DetectMultiBackend(nn.Module):
                 im = torch.zeros(*imgsz).to(self.device).type(torch.half if half else torch.float)  # input image
                 self.forward(im)  # warmup
 
+
+#########################################################
+# YOLOV5 Experimental                                   #
+#########################################################
+class Ensemble(nn.ModuleList):
+    # Ensemble of models
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, x, augment=False, profile=False, visualize=False):
+        y = []
+        for module in self:
+            y.append(module(x, augment, profile, visualize)[0])
+        y = torch.cat(y, 1)  # nms ensemble
+        return y, None  # inference, train output
+
+def attempt_load(weights, map_location=None, inplace=True):
+    from src.models.yolo import Detect, Model
+
+    # Loads an ensemble of models weights=[a,b,c] or a single model weights=[a] or weights=a
+    model = Ensemble()
+    for w in weights if isinstance(weights, list) else [weights]:
+        ckpt = torch.load(attempt_download(w), map_location=map_location)  # load
+        model.append(ckpt['ema' if ckpt.get('ema') else 'model'].float().fuse().eval())  # FP32 model
+       
+    # Compatibility updates
+    for m in model.modules():
+        if type(m) in [nn.Hardswish, nn.LeakyReLU, nn.ReLU, nn.ReLU6, nn.SiLU, Detect, Model]:
+            m.inplace = inplace  # pytorch 1.7.0 compatibility
+            if type(m) is Detect:
+                if not isinstance(m.anchor_grid, list):  # new Detect Layer compatibility
+                    delattr(m, 'anchor_grid')
+                    setattr(m, 'anchor_grid', [torch.zeros(1)] * m.nl)
+        elif type(m) is Conv:
+            m._non_persistent_buffers_set = set()  # pytorch 1.6.0 compatibility
+
+    if len(model) == 1:
+        return model[-1]  # return model
+    else:
+        print(f'Ensemble created with {weights}\n')
+        for k in ['names']:
+            setattr(model, k, getattr(model[-1], k))
+        model.stride = model[torch.argmax(torch.tensor([m.stride.max() for m in model])).int()].stride  # max stride
+        return model  # return ensemble

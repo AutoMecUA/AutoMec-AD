@@ -70,7 +70,6 @@ def check_imshow():
         LOGGER.warning(f'WARNING: Environment does not support cv2.imshow() or PIL Image.show() image displays\n{e}')
         return False
 
-
 def check_suffix(file='yolov5s.pt', suffix=('.pt',), msg=''):
     # Check file(s) for acceptable suffix
     if file and suffix:
@@ -80,12 +79,6 @@ def check_suffix(file='yolov5s.pt', suffix=('.pt',), msg=''):
             s = Path(f).suffix.lower()  # file suffix
             if len(s):
                 assert s in suffix, f"{msg}{f} acceptable suffix is {suffix}"
-
-
-def check_yaml(file, suffix=('.yaml', '.yml')):
-    # Search/download YAML file (if necessary) and return path, checking suffix
-    return check_file(file, suffix)
-
 
 def check_file(file, suffix=''):
     # Search/download file (if necessary) and return path
@@ -110,7 +103,6 @@ def check_file(file, suffix=''):
         assert len(files), f'File not found: {file}'  # assert file was found
         assert len(files) == 1, f"Multiple files match '{file}', specify exact path: {files}"  # assert unique
         return files[0]  # return file
-
 
 def make_divisible(x, divisor):
     # Returns nearest x divisible by divisor
